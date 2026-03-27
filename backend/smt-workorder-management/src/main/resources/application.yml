@@ -11,6 +11,25 @@ spring:
     password: 88888888
     driver-class-name: com.mysql.cj.jdbc.Driver
 
+mybatis :
+  # 指定配置文件位置
+  mapper-locations: classpath:mapper/*.xml
+  # 指定实体类包名
+  type-aliases-package: com.aircookies.smtworkordermanagement.entity
+  configuration:
+    # 开启驼峰命名转换
+      map-underscore-to-camel-case: true
+    # 允许自动映射
+      auto-mapping-behavior: full
+    # 设置语句执行超时时间
+      default-statement-timeout: 30
+    # 日志实现
+      log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+pagehelper:
+  helper-dialect: mysql
+  reasonable: true
+
 logging:
   level:
     root: info

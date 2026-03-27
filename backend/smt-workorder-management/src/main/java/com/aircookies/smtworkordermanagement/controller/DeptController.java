@@ -1,0 +1,49 @@
+package com.aircookies.smtworkordermanagement.controller;
+
+import com.aircookies.smtworkordermanagement.common.Result;
+import com.aircookies.smtworkordermanagement.entity.Dept;
+import com.aircookies.smtworkordermanagement.service.DeptService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+// 部门控制器
+@Slf4j
+@RestController
+@RequestMapping("/dept")
+public class DeptController {
+    private final DeptService deptService;
+
+    @Autowired
+    public DeptController(DeptService deptService) {
+        this.deptService = deptService;
+    }
+
+    // 添加部门
+    @PostMapping("/add")
+    public Result addDept(@RequestBody Dept dept) {
+        log.debug("添加部门: {}", dept);
+        return deptService.addDept(dept);
+    }
+
+    // 删除部门
+    @DeleteMapping("/delete/{id}")
+    public Result deleteDept(@PathVariable Integer id) {
+        log.debug("删除部门: {}", id);
+        return deptService.deleteDept(id);
+    }
+
+    // 查询部门
+    @GetMapping("/find")
+    public Result findDept(Dept dept) {
+        log.debug("查询部门列表");
+        return deptService.findDept(dept);
+    }
+
+    // 修改部门
+    @PutMapping("/update")
+    public Result updateDept(@RequestBody Dept dept) {
+        log.debug("修改部门: {}", dept);
+        return deptService.updateDept(dept);
+    }
+}

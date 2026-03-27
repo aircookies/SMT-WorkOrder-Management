@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.aircookies.smtworkordermanagement.mapper.SysRoleMapper">
+    <!--    添加角色-->
+    <insert id="addRole">
+        INSERT INTO sys_role (name,
+                              description,
+                              create_time,
+                              update_time)
+        VALUES (#{name},
+                #{description},
+                #{createTime},
+                #{updateTime})
+    </insert>
+    
+    <!--    更新角色-->
+    <update id="updateRole">
+        UPDATE sys_role
+        <set>
+            <if test="name != null">
+                name = #{name},
+            </if>
+            <if test="description != null">
+                description = #{description},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+    
+    <!--    删除角色-->
+    <delete id="deleteRole">
+        DELETE FROM sys_role
+        WHERE id = #{id}
+    </delete>
+    
+    <!--    根据ID查询角色-->
+    <select id="findById" resultType="com.aircookies.smtworkordermanagement.entity.SysRole">
+        SELECT id,
+               name,
+               description,
+               create_time,
+               update_time
+        FROM sys_role
+        WHERE id = #{id}
+    </select>
+    
+    <!--    查询所有角色-->
+    <select id="findAll" resultType="com.aircookies.smtworkordermanagement.entity.SysRole">
+        SELECT id,
+               name,
+               description,
+               create_time,
+               update_time
+        FROM sys_role
+        ORDER BY create_time DESC
+    </select>
+    
+    <!--    条件查询角色-->
+    <select id="findRoles" resultType="com.aircookies.smtworkordermanagement.entity.SysRole">
+        SELECT id,
+               name,
+               description,
+               create_time,
+               update_time
+        FROM sys_role
+        <where>
+            <if test="name != null and name != ''">
+                AND name LIKE CONCAT('%', #{name}, '%')
+            </if>
+            <if test="description != null and description != ''">
+                AND description LIKE CONCAT('%', #{description}, '%')
+            </if>
+        </where>
+        ORDER BY create_time DESC
+    </select>
+</mapper>

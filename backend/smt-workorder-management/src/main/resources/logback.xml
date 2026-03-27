@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Logback配置文件 - 详细中文注释版
+
+    本配置文件定义了日志记录的行为，包括：
+    - 日志级别控制
+    - 日志输出格式
+    - 控制台和文件输出
+    - 滚动策略（按大小和时间）
+    - 不同环境的日志配置
+-->
+
+<configuration>
+    <!-- ==================== 变量定义区 ==================== -->
+    <!-- 定义日志输出格式的变量 -->
+    <property name="LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"/>
+
+    <!-- 定义日志文件存储路径 -->
+    <property name="LOG_PATH" value="./smt-workorder-management/backend/logs"/>
+
+    <!-- 定义应用名称，用于日志文件命名 -->
+    <property name="APP_NAME" value="smt-workorder-management"/>
+
+    <!-- ==================== 控制台输出配置 ==================== -->
+    <!-- 控制台Appender，用于在控制台输出日志 -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <!-- 使用上面定义的日志格式 -->
+            <pattern>${LOG_PATTERN}</pattern>
+            <!-- 设置字符集 -->
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- ==================== 文件输出配置 ==================== -->
+    <!-- 基础文件Appender，使用滚动策略 -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- 日志文件路径和名称 -->
+        <file>${LOG_PATH}/${APP_NAME}.log</file>
+
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+
+        <!-- 滚动策略配置 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!-- 滚动后的日志文件命名模式，按天分割，同时按大小分割 -->
+            <fileNamePattern>${LOG_PATH}/${APP_NAME}.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+
+            <!-- 单个日志文件的最大大小，超过则滚动 -->
+            <maxFileSize>100MB</maxFileSize>
+
+            <!-- 最大历史日志文件天数 -->
+            <maxHistory>30</maxHistory>
+
+            <!-- 总的日志文件大小限制 -->
+            <totalSizeCap>1GB</totalSizeCap>
+
+            <!-- 当前日志文件的序号起始值 -->
+            <cleanHistoryOnStart>true</cleanHistoryOnStart>
+        </rollingPolicy>
+    </appender>
+
+    <!-- ==================== 错误日志专用输出配置 ==================== -->
+    <!-- 专门用于记录ERROR级别日志的Appender -->
+    <appender name="ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- 只记录错误日志 -->
+        <file>${LOG_PATH}/${APP_NAME}-error.log</file>
+
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+
+        <!-- 只处理ERROR级别的日志 -->
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/${APP_NAME}-error.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>100MB</maxFileSize>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>1GB</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+
+    <!-- ==================== 异步日志输出配置 ==================== -->
+    <!-- 异步Appender，提高日志记录性能 -->
+<!--    <appender name="ASYNC" class="ch.qos.logback.classic.AsyncAppender">-->
+<!--        &lt;!&ndash; 引用前面定义的文件Appender &ndash;&gt;-->
+<!--        <appender-ref ref="FILE"/>-->
+
+<!--        &lt;!&ndash; 队列的深度，默认256 &ndash;&gt;-->
+<!--        <queueSize>256</queueSize>-->
+
+<!--        &lt;!&ndash; 当队列满时，是否丢弃TRACE, DEBUG, INFO级别的日志 &ndash;&gt;-->
+<!--        <discardingThreshold>0</discardingThreshold>-->
+
+<!--        &lt;!&ndash; 是否在JVM关闭时刷新队列 &ndash;&gt;-->
+<!--        <includeCallerData>false</includeCallerData>-->
+<!--    </appender>-->
+
+    <!-- ==================== 环境特定配置 ==================== -->
+    <!-- 开发环境配置 -->
+    <springProfile name="dev">
+        <!-- 开发环境日志级别设置为DEBUG -->
+        <root level="DEBUG">
+            <appender-ref ref="CONSOLE"/>
+            <!-- 开发环境也输出到文件 -->
+            <appender-ref ref="FILE"/>
+            <appender-ref ref="ERROR_FILE"/>
+        </root>
+
+        <!-- 特定包的日志级别设置 -->
+        <logger name="com.aircookies.smtworkordermanagement" level="DEBUG"/>
+        <logger name="org.springframework" level="INFO"/>
+        <logger name="org.hibernate" level="WARN"/>
+    </springProfile>
+
+    <!-- 测试环境配置 -->
+    <springProfile name="test">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="FILE"/>
+            <appender-ref ref="ERROR_FILE"/>
+        </root>
+
+        <logger name="com.aircookies.smtworkordermanagement" level="INFO"/>
+        <logger name="org.springframework" level="WARN"/>
+    </springProfile>
+
+    <!-- 生产环境配置 -->
+    <springProfile name="prod">
+        <root level="INFO">
+            <!-- 生产环境主要使用异步方式写入文件 -->
+<!--            <appender-ref ref="ASYNC"/>-->
+            <appender-ref ref="ERROR_FILE"/>
+            <!-- 生产环境通常不开启控制台输出以提高性能 -->
+<!--             <appender-ref ref="CONSOLE"/>-->
+        </root>
+        <root level="DEBUG">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+
+        <logger name="com.aircookies.smtworkordermanagement" level="INFO"/>
+        <logger name="org.springframework" level="WARN"/>
+        <logger name="org.hibernate" level="WARN"/>
+
+        <!-- 关闭一些框架的DEBUG日志以减少日志量 -->
+        <logger name="org.apache" level="WARN"/>
+        <logger name="com.zaxxer.hikari" level="INFO"/>
+    </springProfile>
+
+    <!-- ==================== 默认配置 ==================== -->
+    <!-- 如果没有指定profile，则使用默认配置 -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
+        <appender-ref ref="ERROR_FILE"/>
+    </root>
+
+    <!-- ==================== 上下文名称 ==================== -->
+    <!-- 设置上下文名称 -->
+    <contextName>${APP_NAME}</contextName>
+
+    <!-- ==================== 内存泄漏防护 ==================== -->
+    <!-- 清理之前的上下文，使用新的类名 -->
+    <shutdownHook class="ch.qos.logback.core.hook.DefaultShutdownHook"/>
+</configuration>
