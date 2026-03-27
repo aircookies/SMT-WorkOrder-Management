@@ -17,10 +17,10 @@
     <update id="updateRole">
         UPDATE sys_role
         <set>
-            <if test="name != null">
+            <if test="name != null and name != ''">
                 name = #{name},
             </if>
-            <if test="description != null">
+            <if test="description != null and description != ''">
                 description = #{description},
             </if>
             <if test="updateTime != null">

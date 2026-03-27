@@ -31,7 +31,7 @@ public class UserServiceImpl implements UserService {
         if (res != 0) {
             return success();
         } else {
-            return Result.fail(1, "添加用户失败");
+            return Result.error(1, "添加用户失败");
         }
     }
 
@@ -77,13 +77,14 @@ public class UserServiceImpl implements UserService {
         // 获取结果
         PageInfo<SysUser> pageInfo = new PageInfo<>(sysUsers);
         // 封装结果并返回
-        PagesDTO<SysUser> pagesDTO = new PagesDTO<>(
-                pageInfo.getPageNum(),
-                pageInfo.getPageSize(),
-                pageInfo.getTotal(),
-                pageInfo.getList()
+        return success(
+                new PagesDTO<>(
+                        pageInfo.getPageNum(),
+                        pageInfo.getPageSize(),
+                        pageInfo.getTotal(),
+                        pageInfo.getList()
+                )
         );
-        return success(pagesDTO);
     }
 
     // 修改用户

@@ -16,7 +16,7 @@
     <update id="updateDept">
         UPDATE dept
         <set>
-            <if test="name != null">
+            <if test="name != null and name != ''">
                 name = #{name},
             </if>
             <if test="updateTime != null">

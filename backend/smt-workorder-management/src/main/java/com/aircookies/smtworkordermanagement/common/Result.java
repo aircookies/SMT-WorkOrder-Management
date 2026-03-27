@@ -27,11 +27,11 @@ public class Result {
     }
 
     // 失败响应
-    public static Result fail(String message) {
+    public static Result error(String message) {
         return new Result(500, message, null);
     }
 
-    public static Result fail(int code, String message) {
+    public static Result error(int code, String message) {
         return new Result(code, message, null);
     }
 }
