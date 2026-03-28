@@ -68,9 +68,9 @@ public class UserServiceImpl implements UserService {
     }
 
 
-    // 查询所有用户
+    // 分页查询所有用户
     @Override
-    public Result findAll(Integer pageNum, Integer pageSize) {
+    public Result findPage(Integer pageNum, Integer pageSize) {
         // 开启分页
         PageHelper.startPage(pageNum, pageSize);
         List<SysUser> sysUsers = sysUserMapper.findAll();

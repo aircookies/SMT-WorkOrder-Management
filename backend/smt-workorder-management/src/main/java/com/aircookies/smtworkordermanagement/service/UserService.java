@@ -15,5 +15,5 @@ public interface UserService {
 
     Result findUser(long id);
 
-    Result findAll(Integer pageNum, Integer pageSize);
+    Result findPage(Integer pageNum, Integer pageSize);
 }

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.aircookies.smtworkordermanagement.mapper.WorkOrderMapper">
+
+    <!-- 添加工单 -->
+    <insert id="addWorkOrder" parameterType="com.aircookies.smtworkordermanagement.entity.WorkOrder" useGeneratedKeys="true"
+            keyProperty="id">
+        INSERT INTO work_order (product_id,
+                                line_id,
+                                quantity,
+                                status,
+                                priority,
+                                finish_time,
+                                creator_id,
+                                remarks,
+                                create_time,
+                                update_time)
+        VALUES (#{productId},
+                #{lineId},
+                #{quantity},
+                #{status},
+                #{priority},
+                #{finishTime},
+                #{creatorId},
+                #{remarks},
+                #{createTime},
+                #{updateTime})
+    </insert>
+
+    <!-- 根据ID查询工单 -->
+    <select id="findWorkOrderById" resultType="com.aircookies.smtworkordermanagement.entity.WorkOrder">
+        SELECT id,
+               product_id,
+               line_id,
+               quantity,
+               status,
+               priority,
+               finish_time,
+               creator_id,
+               remarks,
+               create_time,
+               update_time
+        FROM work_order
+        WHERE id = #{id}
+    </select>
+
+    <!-- 查询所有工单 -->
+    <select id="findAll" resultType="com.aircookies.smtworkordermanagement.entity.WorkOrder">
+        SELECT id,
+               product_id,
+               line_id,
+               quantity,
+               status,
+               priority,
+               finish_time,
+               creator_id,
+               remarks,
+               create_time,
+               update_time
+        FROM work_order
+        ORDER BY create_time DESC
+    </select>
+
+    <!-- 更新工单 -->
+    <update id="updateWorkOrder" parameterType="com.aircookies.smtworkordermanagement.entity.WorkOrder">
+        UPDATE work_order
+        <set>
+            <if test="productId != null">
+                product_id = #{productId},
+            </if>
+            <if test="lineId != null">
+                line_id = #{lineId},
+            </if>
+            <if test="quantity != null">
+                quantity = #{quantity},
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="priority != null">
+                priority = #{priority},
+            </if>
+            <if test="finishTime != null">
+                finish_time = #{finishTime},
+            </if>
+            <if test="creatorId != null">
+                creator_id = #{creatorId},
+            </if>
+            <if test="remarks != null and remarks != ''">
+                remarks = #{remarks},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime}
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <!-- 删除工单 -->
+    <delete id="deleteWorkOrder">
+        DELETE
+        FROM work_order
+        WHERE id = #{id}
+    </delete>
+
+</mapper>

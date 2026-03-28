@@ -40,12 +40,12 @@ public class UserController {
         return userService.UserList(keyword);
     }
 
-    // 查询所有用户
-    @GetMapping("/findAll")
-    public Result findAll(@RequestParam(defaultValue = "1") Integer pageNum,
-                          @RequestParam(defaultValue = "10") Integer pageSize) {
+    // 分页查询所有用户
+    @GetMapping("/findPage")
+    public Result findPage(@RequestParam(defaultValue = "1") Integer pageNum,
+                           @RequestParam(defaultValue = "10") Integer pageSize) {
         log.debug("查询所有用户, 页码: {}, 页大小: {}", pageNum, pageSize);
-        return userService.findAll(pageNum, pageSize);
+        return userService.findPage(pageNum, pageSize);
     }
 
     // 根据ID查询用户

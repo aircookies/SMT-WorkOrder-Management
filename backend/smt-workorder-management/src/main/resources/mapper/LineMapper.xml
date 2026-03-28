@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.aircookies.smtworkordermanagement.mapper.LineMapper">
+
+    <!-- 添加产线 -->
+    <insert id="addLine" parameterType="com.aircookies.smtworkordermanagement.entity.Line" useGeneratedKeys="true"
+            keyProperty="id">
+        INSERT INTO line (name,
+                          description,
+                          create_time,
+                          update_time)
+        VALUES (#{name},
+                #{description},
+                #{createTime},
+                #{updateTime})
+    </insert>
+
+    <!-- 根据ID查询产线 -->
+    <select id="findLineById" resultType="com.aircookies.smtworkordermanagement.entity.Line">
+        SELECT id,
+               name,
+               description,
+               create_time,
+               update_time
+        FROM line
+        WHERE id = #{id}
+    </select>
+
+    <!-- 查询所有产线 -->
+    <select id="findAll" resultType="com.aircookies.smtworkordermanagement.entity.Line">
+        SELECT id,
+               name,
+               description,
+               create_time,
+               update_time
+        FROM line
+        ORDER BY create_time DESC
+    </select>
+
+    <!-- 更新产线 -->
+    <update id="updateLine" parameterType="com.aircookies.smtworkordermanagement.entity.Line">
+        UPDATE line
+        <set>
+            <if test="name != null and name != ''">
+                name = #{name},
+            </if>
+            <if test="description != null and description != ''">
+                description = #{description},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime}
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <!-- 删除产线 -->
+    <delete id="deleteLine">
+        DELETE
+        FROM line
+        WHERE id = #{id}
+    </delete>
+
+</mapper>
