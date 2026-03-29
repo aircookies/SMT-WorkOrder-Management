@@ -31,7 +31,7 @@ public class UserServiceImpl implements UserService {
         if (res != 0) {
             return success();
         } else {
-            return Result.error(1, "添加用户失败");
+            return Result.error("添加用户失败");
         }
     }
 

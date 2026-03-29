@@ -1,17 +1,13 @@
 package com.aircookies.smtworkordermanagement.service.impl;
 
 import com.aircookies.smtworkordermanagement.common.Result;
-import com.aircookies.smtworkordermanagement.dto.PagesDTO;
 import com.aircookies.smtworkordermanagement.entity.Line;
 import com.aircookies.smtworkordermanagement.mapper.LineMapper;
 import com.aircookies.smtworkordermanagement.service.LineService;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 import static com.aircookies.smtworkordermanagement.common.Result.success;
 
@@ -39,7 +35,7 @@ public class LineServiceImpl implements LineService {
         if (res != 0) {
             return success("添加产线成功");
         } else {
-            return Result.error(1, "添加产线失败");
+            return Result.error("添加产线失败");
         }
     }
 

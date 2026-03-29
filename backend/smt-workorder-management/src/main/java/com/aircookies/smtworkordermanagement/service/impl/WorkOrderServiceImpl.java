@@ -3,6 +3,7 @@ package com.aircookies.smtworkordermanagement.service.impl;
 import com.aircookies.smtworkordermanagement.common.Result;
 import com.aircookies.smtworkordermanagement.dto.PagesDTO;
 import com.aircookies.smtworkordermanagement.entity.WorkOrder;
+import com.aircookies.smtworkordermanagement.entity.WorkProcessReport;
 import com.aircookies.smtworkordermanagement.mapper.WorkOrderMapper;
 import com.aircookies.smtworkordermanagement.service.WorkOrderService;
 import com.github.pagehelper.PageHelper;
@@ -39,7 +40,7 @@ public class WorkOrderServiceImpl implements WorkOrderService {
         if (res != 0) {
             return success("添加工单成功");
         } else {
-            return Result.error(1, "添加工单失败");
+            return Result.error("添加工单失败");
         }
     }
 
@@ -90,5 +91,62 @@ public class WorkOrderServiceImpl implements WorkOrderService {
                         pageInfo.getList()
                 )
         );
+    }
+
+    /**
+     * 添加工序报工表
+     */
+    @Override
+    public Result addWorkProcessReport(WorkProcessReport workProcessReport) {
+        // 先检查是否该工单是否存在该工序报工记录
+        int existRecord = workOrderMapper.findByIdAndSeq(workProcessReport.getOrderId(), workProcessReport.getProcessSeq());
+        if (existRecord != 0) {
+            return Result.error("该工序已存在报工记录");
+        }
+        workProcessReport.setCreateTime(LocalDateTime.now());
+        workProcessReport.setUpdateTime(LocalDateTime.now());
+        workProcessReport.setStartTime(LocalDateTime.now());
+        int res = workOrderMapper.addWorkProcessReport(workProcessReport);
+        if (res != 0) {
+            return Result.success("添加工序成功");
+        } else {
+            return Result.error("添加工序失败");
+        }
+    }
+
+    /**
+     * 根据工单ID删除工序报工表
+     */
+    @Override
+    public Result deleteWorkProcessReport(Long orderId) {
+        int res = workOrderMapper.deleteWorkProcessReport(orderId);
+        if (res != 0) {
+            return Result.success("删除工序成功");
+        } else {
+            return Result.error("删除工序失败");
+        }
+    }
+
+    /**
+     * 更新工序报工表
+     */
+    @Override
+    public Result updateWorkProcessReport(WorkProcessReport workProcessReport) {
+        workProcessReport.setUpdateTime(LocalDateTime.now());
+        int res = workOrderMapper.updateWorkProcessReport(workProcessReport);
+        if (res != 0) {
+            return Result.success("更新工序成功");
+        } else {
+            return Result.error("更新工序失败");
+        }
+    }
+
+    /**
+     * 根据工单ID查询工序报工表
+     */
+    @Override
+    public Result findWorkProcessReport(Long orderId) {
+        WorkProcessReport workProcessReport = workOrderMapper.findWorkProcessReport(orderId);
+        return success(workProcessReport);
     }
 }

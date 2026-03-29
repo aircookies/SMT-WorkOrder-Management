@@ -40,7 +40,7 @@ public class ProductServiceImpl implements ProductService {
         if (res != 0) {
             return success("添加产品成功");
         } else {
-            return Result.error(1, "添加产品失败");
+            return Result.error("添加产品失败");
         }
     }
     

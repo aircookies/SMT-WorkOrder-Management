@@ -2,6 +2,7 @@ package com.aircookies.smtworkordermanagement.service;
 
 import com.aircookies.smtworkordermanagement.common.Result;
 import com.aircookies.smtworkordermanagement.entity.WorkOrder;
+import com.aircookies.smtworkordermanagement.entity.WorkProcessReport;
 
 /**
  * 工单服务接口
@@ -32,4 +33,25 @@ public interface WorkOrderService {
      * 分页查询所有工单
      */
     Result findPage(int pageNum, int pageSize);
+
+    /**
+     * 添加工序报工表
+     */
+    Result addWorkProcessReport(WorkProcessReport workProcessReport);
+
+    /**
+     * 根据工单ID删除工序报工表
+     */
+    Result deleteWorkProcessReport(Long orderId);
+
+    /**
+     * 更新工序报工表
+     */
+    Result updateWorkProcessReport(WorkProcessReport workProcessReport);
+
+    /**
+     * 根据工单ID查询工序报工表
+     */
+    Result findWorkProcessReport(Long orderId);
+
 }

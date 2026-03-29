@@ -22,8 +22,12 @@ public class DeptServiceImpl implements DeptService {
     public Result addDept(Dept dept) {
         dept.setCreateTime(LocalDateTime.now());
         dept.setUpdateTime(LocalDateTime.now());
-        deptMapper.addDept(dept);
-        return Result.success("添加部门成功");
+        int res = deptMapper.addDept(dept);
+        if (res != 0) {
+            return Result.success("添加部门成功");
+        } else {
+            return Result.error("添加部门失败");
+        }
     }
 
     @Override

@@ -3,7 +3,8 @@
 <mapper namespace="com.aircookies.smtworkordermanagement.mapper.WorkOrderMapper">
 
     <!-- 添加工单 -->
-    <insert id="addWorkOrder" parameterType="com.aircookies.smtworkordermanagement.entity.WorkOrder" useGeneratedKeys="true"
+    <insert id="addWorkOrder" parameterType="com.aircookies.smtworkordermanagement.entity.WorkOrder"
+            useGeneratedKeys="true"
             keyProperty="id">
         INSERT INTO work_order (product_id,
                                 line_id,
@@ -101,6 +102,97 @@
         DELETE
         FROM work_order
         WHERE id = #{id}
+    </delete>
+
+    <!-- ==================== 工序报工相关SQL ==================== -->
+
+    <!-- 添加工序报工表 -->
+    <insert id="addWorkProcessReport" parameterType="com.aircookies.smtworkordermanagement.entity.WorkProcessReport">
+        INSERT INTO work_process (order_id,
+                                  process_seq,
+                                  qualified_quantity,
+                                  bad_quantity,
+                                  operator_id,
+                                  remarks,
+                                  start_time,
+                                  finish_time,
+                                  create_time,
+                                  update_time)
+        VALUES (#{orderId},
+                #{processSeq},
+                #{qualifiedQuantity},
+                #{badQuantity},
+                #{operatorId},
+                #{remarks},
+                #{startTime},
+                #{finishTime},
+                #{createTime},
+                #{updateTime})
+    </insert>
+
+    <!-- 根据工单ID查询工序报工表 -->
+    <select id="findWorkProcessReport" resultType="com.aircookies.smtworkordermanagement.entity.WorkProcessReport">
+        SELECT order_id,
+               process_seq,
+               status,
+               qualified_quantity,
+               bad_quantity,
+               operator_id,
+               remarks,
+               start_time,
+               finish_time,
+               create_time,
+               update_time
+        FROM work_process
+        WHERE order_id = #{orderId}
+    </select>
+
+    <!--根据工单ID和工序序号查询工序报工表-->
+    <select id="findByIdAndSeq" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM work_process
+        WHERE order_id = #{orderId}
+        AND process_seq = #{processSeq}
+    </select>
+
+    <!-- 更新工序报工表 -->
+    <update id="updateWorkProcessReport" parameterType="com.aircookies.smtworkordermanagement.entity.WorkProcessReport">
+        UPDATE work_process
+        <set>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="qualifiedQuantity != null">
+                qualified_quantity = #{qualifiedQuantity},
+            </if>
+            <if test="badQuantity != null">
+                bad_quantity = #{badQuantity},
+            </if>
+            <if test="operatorId != null">
+                operator_id = #{operatorId},
+            </if>
+            <if test="remarks != null and remarks != ''">
+                remarks = #{remarks},
+            </if>
+            <if test="startTime != null">
+                start_time = #{startTime},
+            </if>
+            <if test="finishTime != null">
+                finish_time = #{finishTime},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime}
+            </if>
+        </set>
+        WHERE order_id = #{orderId}
+        AND process_seq = #{processSeq}
+    </update>
+
+    <!-- 根据工单ID删除工序报工表 -->
+    <delete id="deleteWorkProcessReport">
+        DELETE
+        FROM work_process
+        WHERE order_id = #{orderId}
     </delete>
 
 </mapper>

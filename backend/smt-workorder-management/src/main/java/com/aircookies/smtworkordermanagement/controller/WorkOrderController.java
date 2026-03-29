@@ -2,6 +2,7 @@ package com.aircookies.smtworkordermanagement.controller;
 
 import com.aircookies.smtworkordermanagement.common.Result;
 import com.aircookies.smtworkordermanagement.entity.WorkOrder;
+import com.aircookies.smtworkordermanagement.entity.WorkProcessReport;
 import com.aircookies.smtworkordermanagement.service.WorkOrderService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,5 +66,47 @@ public class WorkOrderController {
     public Result findPage(@RequestParam int pageNum, @RequestParam int pageSize) {
         log.debug("分页查询所有工单: {}, {}", pageNum, pageSize);
         return workOrderService.findPage(pageNum, pageSize);
+    }
+
+    /*
+    * 生产报工功能
+    *
+    * 创建工序表
+    * */
+
+    /**
+     * 添加工序报工表
+     */
+    @PostMapping("/process/add")
+    public Result addWorkProcessReport(@RequestBody WorkProcessReport workProcessReport) {
+        log.debug("添加工序: {}", workProcessReport);
+        return workOrderService.addWorkProcessReport(workProcessReport);
+    }
+
+    /**
+     * 根据工单ID删除工序报工表
+     */
+    @DeleteMapping("/process/delete/{orderId}")
+    public Result deleteWorkProcessReport(@PathVariable Long orderId) {
+        log.debug("删除工序: orderId={}", orderId);
+        return workOrderService.deleteWorkProcessReport(orderId);
+    }
+
+    /**
+     * 更新工序报工表
+     */
+    @PutMapping("/process/update")
+    public Result updateWorkProcessReport(@RequestBody WorkProcessReport workProcessReport) {
+        log.debug("更新工序: {}", workProcessReport);
+        return workOrderService.updateWorkProcessReport(workProcessReport);
+    }
+
+    /**
+     * 根据工单ID查询工序报工表
+     */
+    @GetMapping("/process/find/{orderId}")
+    public Result findWorkProcessReport(@PathVariable Long orderId) {
+        log.debug("查询工序: orderId={}", orderId);
+        return workOrderService.findWorkProcessReport(orderId);
     }
 }
