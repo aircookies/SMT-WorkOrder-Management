@@ -57,13 +57,13 @@
         FROM product
         <where>
             <if test="code != null and code != ''">
-                code = #{code}
+                code like CONCAT('%', #{code}, '%')
             </if>
             <if test="name != null and name != ''">
-                name = #{name}
+                name like CONCAT('%', #{name}, '%')
             </if>
-            <if test="createTimeBegin != null and createTimeEndTime != null">
-                create_time &gt;= #{createTimeBegin} AND create_time &lt;= #{createTimeEndTime}
+            <if test="createTime != null">
+                create_time like CONCAT('%', #{createTime}, '%')
             </if>
         </where>
         ORDER BY create_time DESC

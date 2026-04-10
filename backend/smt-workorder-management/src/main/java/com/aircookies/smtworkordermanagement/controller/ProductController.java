@@ -62,7 +62,7 @@ public class ProductController {
     /**
      * 条件查询产品（分页）
      */
-    @GetMapping("/list")
+    @PostMapping("/query")
     public Result productList(@RequestBody QueryProductDTO queryProductDTO) {
         log.debug("条件查询产品: {}", queryProductDTO);
         return productService.productList(queryProductDTO);
