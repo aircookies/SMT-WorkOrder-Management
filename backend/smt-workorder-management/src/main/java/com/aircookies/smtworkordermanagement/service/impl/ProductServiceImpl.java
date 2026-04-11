@@ -52,6 +52,15 @@ public class ProductServiceImpl implements ProductService {
         productMapper.deleteProduct(id);
         return Result.success("删除产品成功");
     }
+
+    /**
+     * 批量删除产品
+     */
+    @Override
+    public Result deleteBatch(List<Long> ids) {
+        productMapper.deleteBatch(ids);
+        return Result.success("批量删除产品成功");
+    }
     
     /**
      * 更新产品

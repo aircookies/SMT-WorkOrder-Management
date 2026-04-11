@@ -8,6 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * 产品管理控制器
  */
@@ -39,6 +41,15 @@ public class ProductController {
     public Result deleteProduct(@PathVariable Long id) {
         log.debug("删除产品: {}", id);
         return productService.deleteProduct(id);
+    }
+
+    /**
+     * 批量删除产品
+     */
+    @DeleteMapping("/deleteBatch")
+    public Result deleteBatch(@RequestBody List<Long> ids) {
+        log.debug("批量删除产品: {}", ids);
+        return productService.deleteBatch(ids);
     }
 
     /**

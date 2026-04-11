@@ -80,10 +80,10 @@
                 name = #{name},
             </if>
             <if test="spec != null and spec != ''">
-                spec = #{spec}
+                spec = #{spec},
             </if>
             <if test="image != null and image != ''">
-                image = #{image}
+                image = #{image},
             </if>
             <if test="updateTime != null">
                 update_time = #{updateTime}
@@ -97,6 +97,16 @@
         DELETE
         FROM product
         WHERE id = #{id}
+    </delete>
+
+    <!-- 批量删除产品 -->
+    <delete id="deleteBatch">
+        DELETE
+        FROM product
+        WHERE id IN
+        <foreach item="id" collection="ids" open="(" separator="," close=")">
+            #{id}
+        </foreach>
     </delete>
 
 </mapper>

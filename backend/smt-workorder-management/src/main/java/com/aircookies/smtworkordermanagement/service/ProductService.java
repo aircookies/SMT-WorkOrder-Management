@@ -4,6 +4,8 @@ import com.aircookies.smtworkordermanagement.common.Result;
 import com.aircookies.smtworkordermanagement.dto.QueryProductDTO;
 import com.aircookies.smtworkordermanagement.entity.Product;
 
+import java.util.List;
+
 /**
  * 产品服务接口
  */
@@ -38,4 +40,6 @@ public interface ProductService {
      * 查询所有产品（分页）
      */
     Result findAll(Integer pageNum, Integer pageSize);
+
+    Result deleteBatch(List<Long> ids);
 }

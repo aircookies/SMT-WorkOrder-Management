@@ -41,4 +41,9 @@ public interface ProductMapper {
      * 查询所有产品
      */
     List<Product> findAll();
+
+    /**
+     * 批量删除产品
+     */
+    void deleteBatch(List<Long> ids);
 }

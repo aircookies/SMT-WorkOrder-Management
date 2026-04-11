@@ -6,7 +6,7 @@
         <div class="toolbar">
             <div>
                 <el-button type="primary" @click="showAddDialog" plain>添加产品</el-button>
-                <el-button type="danger" plain>批量删除</el-button>
+                <el-button type="danger" @click="deleteProductConfirm()" plain>批量删除</el-button>
             </div>
             <el-form :inline="true" :model="productDTO" class="demo-form-inline">
                 <el-form-item label="产品名称:">
@@ -22,13 +22,14 @@
                 </el-form-item>
                 <el-form-item>
                     <el-button type="primary" @click="queryProduct">查询</el-button>
-                    <el-button type="default" @click="clear">清空</el-button>
+                    <el-button type="default" @click="clearQuery">清空</el-button>
                 </el-form-item>
             </el-form>
         </div>
         <!-- 表格 -->
         <div class="table">
-            <el-table ref="multipleTableRef" :data="tableData" row-key="id" style="width: 100%">
+            <el-table v-loading="tableLoading" :data="tableData" row-key="id" style="width: 100%"
+                @selection-change="handleSelectionChange">
                 <el-table-column type="selection" width="55" />
                 <el-table-column property="code" label="产品编号" min-width="120" />
                 <el-table-column property="name" label="产品名称" min-width="120" />
@@ -36,8 +37,8 @@
                 <el-table-column property="updateTime" label="更新时间" min-width="120" />
                 <el-table-column label="操作" min-width="150">
                     <template #default="scope">
-                        <el-button type="primary" size="small" plain>修改</el-button>
-                        <el-button type="danger" size="small" plain>删除</el-button>
+                        <el-button type="primary" :icon="Edit" size="small" @click="showEditDialog(scope.row.id)" circle />
+                        <el-button type="danger" :icon="Delete" size="small" @click="deleteProductConfirm(scope.row.id)" circle />
                     </template>
                 </el-table-column>
             </el-table>
@@ -47,7 +48,7 @@
             :page-sizes="[10, 15, 25, 50, 100]" layout="total, sizes, prev, pager, next, jumper"
             :total="productDTO.total" @size-change="queryProduct" @current-change="queryProduct" />
         <!-- 添加/编辑产品对话框 -->
-        <el-dialog class="dialog" v-model="dialogVisible" :title="isEdit ? '编辑产品' : '添加产品'" width="500px" center="true">
+        <el-dialog class="dialog" v-model="dialogVisible" :title="isEdit ? '编辑产品' : '添加产品'" width="500px" center>
             <el-form :model="currentProduct" :rules="productFormRules" ref="productFormRef" label-width="100px">
                 <el-form-item label="产品编号" prop="code">
                     <el-input v-model="currentProduct.code" placeholder="请输入产品编号" />
@@ -59,8 +60,7 @@
                     <el-input type="textarea" v-model="currentProduct.spec" placeholder="请输入产品规格" />
                 </el-form-item>
                 <el-form-item label="产品图片">
-                    <el-upload class="avatar-uploader"
-                        action="#" :show-file-list="false"
+                    <el-upload class="avatar-uploader" action="#" :show-file-list="false"
                         :on-success="handleAvatarSuccess" :before-upload="beforeAvatarUpload">
                         <img v-if="imageUrl" :src="imageUrl" class="avatar" />
                         <el-icon v-else class="avatar-uploader-icon">
@@ -72,7 +72,7 @@
             <template #footer>
                 <div class="dialog-footer">
                     <el-button type="default" @click="dialogVisible = false">取消</el-button>
-                    <el-button type="primary">确定</el-button>
+                    <el-button type="primary" @click="submit">确定</el-button>
                 </div>
             </template>
         </el-dialog>
@@ -81,9 +81,15 @@
 
 <script setup>
 import { onMounted, ref } from 'vue'
-import { ElButton, ElFormItem, ElInput, ElDatePicker, ElMessage, ElDialog, ElUpload } from 'element-plus';
-import { getProductListApi, queryProductApi } from '@/api/product';
-import { Plus } from '@element-plus/icons-vue'
+import {
+    ElButton, ElFormItem, ElInput, ElDatePicker, ElMessage, ElDialog, ElUpload,
+    ElMessageBox
+} from 'element-plus';
+import {
+    getProductListApi, queryProductApi, addProductApi, getProductByIdApi, editProductApi,
+    deleteProductApi, deleteProductByIdApi
+} from '@/api/product';
+import { Plus, Edit, Delete } from '@element-plus/icons-vue'
 
 // 产品数据传输对象
 const productDTO = ref({
@@ -104,6 +110,12 @@ const dialogVisible = ref(false)
 const isEdit = ref(false)
 const productFormRef = ref()
 
+// 控制按钮是否可用
+// const disabledBtn = ref(false)
+
+// 控制加载动画
+const tableLoading = ref(false)
+
 // 当前操作的产品
 const currentProduct = ref({
     id: '',
@@ -112,6 +124,12 @@ const currentProduct = ref({
     spec: '',
     image: ''  // 图片字段
 })
+
+// 选择的行
+const selectedRows = ref([])
+const handleSelectionChange = (val) => {
+    selectedRows.value = val.map(item => item.id)
+}
 
 // 上传头像相关配置
 const uploadHeaders = ref({
@@ -123,9 +141,18 @@ const uploadHeaders = ref({
 const productFormRules = {
     code: [
         { required: true, message: '请输入产品编号', trigger: 'blur' },
+        { min: 3, max: 20, message: '长度在 3 到 20 个字符', trigger: 'blur' },
+        {
+            pattern: /^[A-Za-z0-9_-]+$/,
+            message: '只能包含字母、数字、下划线和横线',
+            trigger: 'blur'
+        }
     ],
     name: [
         { required: true, message: '请输入产品名称', trigger: 'blur' },
+    ],
+    spec: [
+        { required: true, message: '请输入产品规格', trigger: 'blur' },
     ]
 }
 
@@ -135,23 +162,10 @@ const clearForm = () => {
     productFormRef.value.resetFields()
 }
 
-// 显示添加产品对话框
-const showAddDialog = () => {
-    isEdit.value = false
-    clearForm()
-    currentProduct.value = {
-        id: '',
-        code: '',
-        name: '',
-        spec: '',
-        image: ''
-    }
-    dialogVisible.value = true
-}
-
 // 查询产品
 const queryProduct = async () => {
     // 查询产品列表
+    tableLoading.value = true
     const res = await queryProductApi(productDTO.value)
     // 判断响应结果是否正确
     if (res.code === 200) {
@@ -162,10 +176,133 @@ const queryProduct = async () => {
     } else {
         ElMessage.error(res.message || '查询产品列表失败')
     }
+    tableLoading.value = false
+}
+
+// 批量删除产品
+const deleteProduct = async () => {
+    if (selectedRows.value.length === 0) {
+        ElMessage.warning('请选择要删除的产品')
+        return
+    }
+    const res = await deleteProductApi(selectedRows.value)
+    if (res.code === 200) {
+        ElMessage.success('删除产品成功')
+        queryProduct()
+    } else {
+        ElMessage.error(res.message || '删除产品失败')
+    }
+}
+
+// 根据ID删除产品
+const deleteProductById = async (id) => {
+    const res = await deleteProductByIdApi(id)
+    if (res.code === 200) {
+        ElMessage.success('删除产品成功')
+        queryProduct()
+    } else {
+        ElMessage.error(res.message || '删除产品失败')
+    }
+}
+
+// 删除产品确认框
+const deleteProductConfirm = (id) => {
+    ElMessageBox.confirm('确定要删除所选产品吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+    }).then(() => {
+        if (id !== undefined) {
+            deleteProductById(id)
+        } else {
+            deleteProduct()
+        }
+    }).catch(() => {
+        ElMessage.info('取消操作')
+        return false
+    })
+}
+
+// 显示添加产品对话框
+const showAddDialog = () => {
+    isEdit.value = false
+    clearForm()
+    // disabledBtn.value = false
+    currentProduct.value = {
+        id: '',
+        code: '',
+        name: '',
+        spec: '',
+        image: ''
+    }
+    dialogVisible.value = true
+}
+
+// 显示修改产品对话框并实现查询回显
+const showEditDialog = async (id) => {
+    isEdit.value = true
+    clearForm()
+    // disabledBtn.value = false
+    currentProduct.value = {
+        id: '',
+        code: '',
+        name: '',
+        spec: '',
+        image: ''
+    }
+    currentProduct.value.id = id;
+    const res = await getProductByIdApi(id)
+    if (res.code === 200) {
+        currentProduct.value = res.data
+    } else {
+        ElMessage.error(res.message || '获取产品数据失败')
+        return
+    }
+    dialogVisible.value = true
+}
+
+// 添加产品
+const addProduct = async () => {
+    const res = await addProductApi(currentProduct.value)
+    if (res.code === 200) {
+        ElMessage.success('添加产品成功')
+        dialogVisible.value = false
+        queryProduct()
+    } else {
+        ElMessage.error(res.message || '添加产品失败')
+    }
+}
+
+// 修改产品
+const editProduct = async () => {
+    const res = await editProductApi(currentProduct.value)
+    if (res.code === 200) {
+        ElMessage.success('修改产品成功')
+        dialogVisible.value = false
+        queryProduct()
+    } else {
+        ElMessage.error(res.message || '修改产品失败')
+    }
+}
+
+// 提交修改或添加操作
+const submit = async () => {
+    try {
+        // 表单验证
+        await productFormRef.value.validate()
+
+        if (isEdit.value) {
+            editProduct()
+        } else {
+            addProduct()
+        }
+    } catch (error) {
+        ElMessage.error(error.message || '请完善表单信息')
+    }
 }
 
 // 清空表单
-const clear = () => {
+const clearQuery = () => {
     productDTO.value = {
         pageNum: 1,
         pageSize: 10,
@@ -179,8 +316,9 @@ const clear = () => {
 
 onMounted(async () => {
     // 获取产品列表
+    tableLoading.value = true
     const res = await getProductListApi(productDTO.value.pageNum, productDTO.value.pageSize)
-    console.log(res)
+    // console.log(res)
     // 判断响应结果是否正确
     if (res.code === 200) {
         tableData.value = res.data.list
@@ -190,6 +328,7 @@ onMounted(async () => {
     } else {
         ElMessage.error(res.message || '查询产品列表失败')
     }
+    tableLoading.value = false
 })
 </script>
 
