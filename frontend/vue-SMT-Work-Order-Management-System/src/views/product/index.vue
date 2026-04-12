@@ -29,13 +29,13 @@
         <!-- 表格 -->
         <div class="table">
             <el-table v-loading="tableLoading" :data="tableData" row-key="id" style="width: 100%"
-                @selection-change="handleSelectionChange">
+                @selection-change="handleSelectionChange" table-layout="fixed">
                 <el-table-column type="selection" width="55" />
                 <el-table-column property="code" label="产品编号" min-width="120" />
                 <el-table-column property="name" label="产品名称" min-width="120" />
                 <el-table-column property="spec" label="产品规格" min-width="150" show-overflow-tooltip />
                 <el-table-column property="updateTime" label="更新时间" min-width="120" />
-                <el-table-column label="操作" min-width="150">
+                <el-table-column label="操作">
                     <template #default="scope">
                         <el-button type="primary" :icon="Edit" size="small" @click="showEditDialog(scope.row.id)" circle />
                         <el-button type="danger" :icon="Delete" size="small" @click="deleteProductConfirm(scope.row.id)" circle />
@@ -83,7 +83,7 @@
 import { onMounted, ref } from 'vue'
 import {
     ElButton, ElFormItem, ElInput, ElDatePicker, ElMessage, ElDialog, ElUpload,
-    ElMessageBox
+    ElMessageBox, ElNotification
 } from 'element-plus';
 import {
     getProductListApi, queryProductApi, addProductApi, getProductByIdApi, editProductApi,
@@ -136,6 +136,15 @@ const uploadHeaders = ref({
     // 可以在这里添加认证token等头部信息
     // 'Authorization': 'Bearer ' + localStorage.getItem('token')
 })
+
+// 错误通知
+const errorMsg = (msg) => {
+    ElNotification({
+        title: '错误',
+        message: msg,
+        type: 'error',
+    })
+}
 
 // 表单验证规则
 const productFormRules = {
@@ -217,9 +226,6 @@ const deleteProductConfirm = (id) => {
         } else {
             deleteProduct()
         }
-    }).catch(() => {
-        ElMessage.info('取消操作')
-        return false
     })
 }
 
@@ -326,7 +332,7 @@ onMounted(async () => {
             productDTO.value.total = res.data.total
         }
     } else {
-        ElMessage.error(res.message || '查询产品列表失败')
+        errorMsg(res.message || '获取产品列表失败')
     }
     tableLoading.value = false
 })
