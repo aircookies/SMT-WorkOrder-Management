@@ -94,6 +94,27 @@ public class WorkOrderServiceImpl implements WorkOrderService {
     }
 
     /**
+     * 条件查询工单
+     */
+    @Override
+    public Result queryWorkOrder(int pageNum, int pageSize, WorkOrder workOrder) {
+        // 开启分页
+        PageHelper.startPage(pageNum, pageSize);
+        List<WorkOrder> workOrders = workOrderMapper.queryWorkOrder(workOrder);
+        // 获取分页结果
+        PageInfo<WorkOrder> pageInfo = new PageInfo<>(workOrders);
+        // 封装结果并返回
+        return success(
+                new PagesDTO<>(
+                        pageInfo.getPageNum(),
+                        pageInfo.getPageSize(),
+                        pageInfo.getTotal(),
+                        pageInfo.getList()
+                )
+        );
+    }
+
+    /**
      * 添加工序报工表
      */
     @Override

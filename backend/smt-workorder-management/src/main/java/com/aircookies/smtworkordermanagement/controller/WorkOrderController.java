@@ -63,16 +63,27 @@ public class WorkOrderController {
      * 分页查询所有工单
      */
     @GetMapping("/findPage")
-    public Result findPage(@RequestParam int pageNum, @RequestParam int pageSize) {
+    public Result findPage(@RequestParam(defaultValue = "1") int pageNum, @RequestParam(defaultValue = "10") int pageSize) {
         log.debug("分页查询所有工单: {}, {}", pageNum, pageSize);
         return workOrderService.findPage(pageNum, pageSize);
     }
 
-    /*
-    * 生产报工功能
-    *
+    /**
+     * 条件查询工单
+     */
+    @GetMapping("/query")
+    public Result queryWorkOrder(@RequestParam(defaultValue = "1") int pageNum,
+                                 @RequestParam(defaultValue = "10") int pageSize,
+                                 WorkOrder workOrder) {
+        log.debug("条件查询工单: pageNum={}, pageSize={}, {}", pageNum, pageSize, workOrder);
+        return workOrderService.queryWorkOrder(pageNum, pageSize, workOrder);
+    }
+
+
+    // 生产报工功能
+    /**
     * 创建工序表
-    * */
+    * /
 
     /**
      * 添加工序报工表

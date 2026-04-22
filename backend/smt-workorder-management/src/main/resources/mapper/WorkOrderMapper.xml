@@ -30,36 +30,82 @@
 
     <!-- 根据ID查询工单 -->
     <select id="findWorkOrderById" resultType="com.aircookies.smtworkordermanagement.entity.WorkOrder">
-        SELECT id,
-               product_id,
-               line_id,
-               quantity,
-               status,
-               priority,
-               finish_time,
-               creator_id,
-               remarks,
-               create_time,
-               update_time
+        SELECT work_order.id,
+               work_order.product_id,
+               product.name as productName,
+               work_order.line_id,
+               line.name as lineName,
+               work_order.quantity,
+               work_order.status,
+               work_order.priority,
+               work_order.finish_time,
+               work_order.creator_id,
+               sys_user.name as creatorName,
+               work_order.remarks,
+               work_order.create_time,
+               work_order.update_time
         FROM work_order
-        WHERE id = #{id}
+                 LEFT JOIN product ON work_order.product_id = product.id
+                 LEFT JOIN line ON work_order.line_id = line.id
+                 LEFT JOIN sys_user ON work_order.creator_id = sys_user.id
+        WHERE work_order.id = #{id}
     </select>
 
     <!-- 查询所有工单 -->
     <select id="findAll" resultType="com.aircookies.smtworkordermanagement.entity.WorkOrder">
-        SELECT id,
-               product_id,
-               line_id,
-               quantity,
-               status,
-               priority,
-               finish_time,
-               creator_id,
-               remarks,
-               create_time,
-               update_time
+        SELECT work_order.id,
+               work_order.product_id,
+               product.name as productName,
+               work_order.line_id,
+               line.name as lineName,
+               work_order.quantity,
+               work_order.status,
+               work_order.priority,
+               work_order.finish_time,
+               work_order.creator_id,
+               sys_user.name as creatorName,
+               work_order.remarks,
+               work_order.create_time,
+               work_order.update_time
         FROM work_order
+                 LEFT JOIN product ON work_order.product_id = product.id
+                 LEFT JOIN line ON work_order.line_id = line.id
+                 LEFT JOIN sys_user ON work_order.creator_id = sys_user.id
         ORDER BY create_time DESC
+    </select>
+
+
+    <!--    条件查询工单-->
+    <select id="queryWorkOrder" resultType="com.aircookies.smtworkordermanagement.entity.WorkOrder">
+        SELECT work_order.id,
+        work_order.product_id,
+        product.name as productName,
+        work_order.line_id,
+        line.name as lineName,
+        work_order.quantity,
+        work_order.status,
+        work_order.priority,
+        work_order.finish_time,
+        work_order.creator_id,
+        sys_user.name as creatorName,
+        work_order.remarks,
+        work_order.create_time,
+        work_order.update_time
+        FROM work_order
+        LEFT JOIN product ON work_order.product_id = product.id
+        LEFT JOIN line ON work_order.line_id = line.id
+        LEFT JOIN sys_user ON work_order.creator_id = sys_user.id
+        <where>
+            <if test="id != null">
+                work_order.id = #{id} AND
+            </if>
+            <if test="status != null">
+                work_order.status = #{status} AND
+            </if>
+            <if test="priority != null">
+                work_order.priority = #{priority}
+            </if>
+        </where>
     </select>
 
     <!-- 更新工单 -->
@@ -152,7 +198,7 @@
         SELECT COUNT(*)
         FROM work_process
         WHERE order_id = #{orderId}
-        AND process_seq = #{processSeq}
+          AND process_seq = #{processSeq}
     </select>
 
     <!-- 更新工序报工表 -->

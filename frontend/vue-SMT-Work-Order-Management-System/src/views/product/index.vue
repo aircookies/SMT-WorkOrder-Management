@@ -83,7 +83,7 @@
 import { onMounted, ref } from 'vue'
 import {
     ElButton, ElFormItem, ElInput, ElDatePicker, ElMessage, ElDialog, ElUpload,
-    ElMessageBox, ElNotification
+    ElMessageBox, ElNotification, ElForm
 } from 'element-plus';
 import {
     getProductListApi, queryProductApi, addProductApi, getProductByIdApi, editProductApi,

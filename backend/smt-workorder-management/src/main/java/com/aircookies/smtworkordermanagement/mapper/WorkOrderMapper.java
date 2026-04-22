@@ -37,6 +37,12 @@ public interface WorkOrderMapper {
      */
     List<WorkOrder> findAll();
 
+    /**
+     * 条件查询工单
+     */
+    List<WorkOrder> queryWorkOrder(WorkOrder workOrder);
+
+
     // ==================== 工序报工相关方法 ====================
 
     /**
@@ -63,4 +69,5 @@ public interface WorkOrderMapper {
      * 根据工单ID和工序序号查询工序报工表
      */
     int findByIdAndSeq(Long orderId, Integer processSeq);
+
 }

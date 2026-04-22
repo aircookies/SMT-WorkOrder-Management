@@ -97,9 +97,7 @@ const rules = {
 
 // 重置表单
 const resetForm = () => {
-    line.value.id = ''
-    line.value.name = ''
-    line.value.description = ''
+    line.value = {}
     if (!ruleFormRef.value) return
     ruleFormRef.value.resetFields()
 }

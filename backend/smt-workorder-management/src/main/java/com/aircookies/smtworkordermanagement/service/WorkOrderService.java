@@ -35,6 +35,11 @@ public interface WorkOrderService {
     Result findPage(int pageNum, int pageSize);
 
     /**
+     * 条件查询工单
+     */
+    Result queryWorkOrder(int pageNum, int pageSize, WorkOrder workOrder);
+
+    /**
      * 添加工序报工表
      */
     Result addWorkProcessReport(WorkProcessReport workProcessReport);

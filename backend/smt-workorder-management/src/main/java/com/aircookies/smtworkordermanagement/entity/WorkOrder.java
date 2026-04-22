@@ -18,4 +18,9 @@ public class WorkOrder {
     private String remarks; // 备注
     private LocalDateTime createTime; // 创建时间
     private LocalDateTime updateTime; // 更新时间
+    
+    // 关联查询字段
+    private String productName; // 产品名称
+    private String lineName; // 产线名称
+    private String creatorName; // 创建人名称
 }
