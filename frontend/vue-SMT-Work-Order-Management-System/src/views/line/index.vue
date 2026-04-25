@@ -74,8 +74,6 @@ const showDialog = async (id) => {
             if (res.code === 200) {
                 line.value.name = res.data.name
                 line.value.description = res.data.description
-            } else {
-                throw new Error(res.message)
             }
         } catch (error) {
             errorMsg(error.message || '获取产线信息失败')

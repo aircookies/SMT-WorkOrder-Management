@@ -11,7 +11,7 @@
                                 quantity,
                                 status,
                                 priority,
-                                finish_time,
+                                planning_time,
                                 creator_id,
                                 remarks,
                                 create_time,
@@ -21,7 +21,7 @@
                 #{quantity},
                 #{status},
                 #{priority},
-                #{finishTime},
+                #{planningTime},
                 #{creatorId},
                 #{remarks},
                 #{createTime},
@@ -38,7 +38,7 @@
                work_order.quantity,
                work_order.status,
                work_order.priority,
-               work_order.finish_time,
+               work_order.planning_time,
                work_order.creator_id,
                sys_user.name as creatorName,
                work_order.remarks,
@@ -61,7 +61,7 @@
                work_order.quantity,
                work_order.status,
                work_order.priority,
-               work_order.finish_time,
+               work_order.planning_time,
                work_order.creator_id,
                sys_user.name as creatorName,
                work_order.remarks,
@@ -85,7 +85,7 @@
         work_order.quantity,
         work_order.status,
         work_order.priority,
-        work_order.finish_time,
+        work_order.planning_time,
         work_order.creator_id,
         sys_user.name as creatorName,
         work_order.remarks,
@@ -97,13 +97,13 @@
         LEFT JOIN sys_user ON work_order.creator_id = sys_user.id
         <where>
             <if test="id != null">
-                work_order.id = #{id} AND
+                AND work_order.id = #{id}
             </if>
             <if test="status != null">
-                work_order.status = #{status} AND
+                AND work_order.status = #{status}
             </if>
             <if test="priority != null">
-                work_order.priority = #{priority}
+                AND work_order.priority = #{priority}
             </if>
         </where>
     </select>
@@ -127,8 +127,8 @@
             <if test="priority != null">
                 priority = #{priority},
             </if>
-            <if test="finishTime != null">
-                finish_time = #{finishTime},
+            <if test="planningTime != null">
+                planning_time = #{finishTime},
             </if>
             <if test="creatorId != null">
                 creator_id = #{creatorId},

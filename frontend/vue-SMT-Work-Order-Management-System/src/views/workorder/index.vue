@@ -33,8 +33,8 @@
                         </el-select>
                     </el-form-item>
                     <el-form-item>
-                        <el-button type="primary" @click="">查询</el-button>
-                        <el-button>清空</el-button>
+                        <el-button type="primary" @click="queryWorkOrder">查询</el-button>
+                        <el-button @click="clearForm">清空</el-button>
                     </el-form-item>
                 </el-form>
             </div>
@@ -44,11 +44,14 @@
             <el-table :data="tableData" style="width: 100%">
                 <el-table-column type="selection" width="55" />
                 <el-table-column property="id" label="工单号" width="120" />
+                <el-table-column property="creatorName" label="创建者" width="120" />
                 <el-table-column property="productName" label="产品名称" max-width="120" />
                 <el-table-column property="lineName" label="产线名称" max-width="240" />
-                <el-table-column property="priority" label="优先级" max-width="120" />
+                <el-table-column property="priority" label="优先级" max-width="55" />
                 <el-table-column property="quantity" label="计划生产数量" max-width="120" />
-                <el-table-column property="status" label="状态" max-width="120" />
+                <el-table-column property="planningTime" label="计划完成时间" max-width="120" />
+                <el-table-column property="status" label="状态" max-width="55" />
+                <!-- 操作按钮 -->
                 <el-table-column label="操作">
                     <template #default="scope">
                         <el-button size="small" @click="handleEdit(scope.$index, scope.row)">
@@ -63,55 +66,104 @@
         </div>
         <!-- 分页 -->
         <el-pagination v-model:current-page="pageNum" v-model:page-size="pageSize" :page-sizes="[10, 20, 50, 100]"
-            layout="total, sizes, prev, pager, next, jumper" :total="400" @size-change="handleSizeChange"
+            layout="total, sizes, prev, pager, next, jumper" :total="total" @size-change="handleSizeChange"
             @current-change="handleCurrentChange" />
     </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { ElForm, ElFormItem, ElInput, ElSelect, ElButton } from 'element-plus';
+import { onMounted, ref } from 'vue'
+import { ElForm, ElFormItem, ElInput, ElSelect, ElButton, ElNotification, ElMessage } from 'element-plus';
+import { getWorkOrderListApi, queryWorkOrderApi } from '@/api/workorder';
 
 // 数据模型
 const workOrderDTO = ref({
     pageNum: 1, // 当前页码
     pageSize: 10, // 每页显示的记录数
     id: '', // 工单ID/工单号
-    productId: '',  // 产品ID
-    productName: '', // 产品名称
-    lineId: '', // 产线ID
-    lineName: '',   // 产线名称
-    quantity: '',   // 计划生产数量
+    // productId: '',  // 产品ID
+    // productName: '', // 产品名称
+    // lineId: '', // 产线ID
+    // lineName: '',   // 产线名称
+    // quantity: '',   // 计划生产数量
     status: '', // 工单状态(0:待生产, 1:生产中, 2:生产完成, 3:已关闭)
     priority: '',   // 优先级(0:低, 1:中, 2:高, 3:紧急)
-    finishTime: '', // 工单完成时间
-    creatorId: '',  // 工单创建人ID
-    creatorName: '', // 工单创建人名称
-    remarks: '',    // 工单备注
-    createTime: '', // 工单创建时间
-    updateTime: ''  // 工单更新时间
+    // planningTime: '', // 工单完成时间
+    // creatorId: '',  // 工单创建人ID
+    // creatorName: '', // 工单创建人名称
+    // remarks: '',    // 工单备注
+    // createTime: '', // 工单创建时间
+    // updateTime: ''  // 工单更新时间
 })
 
 // 表格数据
-const tableData = ref([
-    {
-        id: '1',
-        productId: '1',
-        productName: '产品1',
-        lineId: '1',
-        lineName: '产线1',
-        quantity: '100',
-        status: '0',
-        priority: '0',
-        finishTime: '2021-09-01 00:00:00',
-        creatorId: '1',
-    }
-])
+const tableData = ref([])
 
 // 分页相关
 const pageNum = ref()
 const pageSize = ref()
 const total = ref()
+
+// 错误通知
+const errorNotify = (message) => {
+    ElNotification({
+        title: '错误',
+        message: message,
+        type: 'error'
+    })
+}
+
+// 清空表单
+const clearForm = () => {
+    workOrderDTO.value = {}
+}
+
+// 刷新表格
+// const refreshTable = () => {
+//     try {
+//         getWorkOrderListApi().then(res => {
+//             if (res.code === 200) {
+//                 tableData.value = res.data.list
+//                 pageNum.value = res.data.pageNum
+//                 pageSize.value = res.data.pageSize
+//                 total.value = res.data.total
+//             }
+//         })
+//     } catch (error) {}
+// }
+
+// 查询工单
+const queryWorkOrder = async () => {
+    try {
+        await queryWorkOrderApi(pageNum.value, pageSize.value, workOrderDTO.value.id, workOrderDTO.value.status, workOrderDTO.value.priority).then(res => {
+            if (res.code === 200) {
+                console.log(res.data)
+                tableData.value = res.data.list
+                pageNum.value = res.data.pageNum
+                pageSize.value = res.data.pageSize
+                total.value = res.data.total
+            }
+        })
+    } catch (error) {
+        ElMessage.error(error.message || '查询工单失败')
+    }
+}
+
+onMounted(async () => {
+    // 获取工单列表
+    try {
+        await getWorkOrderListApi().then(res => {
+            if (res.code === 200) {
+                tableData.value = res.data.list
+                pageNum.value = res.data.pageNum
+                pageSize.value = res.data.pageSize
+                total.value = res.data.total
+            }
+        })
+    } catch (error) {
+        ErrorNotify(error.message || '获取工单列表失败')
+    }
+})
 </script>
 
 <style scoped>

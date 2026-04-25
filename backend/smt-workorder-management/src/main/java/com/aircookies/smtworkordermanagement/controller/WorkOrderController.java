@@ -62,7 +62,7 @@ public class WorkOrderController {
     /**
      * 分页查询所有工单
      */
-    @GetMapping("/findPage")
+    @GetMapping("/findAll")
     public Result findPage(@RequestParam(defaultValue = "1") int pageNum, @RequestParam(defaultValue = "10") int pageSize) {
         log.debug("分页查询所有工单: {}, {}", pageNum, pageSize);
         return workOrderService.findPage(pageNum, pageSize);
