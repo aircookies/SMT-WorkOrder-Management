@@ -4,7 +4,7 @@
         <!-- 工具栏 -->
         <div class="toolbar">
             <div class="buttons">
-                <el-button type="primary" plain>新建表单</el-button>
+                <el-button type="primary" plain>新建工单</el-button>
                 <el-button type="danger" plain>批量删除</el-button>
             </div>
             <!-- 搜索栏 -->
@@ -19,7 +19,7 @@
                             <el-option label="待生产" value="0" />
                             <el-option label="生产中" value="1" />
                             <el-option label="生产完成" value="2" />
-                            <!-- <el-option label="已关闭" value="3" /> -->
+                            <el-option label="已关闭" value="3" />
                         </el-select>
                     </el-form-item>
                     <el-form-item label="优先级:">
@@ -29,7 +29,6 @@
                             <el-option label="中" value="1" />
                             <el-option label="高" value="2" />
                             <el-option label="紧急" value="3" />
-                            <!-- <el-option label="已关闭" value="3" /> -->
                         </el-select>
                     </el-form-item>
                     <el-form-item>
@@ -41,33 +40,57 @@
         </div>
         <!--  表格 -->
         <div class="table">
-            <el-table :data="tableData" style="width: 100%">
+            <el-table v-loading="loading" :data="tableData" style="width: 100%">
                 <el-table-column type="selection" width="55" />
                 <el-table-column property="id" label="工单号" width="120" />
                 <el-table-column property="creatorName" label="创建者" width="120" />
                 <el-table-column property="productName" label="产品名称" max-width="120" />
                 <el-table-column property="lineName" label="产线名称" max-width="240" />
-                <el-table-column property="priority" label="优先级" max-width="55" />
+                <el-table-column property="priority" label="优先级" max-width="80">
+                    <template #default="scope">
+                        <el-tag v-if="scope.row.priority === 0" type="info">低</el-tag>
+                        <el-tag v-if="scope.row.priority === 1" type="primary">中</el-tag>
+                        <el-tag v-if="scope.row.priority === 2" type="warning">高</el-tag>
+                        <el-tag v-if="scope.row.priority === 3" type="danger">紧急</el-tag>
+                    </template>
+                </el-table-column>
                 <el-table-column property="quantity" label="计划生产数量" max-width="120" />
                 <el-table-column property="planningTime" label="计划完成时间" max-width="120" />
-                <el-table-column property="status" label="状态" max-width="55" />
+                <el-table-column property="status" label="状态" max-width="80">
+                    <template #default="scope">
+                        <el-tag v-if="scope.row.status === 0" type="warning">待生产</el-tag>
+                        <el-tag v-if="scope.row.status === 1" type="primary">生产中</el-tag>
+                        <el-tag v-if="scope.row.status === 2" type="success">已完成</el-tag>
+                        <el-tag v-if="scope.row.status === 3" type="info">已关闭</el-tag>
+                    </template>
+                </el-table-column>
                 <!-- 操作按钮 -->
                 <el-table-column label="操作">
                     <template #default="scope">
-                        <el-button size="small" @click="handleEdit(scope.$index, scope.row)">
-                            编辑
-                        </el-button>
-                        <el-button size="small" type="danger" @click="handleDelete(scope.$index, scope.row)">
-                            删除
-                        </el-button>
+                        <el-button size="small" type="primary" :icon="Edit" circle />
+                        <el-button size="small" type="danger" :icon="Delete" circle />
                     </template>
                 </el-table-column>
             </el-table>
         </div>
         <!-- 分页 -->
-        <el-pagination v-model:current-page="pageNum" v-model:page-size="pageSize" :page-sizes="[10, 20, 50, 100]"
+        <el-pagination class="pagination" :current-page="pageNum" :page-size="pageSize" :page-sizes="[10, 20, 50, 100]"
             layout="total, sizes, prev, pager, next, jumper" :total="total" @size-change="handleSizeChange"
             @current-change="handleCurrentChange" />
+        <!-- dialog对话框 -->
+        <el-dialog v-model="dialogFormVisible" title="Shipping address" width="500">
+            <el-form :model="workOrderDTO">
+                
+            </el-form>
+            <template #footer>
+                <div class="dialog-footer">
+                    <el-button @click="dialogFormVisible = false">取消</el-button>
+                    <el-button type="primary" @click="dialogFormVisible = false">
+                        提交
+                    </el-button>
+                </div>
+            </template>
+        </el-dialog>
     </div>
 </template>
 
@@ -75,6 +98,7 @@
 import { onMounted, ref } from 'vue'
 import { ElForm, ElFormItem, ElInput, ElSelect, ElButton, ElNotification, ElMessage } from 'element-plus';
 import { getWorkOrderListApi, queryWorkOrderApi } from '@/api/workorder';
+import { Edit, Delete } from '@element-plus/icons-vue';
 
 // 数据模型
 const workOrderDTO = ref({
@@ -104,6 +128,12 @@ const pageNum = ref()
 const pageSize = ref()
 const total = ref()
 
+// 控制加载动画
+const loading = ref(false)
+
+// 显隐dialog对话框
+const dialogFormVisible = ref(false)
+
 // 错误通知
 const errorNotify = (message) => {
     ElNotification({
@@ -118,26 +148,12 @@ const clearForm = () => {
     workOrderDTO.value = {}
 }
 
-// 刷新表格
-// const refreshTable = () => {
-//     try {
-//         getWorkOrderListApi().then(res => {
-//             if (res.code === 200) {
-//                 tableData.value = res.data.list
-//                 pageNum.value = res.data.pageNum
-//                 pageSize.value = res.data.pageSize
-//                 total.value = res.data.total
-//             }
-//         })
-//     } catch (error) {}
-// }
-
 // 查询工单
 const queryWorkOrder = async () => {
+    loading.value = true
     try {
         await queryWorkOrderApi(pageNum.value, pageSize.value, workOrderDTO.value.id, workOrderDTO.value.status, workOrderDTO.value.priority).then(res => {
             if (res.code === 200) {
-                console.log(res.data)
                 tableData.value = res.data.list
                 pageNum.value = res.data.pageNum
                 pageSize.value = res.data.pageSize
@@ -146,10 +162,25 @@ const queryWorkOrder = async () => {
         })
     } catch (error) {
         ElMessage.error(error.message || '查询工单失败')
+    } finally {
+        loading.value = false
     }
 }
 
+// 分页大小改变
+const handleSizeChange = (val) => {
+    pageSize.value = val
+    queryWorkOrder()
+}
+
+// 分页页码改变
+const handleCurrentChange = (val) => {
+    pageNum.value = val
+    queryWorkOrder()
+}
+
 onMounted(async () => {
+    loading.value = true
     // 获取工单列表
     try {
         await getWorkOrderListApi().then(res => {
@@ -161,7 +192,9 @@ onMounted(async () => {
             }
         })
     } catch (error) {
-        ErrorNotify(error.message || '获取工单列表失败')
+        errorNotify(error.message || '获取工单列表失败')
+    } finally {
+        loading.value = false
     }
 })
 </script>
@@ -190,5 +223,9 @@ onMounted(async () => {
 
 .search-form {
     width: 100%;
+}
+
+.pagination {
+    padding: 20px 0;
 }
 </style>

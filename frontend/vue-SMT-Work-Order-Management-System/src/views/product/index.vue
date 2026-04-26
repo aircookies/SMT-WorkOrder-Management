@@ -44,7 +44,7 @@
             </el-table>
         </div>
         <!-- 分页 -->
-        <el-pagination v-model:current-page="productDTO.pageNum" v-model:page-size="productDTO.pageSize"
+        <el-pagination :current-page="productDTO.pageNum" :page-size="productDTO.pageSize"
             :page-sizes="[10, 15, 25, 50, 100]" layout="total, sizes, prev, pager, next, jumper"
             :total="productDTO.total" @size-change="queryProduct" @current-change="queryProduct" />
         <!-- 添加/编辑产品对话框 -->
@@ -124,6 +124,15 @@ const currentProduct = ref({
     spec: '',
     image: ''  // 图片字段
 })
+
+// 错误通知
+const errorNotify = (message) => {
+    ElNotification({
+        title: '错误',
+        message: message,
+        type: 'error'
+    })
+}
 
 // 选择的行
 const selectedRows = ref([])
@@ -323,18 +332,20 @@ const clearQuery = () => {
 onMounted(async () => {
     // 获取产品列表
     tableLoading.value = true
-    const res = await getProductListApi(productDTO.value.pageNum, productDTO.value.pageSize)
-    // console.log(res)
-    // 判断响应结果是否正确
-    if (res.code === 200) {
-        tableData.value = res.data.list
-        if (res.data.total > 0) {
-            productDTO.value.total = res.data.total
-        }
-    } else {
-        errorMsg(res.message || '获取产品列表失败')
+    try {
+        await getProductListApi(productDTO.value.pageNum, productDTO.value.pageSize).then(res => {
+            if (res.code === 200) {
+                tableData.value = res.data.list
+                pageNum.value = res.data.pageNum
+                pageSize.value = res.data.pageSize
+                total.value = res.data.total
+            }
+        })
+    } catch (error) {
+        errorNotify(error.message || "发生错误")
+    } finally {
+        tableLoading.value = false
     }
-    tableLoading.value = false
 })
 </script>
 
