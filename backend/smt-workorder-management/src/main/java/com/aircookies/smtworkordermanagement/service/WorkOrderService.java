@@ -4,6 +4,8 @@ import com.aircookies.smtworkordermanagement.common.Result;
 import com.aircookies.smtworkordermanagement.entity.WorkOrder;
 import com.aircookies.smtworkordermanagement.entity.WorkProcessReport;
 
+import java.util.List;
+
 /**
  * 工单服务接口
  */
@@ -17,7 +19,7 @@ public interface WorkOrderService {
     /**
      * 根据ID删除工单
      */
-    Result deleteWorkOrder(Long id);
+    Result deleteWorkOrder(List<Long> ids);
 
     /**
      * 更新工单

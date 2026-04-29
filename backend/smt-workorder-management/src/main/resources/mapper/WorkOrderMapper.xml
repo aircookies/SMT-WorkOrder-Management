@@ -106,6 +106,7 @@
                 AND work_order.priority = #{priority}
             </if>
         </where>
+        ORDER BY create_time DESC
     </select>
 
     <!-- 更新工单 -->
@@ -128,7 +129,7 @@
                 priority = #{priority},
             </if>
             <if test="planningTime != null">
-                planning_time = #{finishTime},
+                planning_time = #{planningTime},
             </if>
             <if test="creatorId != null">
                 creator_id = #{creatorId},
@@ -147,7 +148,10 @@
     <delete id="deleteWorkOrder">
         DELETE
         FROM work_order
-        WHERE id = #{id}
+        WHERE id IN
+        <foreach item="id" collection="ids" separator="," open="(" close=")">
+            #{id}
+        </foreach>
     </delete>
 
     <!-- ==================== 工序报工相关SQL ==================== -->

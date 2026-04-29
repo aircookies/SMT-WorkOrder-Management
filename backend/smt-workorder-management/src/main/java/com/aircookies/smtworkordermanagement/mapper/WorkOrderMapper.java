@@ -20,7 +20,7 @@ public interface WorkOrderMapper {
     /**
      * 根据ID删除工单
      */
-    void deleteWorkOrder(Long id);
+    void deleteWorkOrder(List<Long> ids);
 
     /**
      * 更新工单

@@ -8,6 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * 工单管理控制器
  */
@@ -35,10 +37,10 @@ public class WorkOrderController {
     /**
      * 根据ID删除工单
      */
-    @DeleteMapping("/delete/{id}")
-    public Result deleteWorkOrder(@PathVariable Long id) {
-        log.debug("删除工单: {}", id);
-        return workOrderService.deleteWorkOrder(id);
+    @DeleteMapping("/delete")
+    public Result deleteWorkOrder(@RequestBody List<Long> ids) {
+        log.debug("删除工单: {}", ids);
+        return workOrderService.deleteWorkOrder(ids);
     }
 
     /**

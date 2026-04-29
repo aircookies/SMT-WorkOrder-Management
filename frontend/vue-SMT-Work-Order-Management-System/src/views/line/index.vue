@@ -5,10 +5,10 @@
             <el-button type="success" @click="showDialog()" plain>新增</el-button>
         </div>
         <!-- 表格 -->
-        <el-table v-loading="loading" :data="tableData" style="width: 100%" row-key="id" table-layout="fixed">
-            <el-table-column prop="name" label="产线名称" min-width="100" />
-            <el-table-column prop="description" label="产线描述" min-width="220" />
-            <el-table-column prop="updateTime" label="更新时间" min-width="180" />
+        <el-table v-loading="loading" :data="tableData" row-key="id" table-layout="fixed" style="width: 100%">
+            <el-table-column prop="name" label="产线名称" max-width="280" />
+            <el-table-column prop="description" label="产线描述" width="620" show-overflow-tooltip />
+            <el-table-column prop="updateTime" label="更新时间" max-width="280" />
             <el-table-column label="操作">
                 <template #default="scope">
                     <el-button type="primary" :icon="Edit" size="small" @click="showDialog(scope.row.id)" circle />
@@ -17,8 +17,8 @@
             </el-table-column>
         </el-table>
         <!-- dialog表单 -->
-        <el-dialog v-model="dialogFormVisible" class="dialog" :title="isEdit ? '编辑产线' : '新增产线'" center width="500">
-            <el-form :model="line" :rules="rules" ref="ruleFormRef" label-width="auto">
+        <el-dialog v-model="dialogFormVisible" class="dialog" :title="isEdit ? '编辑产线' : '新增产线'" width="500" center>
+            <el-form :model="line" :rules="rules" ref="ruleFormRef" label-position="right">
                 <el-form-item label="产线名称:" prop="name">
                     <el-input v-model="line.name" placeholder="请输入产线名称" autocomplete="off" />
                 </el-form-item>
@@ -40,9 +40,9 @@
 
 <script setup>
 import { onMounted, ref } from 'vue'
-import { Edit, Delete, CaretRight } from '@element-plus/icons-vue'
+import { Edit, Delete } from '@element-plus/icons-vue'
 import { getLineListApi, addLineApi, deleteLineApi, getLineByIdApi, editLineApi } from '@/api/line';
-import { ElMessage, ElNotification, ElMessageBox } from 'element-plus'
+import { ElMessage, ElNotification, ElMessageBox, ElDialog, ElForm, ElFormItem } from 'element-plus'
 
 // 表格数据
 const tableData = ref([])
@@ -77,7 +77,7 @@ const showDialog = async (id) => {
             }
         } catch (error) {
             errorMsg(error.message || '获取产线信息失败')
-            return 
+            return
         }
     } else {
         isEdit.value = false
@@ -119,6 +119,8 @@ const deleteLine = async (id) => {
         } else {
             ElMessage.error(res.message || '删除失败')
         }
+    }).catch(() => {
+        ElMessage.info('取消操作')
     })
 }
 
@@ -203,13 +205,8 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-* {
-    margin: 0;
-}
-
 .container {
-    margin: 0 2cap;
-    padding-top: 10px;
+    padding: 10px 20px;
     width: 100%;
 }
 

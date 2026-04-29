@@ -8,7 +8,7 @@
                 <el-button type="primary" @click="showAddDialog" plain>添加产品</el-button>
                 <el-button type="danger" @click="deleteProductConfirm()" plain>批量删除</el-button>
             </div>
-            <el-form :inline="true" :model="productDTO" class="demo-form-inline">
+            <el-form :inline="true" :model="productDTO" class="demo-form-inline" >
                 <el-form-item label="产品名称:">
                     <el-input v-model="productDTO.name" placeholder="请输入" clearable />
                 </el-form-item>
@@ -37,19 +37,22 @@
                 <el-table-column property="updateTime" label="更新时间" min-width="120" />
                 <el-table-column label="操作">
                     <template #default="scope">
-                        <el-button type="primary" :icon="Edit" size="small" @click="showEditDialog(scope.row.id)" circle />
-                        <el-button type="danger" :icon="Delete" size="small" @click="deleteProductConfirm(scope.row.id)" circle />
+                        <el-button type="primary" :icon="Edit" size="small" @click="showEditDialog(scope.row.id)"
+                            circle />
+                        <el-button type="danger" :icon="Delete" size="small" @click="deleteProductConfirm(scope.row.id)"
+                            circle />
                     </template>
                 </el-table-column>
             </el-table>
         </div>
         <!-- 分页 -->
         <el-pagination :current-page="productDTO.pageNum" :page-size="productDTO.pageSize"
-            :page-sizes="[10, 15, 25, 50, 100]" layout="total, sizes, prev, pager, next, jumper"
-            :total="productDTO.total" @size-change="queryProduct" @current-change="queryProduct" />
+            :page-sizes="[10, 25, 50, 100, 500]" layout="total, sizes, prev, pager, next, jumper"
+            :total="productDTO.total" @size-change="handleSizeChange" @current-change="handleCurrentChange" />
         <!-- 添加/编辑产品对话框 -->
         <el-dialog class="dialog" v-model="dialogVisible" :title="isEdit ? '编辑产品' : '添加产品'" width="500px" center>
-            <el-form :model="currentProduct" :rules="productFormRules" ref="productFormRef" label-width="100px">
+            <el-form :model="currentProduct" :rules="productFormRules" ref="productFormRef" label-width="auto"
+                label-position="right">
                 <el-form-item label="产品编号" prop="code">
                     <el-input v-model="currentProduct.code" placeholder="请输入产品编号" />
                 </el-form-item>
@@ -180,6 +183,18 @@ const clearForm = () => {
     productFormRef.value.resetFields()
 }
 
+// 分页大小改变
+const handleSizeChange = (val) => {
+    pageSize.value = val
+    queryProduct()
+}
+
+// 分页页码改变
+const handleCurrentChange = (val) => {
+    pageNum.value = val
+    queryProduct()
+}
+
 // 查询产品
 const queryProduct = async () => {
     // 查询产品列表
@@ -235,6 +250,8 @@ const deleteProductConfirm = (id) => {
         } else {
             deleteProduct()
         }
+    }).catch(() => {
+        ElMessage.info('取消操作')
     })
 }
 
@@ -350,13 +367,8 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-* {
-    margin: 0;
-}
-
 .container {
-    margin: 0 2cap;
-    padding-top: 10px;
+    padding: 10px 20px;
     width: 100%;
 }
 

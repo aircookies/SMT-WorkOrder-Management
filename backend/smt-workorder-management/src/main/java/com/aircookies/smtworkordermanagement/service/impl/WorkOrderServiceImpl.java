@@ -48,8 +48,8 @@ public class WorkOrderServiceImpl implements WorkOrderService {
      * 根据ID删除工单
      */
     @Override
-    public Result deleteWorkOrder(Long id) {
-        workOrderMapper.deleteWorkOrder(id);
+    public Result deleteWorkOrder(List<Long> ids) {
+        workOrderMapper.deleteWorkOrder(ids);
         return Result.success("删除工单成功");
     }
 

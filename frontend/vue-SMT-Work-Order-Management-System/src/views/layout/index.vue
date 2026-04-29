@@ -2,7 +2,7 @@ JS
 
 vue
 <template>
-    <el-container class="layout-container" style="height: 500px">
+    <el-container class="layout-container" style="height: auto">
         <el-header style="text-align: right; font-size: 12px">
             <div class="toolbar">
                 <el-dropdown>
@@ -51,7 +51,7 @@ vue
                                 产线管理
                             </template>
                         </el-menu-item>
-                        <el-menu-item index="/work-order">
+                        <el-menu-item index="/workorder">
                             <template #title>
                                 <el-icon>
                                     <Document />
@@ -86,8 +86,8 @@ vue
                     </el-menu>
                 </el-scrollbar>
             </el-aside>
-                <RouterView></RouterView>
             <el-main>
+                <RouterView></RouterView>
             </el-main>
         </el-container>
     </el-container>
