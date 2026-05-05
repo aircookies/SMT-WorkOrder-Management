@@ -70,4 +70,8 @@ public interface WorkOrderMapper {
      */
     int findByIdAndSeq(Long orderId, Integer processSeq);
 
+    /**
+     * 查询所有工序报工表
+     */
+    List<WorkProcessReport> findWorkProcessReportAll();
 }

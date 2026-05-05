@@ -122,16 +122,16 @@ public class WorkOrderServiceImpl implements WorkOrderService {
         // 先检查是否该工单是否存在该工序报工记录
         int existRecord = workOrderMapper.findByIdAndSeq(workProcessReport.getOrderId(), workProcessReport.getProcessSeq());
         if (existRecord != 0) {
-            return Result.error("该工序已存在报工记录");
+            return Result.error("请勿重复报工");
         }
         workProcessReport.setCreateTime(LocalDateTime.now());
         workProcessReport.setUpdateTime(LocalDateTime.now());
         workProcessReport.setStartTime(LocalDateTime.now());
         int res = workOrderMapper.addWorkProcessReport(workProcessReport);
         if (res != 0) {
-            return Result.success("添加工序成功");
+            return Result.success("报工成功");
         } else {
-            return Result.error("添加工序失败");
+            return Result.error("报工失败");
         }
     }
 
@@ -142,9 +142,9 @@ public class WorkOrderServiceImpl implements WorkOrderService {
     public Result deleteWorkProcessReport(Long orderId) {
         int res = workOrderMapper.deleteWorkProcessReport(orderId);
         if (res != 0) {
-            return Result.success("删除工序成功");
+            return Result.success("删除成功");
         } else {
-            return Result.error("删除工序失败");
+            return Result.error("删除失败");
         }
     }
 
@@ -156,9 +156,9 @@ public class WorkOrderServiceImpl implements WorkOrderService {
         workProcessReport.setUpdateTime(LocalDateTime.now());
         int res = workOrderMapper.updateWorkProcessReport(workProcessReport);
         if (res != 0) {
-            return Result.success("更新工序成功");
+            return Result.success("更新成功");
         } else {
-            return Result.error("更新工序失败");
+            return Result.error("更新失败");
         }
     }
 
@@ -169,5 +169,21 @@ public class WorkOrderServiceImpl implements WorkOrderService {
     public Result findWorkProcessReport(Long orderId) {
         WorkProcessReport workProcessReport = workOrderMapper.findWorkProcessReport(orderId);
         return success(workProcessReport);
+    }
+
+    @Override
+    public Result findWorkProcessReportAll(int pageNum, int pageSize) {
+        // 开启分页
+        PageHelper.startPage(pageNum, pageSize);
+        List<WorkProcessReport> workProcessReports = workOrderMapper.findWorkProcessReportAll();
+        PageInfo<WorkProcessReport> pageInfo = new PageInfo<>(workProcessReports);
+        return success(
+                new PagesDTO<>(
+                        pageInfo.getPageNum(),
+                        pageInfo.getPageSize(),
+                        pageInfo.getTotal(),
+                        pageInfo.getList()
+                )
+        );
     }
 }

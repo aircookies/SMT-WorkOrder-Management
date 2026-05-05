@@ -32,9 +32,9 @@
     <select id="findWorkOrderById" resultType="com.aircookies.smtworkordermanagement.entity.WorkOrder">
         SELECT work_order.id,
                work_order.product_id,
-               product.name as productName,
+               product.name  as productName,
                work_order.line_id,
-               line.name as lineName,
+               line.name     as lineName,
                work_order.quantity,
                work_order.status,
                work_order.priority,
@@ -55,9 +55,9 @@
     <select id="findAll" resultType="com.aircookies.smtworkordermanagement.entity.WorkOrder">
         SELECT work_order.id,
                work_order.product_id,
-               product.name as productName,
+               product.name  as productName,
                work_order.line_id,
-               line.name as lineName,
+               line.name     as lineName,
                work_order.quantity,
                work_order.status,
                work_order.priority,
@@ -203,6 +203,23 @@
         FROM work_process
         WHERE order_id = #{orderId}
           AND process_seq = #{processSeq}
+    </select>
+    <!--    查询所有工序报工表-->
+    <select id="findWorkProcessReportAll"
+            resultType="com.aircookies.smtworkordermanagement.entity.WorkProcessReport">
+        SELECT id,
+               order_id,
+               process_seq,
+               status,
+               qualified_quantity,
+               bad_quantity,
+               operator_id,
+               remarks,
+               start_time,
+               finish_time,
+               create_time,
+               update_time
+        FROM work_process
     </select>
 
     <!-- 更新工序报工表 -->

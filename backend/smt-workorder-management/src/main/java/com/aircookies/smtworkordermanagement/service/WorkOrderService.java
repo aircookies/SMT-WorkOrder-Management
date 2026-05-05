@@ -61,4 +61,8 @@ public interface WorkOrderService {
      */
     Result findWorkProcessReport(Long orderId);
 
+    /**
+     * 查询所有工序报工表
+     */
+    Result findWorkProcessReportAll(int pageNum, int pageSize);
 }

@@ -83,7 +83,7 @@ public class WorkOrderController {
 
 
     // 生产报工功能
-    /**
+    /*
     * 创建工序表
     * /
 
@@ -121,5 +121,14 @@ public class WorkOrderController {
     public Result findWorkProcessReport(@PathVariable Long orderId) {
         log.debug("查询工序: orderId={}", orderId);
         return workOrderService.findWorkProcessReport(orderId);
+    }
+
+    /**
+     * 查询所有工序报工表
+     */
+    @GetMapping("/process/findAll")
+    public Result findWorkProcessReportAll(@RequestParam(defaultValue = "1") int pageNum, @RequestParam(defaultValue = "10") int pageSize) {
+        log.debug("查询所有工序: pageNum={}, pageSize={}", pageNum, pageSize);
+        return workOrderService.findWorkProcessReportAll(pageNum, pageSize);
     }
 }
