@@ -69,7 +69,7 @@ public class WorkOrderServiceImpl implements WorkOrderService {
     @Override
     public Result findWorkOrderById(Long id) {
         WorkOrder workOrder = workOrderMapper.findWorkOrderById(id);
-        return success(workOrder);
+        return Result.success(workOrder);
     }
 
     /**
@@ -83,7 +83,7 @@ public class WorkOrderServiceImpl implements WorkOrderService {
         // 获取分页结果
         PageInfo<WorkOrder> pageInfo = new PageInfo<>(workOrders);
         // 封装结果并返回
-        return success(
+        return Result.success(
                 new PagesDTO<>(
                         pageInfo.getPageNum(),
                         pageInfo.getPageSize(),
@@ -104,7 +104,7 @@ public class WorkOrderServiceImpl implements WorkOrderService {
         // 获取分页结果
         PageInfo<WorkOrder> pageInfo = new PageInfo<>(workOrders);
         // 封装结果并返回
-        return success(
+        return Result.success(
                 new PagesDTO<>(
                         pageInfo.getPageNum(),
                         pageInfo.getPageSize(),
@@ -168,7 +168,7 @@ public class WorkOrderServiceImpl implements WorkOrderService {
     @Override
     public Result findWorkProcessReport(Long orderId) {
         WorkProcessReport workProcessReport = workOrderMapper.findWorkProcessReport(orderId);
-        return success(workProcessReport);
+        return Result.success(workProcessReport);
     }
 
     @Override
@@ -177,7 +177,7 @@ public class WorkOrderServiceImpl implements WorkOrderService {
         PageHelper.startPage(pageNum, pageSize);
         List<WorkProcessReport> workProcessReports = workOrderMapper.findWorkProcessReportAll();
         PageInfo<WorkProcessReport> pageInfo = new PageInfo<>(workProcessReports);
-        return success(
+        return Result.success(
                 new PagesDTO<>(
                         pageInfo.getPageNum(),
                         pageInfo.getPageSize(),

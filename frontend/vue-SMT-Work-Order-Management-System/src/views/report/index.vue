@@ -6,25 +6,41 @@
         <el-card class="box-card" header="报工录入">
             <!-- 工单信息子板块 -->
             <el-card class="sub-card" header="工单信息">
-                <el-form :model="workOrderInfo" label-width="120px" size="default">
-                    <el-row :gutter="20">
-                        <el-col :span="8">
-                            <el-form-item label="工单编号">
-                                <el-input v-model="workOrderInfo.orderNo" placeholder="请输入工单编号" />
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="8">
-                            <el-form-item label="产品名称">
-                                <el-input v-model="workOrderInfo.productName" placeholder="请输入产品名称" />
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="8">
-                            <el-form-item label="计划数量">
-                                <el-input-number v-model="workOrderInfo.planQuantity" :min="0" style="width: 100%" />
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
+                <el-form :model="workOrderInfo" label-width="120px" size="default" label-position="left" inline="true">
+                    <el-form-item label="工单编号">
+                        <el-input v-model="orderId" placeholder="请输入工单编号" />
+                    </el-form-item>
+                    <el-form-item>
+                        <el-button type="primary" @click="queryWorkOrder">查询</el-button>
+                    </el-form-item>
                 </el-form>
+                <el-row :gutter="20">
+                    <el-col :span="24">
+                        <el-descriptions class="workorder-descriptions" title="" column="4" size="large">
+                            <el-descriptions-item label="编号:">{{ workOrderInfo.id }}</el-descriptions-item>
+                            <el-descriptions-item label="产品:">{{ workOrderInfo.productName }}</el-descriptions-item>
+                            <el-descriptions-item label="产线:">{{ workOrderInfo.lineName }}</el-descriptions-item>
+                            <el-descriptions-item label="计划生产数量:">{{ workOrderInfo.quantity }}</el-descriptions-item>
+                            <el-descriptions-item label="创建时间:">{{ workOrderInfo.createTime }}</el-descriptions-item>
+                            <el-descriptions-item label="优先级:">
+                                <template #default>
+                                    <el-tag v-if="workOrderInfo.priority === 0" type="info" size="small">低</el-tag>
+                                    <el-tag v-if="workOrderInfo.priority === 1" type="primary" size="small">中</el-tag>
+                                    <el-tag v-if="workOrderInfo.priority === 2" type="warning" size="small">高</el-tag>
+                                    <el-tag v-if="workOrderInfo.priority === 3" type="danger" size="small">紧急</el-tag>
+                                </template>
+                            </el-descriptions-item>
+                            <el-descriptions-item label="状态:">
+                                <template #default>
+                                    <el-tag v-if="workOrderInfo.status === 0" type="info" size="small">待生产</el-tag>
+                                    <el-tag v-if="workOrderInfo.status === 1" type="primary" size="small">生产中</el-tag>
+                                    <el-tag v-if="workOrderInfo.status === 2" type="warning" size="small">已完成</el-tag>
+                                    <el-tag v-if="workOrderInfo.status === 3" type="danger" size="small">已关闭</el-tag>
+                                </template>
+                            </el-descriptions-item>
+                        </el-descriptions>
+                    </el-col>
+                </el-row>
             </el-card>
 
             <!-- 报工信息子板块 -->
@@ -41,52 +57,26 @@
                             </el-form-item>
                         </el-col>
                         <el-col :span="8">
-                            <el-form-item label="生产状态">
-                                <el-select v-model="report.status" placeholder="请选择生产状态">
-                                    <el-option label="未开始" :value="0"></el-option>
-                                    <el-option label="进行中" :value="1"></el-option>
-                                    <el-option label="已完成" :value="2"></el-option>
-                                </el-select>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="8">
                             <el-form-item label="合格数量">
                                 <el-input-number v-model="report.qualifiedQuantity" :min="0" style="width: 100%" />
                             </el-form-item>
                         </el-col>
-                    </el-row>
-                    <el-row :gutter="20">
                         <el-col :span="8">
-                            <el-form-item label="不合格数量">
+                            <el-form-item label="不良数量">
                                 <el-input-number v-model="report.badQuantity" :min="0" style="width: 100%" />
                             </el-form-item>
                         </el-col>
-                        <el-col :span="8">
-                            <el-form-item label="操作员">
-                                <el-input v-model="report.operatorId" placeholder="请输入操作员ID" />
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="8">
-                            <el-form-item label="完成时间">
-                                <el-date-picker
-                                    v-model="report.finishTime"
-                                    type="datetime"
-                                    placeholder="选择完成时间"
-                                    format="YYYY-MM-DD HH:mm:ss"
-                                    value-format="YYYY-MM-DD HH:mm:ss"
-                                />
-                            </el-form-item>
-                        </el-col>
                     </el-row>
                     <el-row :gutter="20">
-                        <el-col :span="24">
+                        <el-col :span="8">
+                            <el-form-item label="完成时间">
+                                <el-date-picker v-model="report.finishTime" type="datetime" placeholder="选择完成时间"
+                                    format="YYYY-MM-DD HH:mm:ss" value-format="YYYY-MM-DD HH:mm:ss" />
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="12">
                             <el-form-item label="备注">
-                                <el-input 
-                                    v-model="report.remarks" 
-                                    type="textarea" 
-                                    :rows="3"
-                                    placeholder="请输入备注信息" 
-                                />
+                                <el-input v-model="report.remarks" type="textarea" :rows="3" placeholder="请输入备注信息" />
                             </el-form-item>
                         </el-col>
                     </el-row>
@@ -108,11 +98,6 @@
                         {{ getProcessName(row.processSeq) }}
                     </template>
                 </el-table-column>
-                <el-table-column prop="status" label="生产状态" width="100">
-                    <template #default="{ row }">
-                        {{ getStatusName(row.status) }}
-                    </template>
-                </el-table-column>
                 <el-table-column prop="qualifiedQuantity" label="合格数量" width="100" />
                 <el-table-column prop="badQuantity" label="不合格数量" width="120" />
                 <el-table-column prop="operatorId" label="操作员" width="100" />
@@ -125,43 +110,44 @@
                     </template>
                 </el-table-column>
             </el-table>
-            
+
             <!-- 分页组件 -->
-            <el-pagination
-                v-model:current-page="pagination.currentPage"
-                v-model:page-size="pagination.pageSize"
-                :page-sizes="[10, 20, 50, 100]"
-                :total="pagination.total"
-                layout="total, sizes, prev, pager, next, jumper"
-                style="margin-top: 20px; text-align: right"
-                @size-change="handleSizeChange"
-                @current-change="handleCurrentChange"
-            />
+            <el-pagination v-model:current-page="pagination.currentPage" v-model:page-size="pagination.pageSize"
+                :page-sizes="[10, 20, 50, 100]" :total="pagination.total"
+                layout="total, sizes, prev, pager, next, jumper" style="margin-top: 20px; text-align: right"
+                @size-change="handleSizeChange" @current-change="handleCurrentChange" />
         </el-card>
     </div>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from "vue"
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ref, onMounted } from "vue"
+import { ElMessage, ElMessageBox, ElDescriptions } from 'element-plus'
 import { getReportListApi, addReportApi } from "@/api/report";
+import { getWorkOrderByIdApi } from "@/api/workorder";
 
 // 工单信息数据模型
-const workOrderInfo = reactive({
-    orderNo: '',
-    productName: '',
-    planQuantity: null,
+const workOrderInfo = ref({
+    id: '',    // 工单ID
+    productName: '',    // 产品名称
+    lineName: '',   // 产线名称
+    quantity: null, // 计划生产数量
+    createTime: '', // 工单创建日期
+    priority: '', // 工单优先级
+    status: '' // 工单状态
 })
 
+// 用于记录待查询的工单ID
+let orderId = ref('')
+
 // 报工信息数据模型
-const report = reactive({
+const report = ref({
     id: '', // 报工单id
     orderId: '', // 工单id
-    processSeq: '', // 丹铅工序:1印刷 2贴片 3回流焊
-    status: '', // 生产状态：0未开始 1进行中 2已完成
+    processSeq: '', // 工序:1印刷 2贴片 3回流焊
     qualifiedQuantity: '', // 合格数量
     badQuantity: '', // 不合格数量
-    operatorId: '', // 操作员id
+    operatorId: '1', // 操作员id 先用1
     remarks: '', // 备注
     finishTime: '', // 完成时间
 })
@@ -170,7 +156,7 @@ const report = reactive({
 const reportList = ref([])
 
 // 分页信息
-const pagination = reactive({
+const pagination = ref({
     currentPage: 1,
     pageSize: 10,
     total: 0
@@ -186,14 +172,29 @@ const getProcessName = (processSeq) => {
     return processes[processSeq] || '未知'
 }
 
-// 获取状态名称
-const getStatusName = (status) => {
-    const statuses = {
-        0: '未开始',
-        1: '进行中',
-        2: '已完成'
+// 清空工单信息
+const clearWorkOrder = () => {
+    workOrderInfo.value = {}
+}
+
+// 查询工单信息
+const queryWorkOrder = async () => {
+    // 判断用户是否输入了工单ID
+    if (!orderId.value) {
+        ElMessage.warning('请输入工单编号')
+        return
     }
-    return statuses[status] || '未知'
+
+    try {
+        const data = await getWorkOrderByIdApi(orderId.value)
+        if (data.code === 200) {
+            clearWorkOrder()
+            workOrderInfo.value = data.data
+        }
+    } catch (error) {
+        console.log(error || "发生错误")
+        ElMessage.error('发生错误: ' + error.message)
+    }
 }
 
 // 提交报工
@@ -212,7 +213,7 @@ const submitReport = async () => {
             await addReportApi(report)
             ElMessage.success('报工记录添加成功')
         }
-        
+
         resetForm()
         fetchReportList()
     } catch (error) {
@@ -243,7 +244,7 @@ const validateReport = () => {
         ElMessage.warning('请输入操作员ID')
         return false
     }
-    
+
     return true
 }
 
@@ -252,10 +253,9 @@ const resetForm = () => {
     report.id = ''
     report.orderId = ''
     report.processSeq = ''
-    report.status = ''
     report.qualifiedQuantity = ''
     report.badQuantity = ''
-    report.operatorId = ''
+    report.operatorId = '1'
     report.remarks = ''
     report.finishTime = ''
 }
@@ -273,7 +273,7 @@ const editReport = (row) => {
 //             cancelButtonText: '取消',
 //             type: 'warning'
 //         })
-        
+
 //         await deleteReportApi(id)
 //         ElMessage.success('删除成功')
 //         fetchReportList()
@@ -326,7 +326,7 @@ onMounted(() => {
 }
 
 .box-card {
-    margin-bottom: 20px;
+    margin: 10px 0;
 }
 
 .sub-card {

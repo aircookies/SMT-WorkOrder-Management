@@ -184,7 +184,7 @@
     <select id="findWorkProcessReport" resultType="com.aircookies.smtworkordermanagement.entity.WorkProcessReport">
         SELECT order_id,
                process_seq,
-               status,
+#                status,
                qualified_quantity,
                bad_quantity,
                operator_id,
@@ -210,7 +210,7 @@
         SELECT id,
                order_id,
                process_seq,
-               status,
+#                status,
                qualified_quantity,
                bad_quantity,
                operator_id,
@@ -226,9 +226,9 @@
     <update id="updateWorkProcessReport" parameterType="com.aircookies.smtworkordermanagement.entity.WorkProcessReport">
         UPDATE work_process
         <set>
-            <if test="status != null">
-                status = #{status},
-            </if>
+<!--            <if test="status != null">-->
+<!--                status = #{status},-->
+<!--            </if>-->
             <if test="qualifiedQuantity != null">
                 qualified_quantity = #{qualifiedQuantity},
             </if>
