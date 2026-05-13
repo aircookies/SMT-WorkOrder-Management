@@ -19,10 +19,10 @@
         <!-- dialog表单 -->
         <el-dialog v-model="dialogFormVisible" class="dialog" :title="isEdit ? '编辑产线' : '新增产线'" width="500" center>
             <el-form :model="line" :rules="rules" ref="ruleFormRef" label-position="right">
-                <el-form-item label="产线名称:" prop="name">
+                <el-form-item label="产线名称" prop="name">
                     <el-input v-model="line.name" placeholder="请输入产线名称" autocomplete="off" />
                 </el-form-item>
-                <el-form-item label="产线描述:">
+                <el-form-item label="产线描述">
                     <el-input v-model="line.description" type="textarea" placeholder="可选" autocomplete="off" />
                 </el-form-item>
             </el-form>

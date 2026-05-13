@@ -81,11 +81,7 @@ public class WorkOrderController {
         return workOrderService.queryWorkOrder(pageNum, pageSize, workOrder);
     }
 
-
-    // 生产报工功能
-    /*
-    * 创建工序表
-    * /
+    // 报工相关
 
     /**
      * 添加工序报工表

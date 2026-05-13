@@ -220,6 +220,7 @@
                create_time,
                update_time
         FROM work_process
+        ORDER BY create_time DESC
     </select>
 
     <!-- 更新工序报工表 -->

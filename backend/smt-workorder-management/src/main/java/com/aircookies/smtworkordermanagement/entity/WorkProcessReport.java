@@ -4,7 +4,7 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 
-// 工单工序报工实体类
+// 工单报工实体类
 @Data
 public class WorkProcessReport {
     private Long id; // 报工ID
