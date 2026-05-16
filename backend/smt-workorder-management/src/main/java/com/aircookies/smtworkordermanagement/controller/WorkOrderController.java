@@ -81,6 +81,32 @@ public class WorkOrderController {
         return workOrderService.queryWorkOrder(pageNum, pageSize, workOrder);
     }
 
+    /**
+     * 统计指定状态的工单的数量
+     */
+    @GetMapping("/count")
+    public Result countWorkOrder(String status) {
+        log.debug("统计指定状态的工单的数量: {}", status);
+        return workOrderService.countWorkOrder(status);
+    }
+
+    /**
+    * 分别统计各个状态的工单的数量
+    **/
+    @GetMapping("/countstatus")
+    public Result countStatus() {
+        log.debug("分别统计各个状态的工单的数量");
+        return workOrderService.countStatus();
+    }
+    /**
+     * 统计待生产，生产中，已完成，已关闭工单的计划生产数量，合格数量，不良数量
+     */
+    @GetMapping("/countgoods")
+    public Result countGoods() {
+        log.debug("统计待生产，生产中，已完成，已关闭工单的计划生产数量，合格数量，不良数量");
+        return workOrderService.countGoods();
+    }
+
     // 报工相关
 
     /**

@@ -65,4 +65,19 @@ public interface WorkOrderService {
      * 查询所有工序报工表
      */
     Result findWorkProcessReportAll(int pageNum, int pageSize);
+
+    /**
+     * 工单数量统计
+     */
+    Result countWorkOrder(String status);
+
+    /**
+    * 统计所有计划生产数量，合格数量，不良数量
+    * */
+    Result countGoods();
+
+    /**
+     * 分别统计各个状态的工单的数量
+    * */
+    Result countStatus();
 }

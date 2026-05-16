@@ -154,6 +154,53 @@
         </foreach>
     </delete>
 
+    <!--    工单数量统计-->
+    <select id="countWorkOrder" resultType="java.lang.Long">
+        SELECT COUNT(*) AS count
+        FROM work_order
+        <where>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+        </where>
+    </select>
+
+<!--    分别统计各个状态的工单的数量-->
+    <select id="countStatus"
+            resultType="com.aircookies.smtworkordermanagement.dto.StatisticsWorkOrderStatusDTO">
+        SELECT work_order.status,
+               CASE work_order.status
+                   WHEN 0 THEN '待生产'
+                   WHEN 1 THEN '生产中'
+                   WHEN 2 THEN '已完成'
+                   WHEN 3 THEN '已关闭'
+                   END  AS status_name,
+               COUNT(*) AS order_count
+        FROM work_order
+                 LEFT JOIN work_process ON work_order.id = work_process.order_id
+        GROUP BY work_order.status
+        ORDER BY work_order.status
+    </select>
+
+<!--    统计待生产，生产中，已完成，已关闭工单的计划生产数量，合格数量，不良数量-->
+    <select id="countGoods" resultType="com.aircookies.smtworkordermanagement.dto.StatisticsGoodsDTO">
+        SELECT SUM(work_order.quantity)             AS quantity,
+               SUM(work_process.qualified_quantity) AS qualifiedQuantity,
+               SUM(work_process.bad_quantity)       AS badQuantity,
+               work_order.status,
+               CASE work_order.status
+                   WHEN 0 THEN '待生产'
+                   WHEN 1 THEN '生产中'
+                   WHEN 2 THEN '已完成'
+                   WHEN 3 THEN '已关闭'
+                   END                              AS status_name
+        FROM work_order
+                 LEFT JOIN work_process ON work_order.id = work_process.order_id
+        GROUP BY work_order.status
+        ORDER BY work_order.status
+    </select>
+
+
     <!-- ==================== 工序报工相关SQL ==================== -->
 
     <!-- 添加工序报工表 -->

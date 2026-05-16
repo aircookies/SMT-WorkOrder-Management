@@ -5,7 +5,7 @@
         <!-- 报工录入板块 -->
         <el-card class="box-card" header="报工录入" v-loading="messageLoading">
             <!-- 工单信息子板块 -->
-            <el-card class="sub-card" header="工单信息">
+            <el-card class="sub-card" header="工单信息" shadow="never">
                 <el-form :model="workOrderInfo" :rules="workOrderRules" ref="workOrderFormRef" label-width="auto"
                     size="default" label-position="left" inline="true">
                     <el-form-item label="工单编号" prop="id">
@@ -45,7 +45,7 @@
             </el-card>
 
             <!-- 报工信息子板块 -->
-            <el-card class="sub-card" header="报工信息" style="margin-top: 20px">
+            <el-card class="sub-card" header="报工信息" style="margin-top: 20px" shadow="never" >
                 <el-form :model="report" :rules="reportRules" ref="reportFormRef" label-width="auto" size="default">
                     <el-row :gutter="20">
                         <el-col :span="8">

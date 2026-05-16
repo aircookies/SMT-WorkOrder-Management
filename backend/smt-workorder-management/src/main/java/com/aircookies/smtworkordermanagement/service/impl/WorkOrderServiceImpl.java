@@ -1,7 +1,9 @@
 package com.aircookies.smtworkordermanagement.service.impl;
 
 import com.aircookies.smtworkordermanagement.common.Result;
+import com.aircookies.smtworkordermanagement.dto.StatisticsGoodsDTO;
 import com.aircookies.smtworkordermanagement.dto.PagesDTO;
+import com.aircookies.smtworkordermanagement.dto.StatisticsWorkOrderStatusDTO;
 import com.aircookies.smtworkordermanagement.entity.WorkOrder;
 import com.aircookies.smtworkordermanagement.entity.WorkProcessReport;
 import com.aircookies.smtworkordermanagement.mapper.WorkOrderMapper;
@@ -185,5 +187,24 @@ public class WorkOrderServiceImpl implements WorkOrderService {
                         pageInfo.getList()
                 )
         );
+    }
+
+    @Override
+    public Result countWorkOrder(String status) {
+        return Result.success(workOrderMapper.countWorkOrder(status));
+    }
+
+    @Override
+    public Result countGoods() {
+        List<StatisticsGoodsDTO> goodsDTO = workOrderMapper.countGoods();
+        return Result.success(goodsDTO);
+    }
+
+    @Override
+    public Result countStatus() {
+//        StatisticsWorkOrderStatusDTO statusDTO = workOrderMapper.countStatus();
+        List<StatisticsWorkOrderStatusDTO> statusDTO = workOrderMapper.countStatus();
+        return Result.success(statusDTO);
+
     }
 }

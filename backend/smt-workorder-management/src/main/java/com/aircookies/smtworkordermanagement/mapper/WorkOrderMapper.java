@@ -1,5 +1,7 @@
 package com.aircookies.smtworkordermanagement.mapper;
 
+import com.aircookies.smtworkordermanagement.dto.StatisticsGoodsDTO;
+import com.aircookies.smtworkordermanagement.dto.StatisticsWorkOrderStatusDTO;
 import com.aircookies.smtworkordermanagement.entity.WorkOrder;
 import com.aircookies.smtworkordermanagement.entity.WorkProcessReport;
 import org.apache.ibatis.annotations.Mapper;
@@ -74,4 +76,19 @@ public interface WorkOrderMapper {
      * 查询所有工序报工表
      */
     List<WorkProcessReport> findWorkProcessReportAll();
+
+    /**
+     * 工单数量统计
+     */
+    Long countWorkOrder(String status);
+
+    /**
+    * 统计所有计划生产数量，合格数量，不良数量
+    * */
+    List<StatisticsGoodsDTO> countGoods();
+
+    /**
+     * 分别统计各个状态的工单的数量
+    * */
+    List<StatisticsWorkOrderStatusDTO> countStatus();
 }
