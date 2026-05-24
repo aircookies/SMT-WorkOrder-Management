@@ -4,6 +4,7 @@ import com.aircookies.smtworkordermanagement.common.Result;
 import com.aircookies.smtworkordermanagement.entity.WorkOrder;
 import com.aircookies.smtworkordermanagement.entity.WorkProcessReport;
 
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -67,17 +68,12 @@ public interface WorkOrderService {
     Result findWorkProcessReportAll(int pageNum, int pageSize);
 
     /**
-     * 工单数量统计
+     * 工单详细统计
      */
-    Result countWorkOrder(String status);
+    Result workOrderDetailed(LocalDate startTime, LocalDate endTime);
 
     /**
-    * 统计所有计划生产数量，合格数量，不良数量
-    * */
-    Result countGoods();
-
-    /**
-     * 分别统计各个状态的工单的数量
-    * */
-    Result countStatus();
+     * 查询指定时间内的良品数和不良数统计
+     */
+    Result statisticsProductionQuality(LocalDate startTime, LocalDate endTime);
 }

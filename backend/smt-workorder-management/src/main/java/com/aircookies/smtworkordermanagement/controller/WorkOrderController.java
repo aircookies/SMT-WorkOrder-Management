@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -82,30 +83,15 @@ public class WorkOrderController {
     }
 
     /**
-     * 统计指定状态的工单的数量
+     * 统计指定时间内工单的详细信息
      */
-    @GetMapping("/count")
-    public Result countWorkOrder(String status) {
-        log.debug("统计指定状态的工单的数量: {}", status);
-        return workOrderService.countWorkOrder(status);
+    @GetMapping("/detailed")
+    public Result WorkOrderDetailed(@RequestParam LocalDate startTime, @RequestParam LocalDate endTime) {
+        log.debug("统计指定时间内工单的详细信息: {} - {}", startTime, endTime);
+        return workOrderService.workOrderDetailed(startTime, endTime);
     }
 
-    /**
-    * 分别统计各个状态的工单的数量
-    **/
-    @GetMapping("/countstatus")
-    public Result countStatus() {
-        log.debug("分别统计各个状态的工单的数量");
-        return workOrderService.countStatus();
-    }
-    /**
-     * 统计待生产，生产中，已完成，已关闭工单的计划生产数量，合格数量，不良数量
-     */
-    @GetMapping("/countgoods")
-    public Result countGoods() {
-        log.debug("统计待生产，生产中，已完成，已关闭工单的计划生产数量，合格数量，不良数量");
-        return workOrderService.countGoods();
-    }
+
 
     // 报工相关
 
@@ -152,5 +138,14 @@ public class WorkOrderController {
     public Result findWorkProcessReportAll(@RequestParam(defaultValue = "1") int pageNum, @RequestParam(defaultValue = "10") int pageSize) {
         log.debug("查询所有工序: pageNum={}, pageSize={}", pageNum, pageSize);
         return workOrderService.findWorkProcessReportAll(pageNum, pageSize);
+    }
+
+    /**
+     * 查询指定时间内的良品数和不良数统计
+     */
+    @GetMapping("/process/statistics")
+    public Result statisticsProductionQuality(@RequestParam LocalDate startTime, @RequestParam LocalDate endTime) {
+        log.debug("查询指定时间内的良品数和不良数统计: {} - {}", startTime, endTime);
+        return workOrderService.statisticsProductionQuality(startTime, endTime);
     }
 }

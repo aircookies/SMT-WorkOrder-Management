@@ -149,15 +149,6 @@ const uploadHeaders = ref({
     // 'Authorization': 'Bearer ' + localStorage.getItem('token')
 })
 
-// 错误通知
-const errorMsg = (msg) => {
-    ElNotification({
-        title: '错误',
-        message: msg,
-        type: 'error',
-    })
-}
-
 // 表单验证规则
 const productFormRules = {
     code: [
@@ -185,31 +176,54 @@ const clearForm = () => {
 
 // 分页大小改变
 const handleSizeChange = (val) => {
-    pageSize.value = val
+    productDTO.value.pageSize = val
     queryProduct()
 }
 
 // 分页页码改变
 const handleCurrentChange = (val) => {
-    pageNum.value = val
+    productDTO.value.pageNum = val
     queryProduct()
+}
+
+// 获取产品列表
+const getProductList = async () => {
+    tableLoading.value = true
+    try {
+        await getProductListApi(productDTO.value.pageNum, productDTO.value.pageSize).then(res => {
+            if (res.code === 200) {
+                tableData.value = res.data.list
+                productDTO.value.pageNum = res.data.pageNum
+                productDTO.value.pageSize = res.data.pageSize
+                productDTO.value.total = res.data.total
+            }
+        })
+    } catch (error) {
+        errorNotify(error.message || "发生错误")
+    } finally {
+        tableLoading.value = false
+    }
 }
 
 // 查询产品
 const queryProduct = async () => {
     // 查询产品列表
     tableLoading.value = true
-    const res = await queryProductApi(productDTO.value)
-    // 判断响应结果是否正确
-    if (res.code === 200) {
-        tableData.value = res.data.list
-        if (res.data.total > 0) {
+    try {
+        const res = await queryProductApi(productDTO.value)
+        // 判断响应结果是否正确
+        if (res.code === 200) {
+            tableData.value = res.data.list
+            productDTO.value.pageNum = res.data.pageNum
+            productDTO.value.pageSize = res.data.pageSize
             productDTO.value.total = res.data.total
+        } else {
+            ElMessage.error(res.message || '查询产品列表失败')
         }
-    } else {
-        ElMessage.error(res.message || '查询产品列表失败')
+        tableLoading.value = false
+    } catch (error) {
+        ElMessage.error('发生错误: ' + error.message)
     }
-    tableLoading.value = false
 }
 
 // 批量删除产品
@@ -218,23 +232,31 @@ const deleteProduct = async () => {
         ElMessage.warning('请选择要删除的产品')
         return
     }
-    const res = await deleteProductApi(selectedRows.value)
-    if (res.code === 200) {
-        ElMessage.success('删除产品成功')
-        queryProduct()
-    } else {
-        ElMessage.error(res.message || '删除产品失败')
+    try {
+        const res = await deleteProductApi(selectedRows.value)
+        if (res.code === 200) {
+            ElMessage.success('删除产品成功')
+            queryProduct()
+        } else {
+            ElMessage.error(res.message || '删除产品失败')
+        }
+    } catch (error) {
+        ElMessage.error('发生错误: ' + error.message)
     }
 }
 
 // 根据ID删除产品
 const deleteProductById = async (id) => {
-    const res = await deleteProductByIdApi(id)
-    if (res.code === 200) {
-        ElMessage.success('删除产品成功')
-        queryProduct()
-    } else {
-        ElMessage.error(res.message || '删除产品失败')
+    try {
+        const res = await deleteProductByIdApi(id)
+        if (res.code === 200) {
+            ElMessage.success('删除产品成功')
+            queryProduct()
+        } else {
+            ElMessage.error(res.message || '删除产品失败')
+        }
+    } catch (error) {
+        ElMessage.error('发生错误: ' + error.message)
     }
 }
 
@@ -283,37 +305,49 @@ const showEditDialog = async (id) => {
         image: ''
     }
     currentProduct.value.id = id;
-    const res = await getProductByIdApi(id)
-    if (res.code === 200) {
-        currentProduct.value = res.data
-    } else {
-        ElMessage.error(res.message || '获取产品数据失败')
-        return
+    try {
+        const res = await getProductByIdApi(id)
+        if (res.code === 200) {
+            currentProduct.value = res.data
+        } else {
+            ElMessage.error(res.message || '获取产品数据失败')
+            return
+        }
+    } catch (error) {
+        ElMessage.error('发生错误: ' + error.message)
     }
     dialogVisible.value = true
 }
 
 // 添加产品
 const addProduct = async () => {
-    const res = await addProductApi(currentProduct.value)
-    if (res.code === 200) {
-        ElMessage.success('添加产品成功')
-        dialogVisible.value = false
-        queryProduct()
-    } else {
-        ElMessage.error(res.message || '添加产品失败')
+    try {
+        const res = await addProductApi(currentProduct.value)
+        if (res.code === 200) {
+            ElMessage.success('添加产品成功')
+            dialogVisible.value = false
+            queryProduct()
+        } else {
+            ElMessage.error(res.message || '添加产品失败')
+        }
+    } catch (error) {
+        ElMessage.error('发生错误: ' + error.message)
     }
 }
 
 // 修改产品
 const editProduct = async () => {
-    const res = await editProductApi(currentProduct.value)
-    if (res.code === 200) {
-        ElMessage.success('修改产品成功')
-        dialogVisible.value = false
-        queryProduct()
-    } else {
-        ElMessage.error(res.message || '修改产品失败')
+    try {
+        const res = await editProductApi(currentProduct.value)
+        if (res.code === 200) {
+            ElMessage.success('修改产品成功')
+            dialogVisible.value = false
+            queryProduct()
+        } else {
+            ElMessage.error(res.message || '修改产品失败')
+        }
+    } catch (error) {
+        ElMessage.error('发生错误: ' + error.message)
     }
 }
 
@@ -336,33 +370,20 @@ const submit = async () => {
 // 清空表单
 const clearQuery = () => {
     productDTO.value = {
-        pageNum: 1,
-        pageSize: 10,
-        total: 0,
+        pageNum: productDTO.value.pageNum,
+        pageSize: productDTO.value.pageSize,
+        total: productDTO.value.total,
         id: '',
         code: '',
         name: '',
         createTime: '',
     }
+    queryProduct()
 }
 
 onMounted(async () => {
     // 获取产品列表
-    tableLoading.value = true
-    try {
-        await getProductListApi(productDTO.value.pageNum, productDTO.value.pageSize).then(res => {
-            if (res.code === 200) {
-                tableData.value = res.data.list
-                pageNum.value = res.data.pageNum
-                pageSize.value = res.data.pageSize
-                total.value = res.data.total
-            }
-        })
-    } catch (error) {
-        errorNotify(error.message || "发生错误")
-    } finally {
-        tableLoading.value = false
-    }
+    getProductList()
 })
 </script>
 

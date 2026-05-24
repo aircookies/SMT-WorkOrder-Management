@@ -83,8 +83,7 @@ public class ProductController {
      * 查询所有产品（分页）
      */
     @GetMapping("/findAll")
-    public Result findAll(@RequestParam(defaultValue = "1") Integer pageNum,
-                          @RequestParam(defaultValue = "10") Integer pageSize) {
+    public Result findAll(Integer pageNum, Integer pageSize) {
         log.debug("查询所有产品, 页码: {}, 页大小: {}", pageNum, pageSize);
         return productService.findAll(pageNum, pageSize);
     }

@@ -107,20 +107,25 @@ public class ProductServiceImpl implements ProductService {
      */
     @Override
     public Result findAll(Integer pageNum, Integer pageSize) {
-        // 开启分页
-        PageHelper.startPage(pageNum, pageSize);
-        // 查询所有产品
-        List<Product> products = productMapper.findAll();
-        // 获取分页结果
-        PageInfo<Product> pageInfo = new PageInfo<>(products);
-        // 封装结果并返回
-        return success(
-                new PagesDTO<>(
-                        pageInfo.getPageNum(),
-                        pageInfo.getPageSize(),
-                        pageInfo.getTotal(),
-                        pageInfo.getList()
-                )
-        );
+        if (pageNum != null && pageSize != null) {
+            // 开启分页
+            PageHelper.startPage(pageNum, pageSize);
+            // 查询所有产品
+            List<Product> products = productMapper.findAll();
+            // 获取分页结果
+            PageInfo<Product> pageInfo = new PageInfo<>(products);
+            // 封装结果并返回
+            return success(
+                    new PagesDTO<>(
+                            pageInfo.getPageNum(),
+                            pageInfo.getPageSize(),
+                            pageInfo.getTotal(),
+                            pageInfo.getList()
+                    )
+            );
+        } else {
+            List<Product> products = productMapper.findAll();
+            return success(products);
+        }
     }
 }

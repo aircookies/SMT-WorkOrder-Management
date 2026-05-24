@@ -154,50 +154,36 @@
         </foreach>
     </delete>
 
-    <!--    工单数量统计-->
-    <select id="countWorkOrder" resultType="java.lang.Long">
-        SELECT COUNT(*) AS count
+<!--    工单详细统计-->
+    <select id="workOrderDetailed" resultType="com.aircookies.smtworkordermanagement.dto.WorkOrderDetailedDTO">
+        SELECT DATE(create_time) AS date,
+               id,
+               product_id,
+               line_id,
+               quantity,
+               status,
+               CASE status
+                   WHEN 0 THEN '待生产'
+                   WHEN 1 THEN '生产中'
+                   WHEN 2 THEN '已完成'
+                   WHEN 3 THEN '已关闭'
+                   END          AS status_name,
+               priority,
+               planning_time,
+               creator_id,
+               remarks,
+               create_time,
+               update_time
         FROM work_order
         <where>
-            <if test="status != null">
-                AND status = #{status}
+            <if test="startTime != null">
+                AND create_time &gt;= #{startTime}
+            </if>
+            <if test="endTime != null">
+                AND create_time &lt;= #{endTime}
             </if>
         </where>
-    </select>
-
-<!--    分别统计各个状态的工单的数量-->
-    <select id="countStatus"
-            resultType="com.aircookies.smtworkordermanagement.dto.StatisticsWorkOrderStatusDTO">
-        SELECT work_order.status,
-               CASE work_order.status
-                   WHEN 0 THEN '待生产'
-                   WHEN 1 THEN '生产中'
-                   WHEN 2 THEN '已完成'
-                   WHEN 3 THEN '已关闭'
-                   END  AS status_name,
-               COUNT(*) AS order_count
-        FROM work_order
-                 LEFT JOIN work_process ON work_order.id = work_process.order_id
-        GROUP BY work_order.status
-        ORDER BY work_order.status
-    </select>
-
-<!--    统计待生产，生产中，已完成，已关闭工单的计划生产数量，合格数量，不良数量-->
-    <select id="countGoods" resultType="com.aircookies.smtworkordermanagement.dto.StatisticsGoodsDTO">
-        SELECT SUM(work_order.quantity)             AS quantity,
-               SUM(work_process.qualified_quantity) AS qualifiedQuantity,
-               SUM(work_process.bad_quantity)       AS badQuantity,
-               work_order.status,
-               CASE work_order.status
-                   WHEN 0 THEN '待生产'
-                   WHEN 1 THEN '生产中'
-                   WHEN 2 THEN '已完成'
-                   WHEN 3 THEN '已关闭'
-                   END                              AS status_name
-        FROM work_order
-                 LEFT JOIN work_process ON work_order.id = work_process.order_id
-        GROUP BY work_order.status
-        ORDER BY work_order.status
+        ORDER BY create_time;
     </select>
 
 
@@ -309,5 +295,19 @@
         FROM work_process
         WHERE order_id = #{orderId}
     </delete>
+
+    <!--    查询指定时间内的良品数和不良数统计-->
+    <select id="statisticsProductionQuality" resultType="com.aircookies.smtworkordermanagement.dto.ProductionQualityDTO">
+        SELECT DATE(wp.create_time)                                                                               AS date,
+               SUM(wp.qualified_quantity)                                                                         AS qualified_quantity,
+               SUM(wp.bad_quantity)                                                                               AS bad_quantity,
+               SUM(wp.qualified_quantity + wp.bad_quantity)                                                       AS total_quantity,
+               IF(SUM(wp.qualified_quantity + wp.bad_quantity) > 0,
+                  ROUND(SUM(wp.qualified_quantity) * 100.0 / SUM(wp.qualified_quantity + wp.bad_quantity), 2),
+                  0)                                                                                              AS pass_rate
+        FROM work_process wp
+        GROUP BY DATE(wp.create_time)
+        ORDER BY date
+    </select>
 
 </mapper>
