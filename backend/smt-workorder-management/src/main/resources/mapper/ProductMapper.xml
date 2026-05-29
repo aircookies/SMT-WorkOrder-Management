@@ -109,4 +109,23 @@
         </foreach>
     </delete>
 
+<!--    查询指定日期内各个产品的产量统计-->
+    <select id="statistics" resultType="com.aircookies.smtworkordermanagement.dto.ProductionQuantityDTO">
+        SELECT product.id                             AS product_id,
+               product.code                           AS product_code,
+               product.name                           AS product_name,
+               product.spec                           AS product_spec,
+               SUM(COALESCE(wo.quantity, 0))          AS total_plan_quantity,
+               SUM(IF(wo.status = 2, wo.quantity, 0)) AS completed_quantity,
+               SUM(IF(wo.status = 1, wo.quantity, 0)) AS producing_quantity,
+               SUM(IF(wo.status = 0, wo.quantity, 0)) AS pending_quantity,
+               SUM(IF(wo.status = 3, wo.quantity, 0)) AS closed_quantity
+        FROM product
+                 LEFT JOIN work_order wo ON product.id = wo.product_id
+            AND wo.create_time &gt;= #{startTime}
+            AND wo.create_time &lt; DATE_ADD(#{endTime}, INTERVAL 1 DAY)
+        GROUP BY product.id, product.code, product.name, product.spec
+        ORDER BY product.id;
+    </select>
+
 </mapper>

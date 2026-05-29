@@ -1,8 +1,10 @@
 package com.aircookies.smtworkordermanagement.mapper;
 
+import com.aircookies.smtworkordermanagement.dto.LineOutputDTO;
 import com.aircookies.smtworkordermanagement.entity.Line;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -35,4 +37,9 @@ public interface LineMapper {
      * 查询所有产线
      */
     List<Line> findAll();
+
+    /**
+     * 统计每条产线在指定日期范围内的计划数量和完成数量
+     */
+    List<LineOutputDTO> statistics(LocalDate startTime, LocalDate endTime);
 }

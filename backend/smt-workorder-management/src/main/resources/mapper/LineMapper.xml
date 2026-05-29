@@ -61,4 +61,21 @@
         WHERE id = #{id}
     </delete>
 
+    <!--    统计每条产线在指定日期范围内的计划数量和完成数量-->
+    <select id="statistics" resultType="com.aircookies.smtworkordermanagement.dto.LineOutputDTO">
+        SELECT line.id                                AS line_id,
+               line.name                              AS line_name,
+               SUM(COALESCE(wo.quantity, 0))          AS total_plan_quantity,
+               SUM(IF(wo.status = 2, wo.quantity, 0)) AS completed_quantity,
+               SUM(IF(wo.status = 1, wo.quantity, 0)) AS producing_quantity,
+               SUM(IF(wo.status = 0, wo.quantity, 0)) AS pending_quantity,
+               SUM(IF(wo.status = 3, wo.quantity, 0)) AS closed_quantity
+        FROM line
+                 LEFT JOIN work_order wo ON line.id = wo.line_id
+            AND wo.create_time &gt;= #{startTime}
+            AND wo.create_time &lt; DATE_ADD(#{endTime}, INTERVAL 1 DAY)
+        GROUP BY line.id, line.name
+        ORDER BY line.id
+    </select>
+
 </mapper>

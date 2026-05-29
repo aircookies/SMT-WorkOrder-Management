@@ -7,6 +7,7 @@ import com.aircookies.smtworkordermanagement.service.LineService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import static com.aircookies.smtworkordermanagement.common.Result.success;
@@ -64,7 +65,7 @@ public class LineServiceImpl implements LineService {
     @Override
     public Result findLineById(Long id) {
         Line line = lineMapper.findLineById(id);
-        return success(line);
+        return Result.success(line);
     }
 
     /**
@@ -73,6 +74,14 @@ public class LineServiceImpl implements LineService {
     @Override
     public Result findAll() {
         // 查询所有产线
-        return success(lineMapper.findAll());
+        return Result.success(lineMapper.findAll());
+    }
+
+    /**
+     * 统计每条产线在指定日期范围内的计划数量和完成数量
+     */
+    @Override
+    public Result statistics(LocalDate startTime, LocalDate endTime) {
+        return Result.success(lineMapper.statistics(startTime, endTime));
     }
 }

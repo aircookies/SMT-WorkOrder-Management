@@ -217,7 +217,6 @@
     <select id="findWorkProcessReport" resultType="com.aircookies.smtworkordermanagement.entity.WorkProcessReport">
         SELECT order_id,
                process_seq,
-#                status,
                qualified_quantity,
                bad_quantity,
                operator_id,
@@ -243,7 +242,6 @@
         SELECT id,
                order_id,
                process_seq,
-#                status,
                qualified_quantity,
                bad_quantity,
                operator_id,
@@ -306,6 +304,14 @@
                   ROUND(SUM(wp.qualified_quantity) * 100.0 / SUM(wp.qualified_quantity + wp.bad_quantity), 2),
                   0)                                                                                              AS pass_rate
         FROM work_process wp
+        <where>
+            <if test="startTime != null">
+                AND wp.create_time &gt;= #{startTime}
+            </if>
+            <if test="endTime != null">
+                AND wp.create_time &lt;= #{endTime}
+            </if>
+        </where>
         GROUP BY DATE(wp.create_time)
         ORDER BY date
     </select>

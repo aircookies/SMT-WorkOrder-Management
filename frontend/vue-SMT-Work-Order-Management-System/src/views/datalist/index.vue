@@ -12,12 +12,10 @@ index.vue
                                 format="YYYY-MM-DD" style="width: 100%" />
                         </el-form-item>
                     </el-col>
-
                     <el-col :span="6">
                         <el-form-item label="操作">
                             <el-button type="primary" @click="onQuery">查询</el-button>
                             <el-button @click="onReset">重置</el-button>
-                            <el-button type="success" @click="onExport">导出</el-button>
                         </el-form-item>
                     </el-col>
                 </el-row>
@@ -61,7 +59,7 @@ index.vue
                         </span>
                         <span class="numbercards-text">
                             <p>完成率</p>
-                            <el-statistic :value="workOrderCompletedRate" precision="2">
+                            <el-statistic :value="workOrderCompletedRate" :precision="2">
                                 <template #suffix>%</template>
                             </el-statistic>
                         </span>
@@ -87,12 +85,30 @@ index.vue
             <el-row :gutter="20">
                 <el-col :span="12">
                     <el-card>
-                        <BaseChart :options="workOrderStatusChartOptions" height="350px" />
+                        <!-- // 工单状态分布饼图 -->
+                        <BaseChart ref="pipChartRef" :options="workOrderStatusChartOptions" />
                     </el-card>
                 </el-col>
                 <el-col :span="12">
                     <el-card>
-                        <BaseChart :options="workOrderTrendChartOptions" height="350px" />
+                        <!-- // 工单趋势折线图 -->
+                        <BaseChart :options="qualityRateTrendChartOptions" />
+                    </el-card>
+                </el-col>
+            </el-row>
+        </div>
+        <div class="charts">
+            <el-row :gutter="20">
+                <el-col :span="12">
+                    <el-card>
+                        <!-- // 产线产量对比柱状图 -->
+                        <BaseChart :options="lineProductionChartOptions" />
+                    </el-card>
+                </el-col>
+                <el-col :span="12">
+                    <el-card>
+                        <!-- // 产品产量TOP5条形图 -->
+                        <BaseChart :options="productTop5ChartOptions" height="350px" />
                     </el-card>
                 </el-col>
             </el-row>
@@ -104,10 +120,11 @@ index.vue
 import { ref, onMounted, computed } from 'vue'
 import { getLineListApi } from '@/api/line'
 import { getProductListApi } from '@/api/product'
-import { getWorkOrderDetailApi, getstatisticsProductionQualityApi } from '@/api/datalist'
+import { getWorkOrderDetailApi, getstatisticsProductionQualityApi, getStatisticsLineProductionApi, getStatisticsProductProductionApi } from '@/api/datalist'
 import { DocumentRemove } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
 import BaseChart from '@/components/BaseChart.vue'
-import { pieChart, passRateLineChart } from '@/utils/chartConfig'
+import { pieChart, passRateLineChart, lineProductionBarChart, productTop5BarChart } from '@/utils/chartConfig'
 import { getDefaultDateRange } from '@/utils/date'
 
 // 表单数据
@@ -121,12 +138,6 @@ const form = ref({
     lineId: '',
     productId: ''
 })
-
-// 产线选项
-const lineOptions = ref([])
-
-// 产品选项
-const productOptions = ref([])
 
 // 工单信息
 const workOrderList = ref([])
@@ -146,11 +157,15 @@ const workOrderCompletedCount = computed(() => {
 
 // 工单完成率
 const workOrderCompletedRate = computed(() => {
+    if (workOrderCount.value === 0) return 0
+
     return workOrderCompletedCount.value / workOrderCount.value * 100
 })
 
 // 产品不良数
 const badCount = computed(() => {
+    if (qualityList.value.length === 0) return 0
+
     let count = 0
     qualityList.value.forEach(quality => {
         count += quality.badQuantity
@@ -189,33 +204,14 @@ const workOrderCountByStatus = computed(() => {
     ]
 })
 
-// 获取产线列表
-const loadLineData = async () => {
-    try {
-        const res = await getLineListApi()
-        if (res && res.data) {
-            lineOptions.value = res.data
-        }
-    } catch (error) {
-        console.error('获取产线数据失败:', error)
-    }
-}
+// 各产线产量统计数据
+const lineProductionQualityData = ref([]);
 
-// 获取产品列表
-const loadProductData = async () => {
-    try {
-        // 获取所有产品，这里设置一个较大的页数以获取全部数据
-        const res = await getProductListApi(1, 1000)
-        if (res && res.data) {
-            productOptions.value = res.data.records || []
-        }
-    } catch (error) {
-        console.error('获取产品数据失败:', error)
-    }
-}
+// 各产品产量统计数据
+const productProductionList = ref([]);
 
 // 获取指定时间内工单详细信息
-const getWorkOrderDetail = async (startTime, endTime) => { 
+const getWorkOrderDetail = async (startTime, endTime) => {
     try {
         const res = await getWorkOrderDetailApi(startTime, endTime)
         if (res.code === 200) {
@@ -227,7 +223,7 @@ const getWorkOrderDetail = async (startTime, endTime) => {
 }
 
 // 获取指定时间内的生产质量数据
-const getstatisticsProductionQuality = async (startTime, endTime) => { 
+const getstatisticsProductionQuality = async (startTime, endTime) => {
     try {
         const res = await getstatisticsProductionQualityApi(startTime, endTime)
         if (res.code === 200) {
@@ -238,13 +234,37 @@ const getstatisticsProductionQuality = async (startTime, endTime) => {
     }
 }
 
+// 获取指定时间内的产线产量统计数据
+const getstatisticsLineProduction = async (startTime, endTime) => {
+    try {
+        const res = await getStatisticsLineProductionApi(startTime, endTime)
+        if (res.code === 200) {
+            lineProductionQualityData.value = res.data
+        }
+    } catch (error) {
+        console.error('获取产线产量数据失败:', error)
+    }
+}
+
+// 获取指定时间内产品产量统计数据
+const getstatisticsProductProduction = async (startTime, endTime) => {
+    try {
+        const res = await getStatisticsProductProductionApi(startTime, endTime)
+        if (res.code === 200) {
+            productProductionList.value = res.data
+        }
+    } catch (error) {
+        console.error('获取产品产量数据失败:', error)
+    }
+}
+
 // 工单状态图表配置
 const workOrderStatusChartOptions = computed(() => {
     return pieChart('工单状态分布', workOrderCountByStatus.value)
 })
 
-// 工单完成趋势图表配置
-const workOrderTrendChartOptions = computed(() => {
+// 良品率趋势图表配置
+const qualityRateTrendChartOptions = computed(() => {
     const trendData = qualityList.value.map(item => ({
         date: item.date,
         value: item.passRate
@@ -252,10 +272,30 @@ const workOrderTrendChartOptions = computed(() => {
     return passRateLineChart(trendData)
 })
 
+// 产线产量对比图表配置
+const lineProductionChartOptions = computed(() => {
+    return lineProductionBarChart(lineProductionQualityData.value)
+})
+
+// 产品产量TOP5图表配置
+const productTop5ChartOptions = computed(() => {
+    return productTop5BarChart(productProductionList.value)
+})
+
 // 查询按钮点击事件
-const onQuery = () => {
-    console.log('查询参数:', form.value)
-    // 在这里实现查询逻辑
+const onQuery = async () => {
+    if (form.value.dateRange.length === 0) {
+        ElMessage.error('请选择时间范围')
+        return
+    }
+
+    await Promise.all([
+        getWorkOrderDetail(form.value.dateRange[0], form.value.dateRange[1]),
+        getstatisticsProductionQuality(form.value.dateRange[0], form.value.dateRange[1]),
+        getstatisticsLineProduction(form.value.dateRange[0], form.value.dateRange[1]),
+        getstatisticsProductProduction(form.value.dateRange[0], form.value.dateRange[1])
+    ])
+
 }
 
 // 重置按钮点击事件
@@ -267,18 +307,14 @@ const onReset = () => {
     }
 }
 
-// 导出按钮点击事件
-const onExport = () => {
-    console.log('导出数据')
-    // 在这里实现导出逻辑
-}
-
 // 初始化数据
 onMounted(async () => {
-    await loadLineData()
-    await loadProductData()
-    await getWorkOrderDetail(form.value.dateRange[0], form.value.dateRange[1])
-    getstatisticsProductionQuality(form.value.dateRange[0], form.value.dateRange[1])
+    await Promise.all([
+        getWorkOrderDetail(form.value.dateRange[0], form.value.dateRange[1]),
+        getstatisticsProductionQuality(form.value.dateRange[0], form.value.dateRange[1]),
+        getstatisticsLineProduction(form.value.dateRange[0], form.value.dateRange[1]),
+        getstatisticsProductProduction(form.value.dateRange[0], form.value.dateRange[1])
+    ])
 })
 </script>
 
@@ -329,6 +365,6 @@ onMounted(async () => {
 }
 
 .charts {
-    padding: 20px 0;
+    padding-top: 20px;
 }
 </style>

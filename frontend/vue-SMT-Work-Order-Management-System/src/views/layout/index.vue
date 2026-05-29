@@ -2,7 +2,7 @@ JS
 
 vue
 <template>
-    <el-container class="layout-container" style="height: auto">
+    <el-container class="layout-container" style="height: 100vh">
         <el-header style="text-align: right; font-size: 12px">
             <div class="toolbar">
                 <el-dropdown>
@@ -26,7 +26,8 @@ vue
 
             <el-aside width="250px">
                 <el-scrollbar>
-                    <el-menu :default-openeds="[]" :default-active="$route.path" router>
+                    <el-menu :default-openeds="[]" :default-active="$route.path" background-color="#545c64"
+                        text-color="#fff" active-text-color="#ffd04b" router>
                         <el-menu-item index="/home">
                             <template #title>
                                 <el-icon>
@@ -75,14 +76,17 @@ vue
                                 数据报表
                             </template>
                         </el-menu-item>
-                        <el-menu-item index="/system">
+                        <el-sub-menu>
                             <template #title>
                                 <el-icon>
                                     <Operation />
                                 </el-icon>
                                 系统管理
                             </template>
-                        </el-menu-item>
+                            <el-menu-item index="/system/user_management">用户管理</el-menu-item>
+                            <el-menu-item index="/system/role_management">部门管理</el-menu-item>
+                            <el-menu-item index="/system/department_management">角色管理</el-menu-item>
+                        </el-sub-menu>
                     </el-menu>
                 </el-scrollbar>
             </el-aside>
@@ -104,12 +108,12 @@ const router = useRouter()
 .layout-container .el-header {
     position: relative;
     background: linear-gradient(45deg, #8ec5fc 0.000%, #8dd3ff 25.000%, #a1d8ff 50.000%, #c1d2ff 75.000%, #e0c3ff 100.000%);
-    color: var(--el-text-color-primary);
 }
 
 .layout-container .el-aside {
-    color: var(--el-text-color-primary);
     border-right: gainsboro 1px solid;
+    height: 100%;
+    background-color: #545c64;
 }
 
 .layout-container .el-menu {

@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -86,5 +87,14 @@ public class ProductController {
     public Result findAll(Integer pageNum, Integer pageSize) {
         log.debug("查询所有产品, 页码: {}, 页大小: {}", pageNum, pageSize);
         return productService.findAll(pageNum, pageSize);
+    }
+
+    /**
+    * 查询指定日期内各个产品的产量统计
+    * */
+    @GetMapping("/statistics")
+    public Result statistics(@RequestParam LocalDate startTime, @RequestParam LocalDate endTime) {
+        log.debug("查询指定日期内各个产品的产量统计, 开始日期: {}, 结束日期: {}", startTime, endTime);
+        return productService.statistics(startTime, endTime);
     }
 }

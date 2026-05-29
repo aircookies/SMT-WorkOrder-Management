@@ -183,3 +183,201 @@ export const pieChart = (title = '', data = []) => {
         ]
     }
 }
+
+export const lineProductionBarChart = (data = []) => {
+    const lineNames = data.map(item => item.lineName)
+    const planQuantities = data.map(item => item.totalPlanQuantity)
+    const completedQuantities = data.map(item => item.completedQuantity)
+
+    return {
+        title: {
+            text: '产线产量对比',
+            left: 'center',
+            textStyle: {
+                fontSize: 16,
+                fontWeight: 'bold'
+            }
+        },
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+                type: 'shadow'
+            },
+            formatter: function (params) {
+                let result = params[0].name + '<br/>'
+                params.forEach(param => {
+                    result += `${param.marker}${param.seriesName}: ${param.value}<br/>`
+                })
+                return result
+            }
+        },
+        toolbox: {
+            feature: {
+                saveAsImage: {}
+            }
+        },
+        legend: {
+            data: ['计划数量', '完成数量'],
+            top: 40
+        },
+        grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+        },
+        xAxis: {
+            type: 'category',
+            data: lineNames,
+            axisLabel: {
+                interval: 0,
+                rotate: 30
+            }
+        },
+        yAxis: {
+            type: 'value',
+            name: '数量'
+        },
+        series: [
+            {
+                name: '计划数量',
+                type: 'bar',
+                data: planQuantities,
+                itemStyle: {
+                    color: '#409EFF'
+                },
+                emphasis: {
+                    itemStyle: {
+                        shadowBlur: 10,
+                        shadowOffsetX: 0,
+                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                    }
+                }
+            },
+            {
+                name: '完成数量',
+                type: 'bar',
+                data: completedQuantities,
+                itemStyle: {
+                    color: '#67C23A'
+                },
+                emphasis: {
+                    itemStyle: {
+                        shadowBlur: 10,
+                        shadowOffsetX: 0,
+                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                    }
+                }
+            }
+        ]
+    }
+}
+
+export const productTop5BarChart = (data = []) => {
+    const sortedData = [...data]
+        .sort((a, b) => b.completedQuantity - a.completedQuantity)
+        .slice(0, 5)
+
+    const productNames = sortedData.map(item => item.productName).reverse()
+    const completedQuantities = sortedData.map(item => item.completedQuantity).reverse()
+    const planQuantities = sortedData.map(item => item.totalPlanQuantity).reverse()
+
+    return {
+        title: {
+            text: '产品产量TOP5',
+            left: 'center',
+            textStyle: {
+                fontSize: 16,
+                fontWeight: 'bold'
+            }
+        },
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+                type: 'shadow'
+            },
+            formatter: function (params) {
+                let result = params[0].name + '<br/>'
+                params.forEach(param => {
+                    result += `${param.marker}${param.seriesName}: ${param.value}<br/>`
+                })
+                if (params.length >= 2) {
+                    const completionRate = ((params[0].value / params[1].value) * 100).toFixed(2)
+                    result += `完成率: ${completionRate}%`
+                }
+                return result
+            }
+        },
+        toolbox: {
+            feature: {
+                saveAsImage: {}
+            }
+        },
+        legend: {
+            data: ['完成数量', '计划数量'],
+            top: 40
+        },
+        grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+        },
+        xAxis: {
+            type: 'value',
+            name: '数量'
+        },
+        yAxis: {
+            type: 'category',
+            data: productNames,
+            axisLabel: {
+                interval: 0,
+                formatter: function (value) {
+                    return value.length > 8 ? value.substring(0, 8) + '...' : value
+                }
+            }
+        },
+        series: [
+            {
+                name: '完成数量',
+                type: 'bar',
+                data: completedQuantities,
+                itemStyle: {
+                    color: '#67C23A'
+                },
+                label: {
+                    show: true,
+                    position: 'right',
+                    formatter: '{c}'
+                },
+                emphasis: {
+                    itemStyle: {
+                        shadowBlur: 10,
+                        shadowOffsetX: 0,
+                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                    }
+                }
+            },
+            {
+                name: '计划数量',
+                type: 'bar',
+                data: planQuantities,
+                itemStyle: {
+                    color: '#409EFF'
+                },
+                label: {
+                    show: true,
+                    position: 'right',
+                    formatter: '{c}'
+                },
+                emphasis: {
+                    itemStyle: {
+                        shadowBlur: 10,
+                        shadowOffsetX: 0,
+                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                    }
+                }
+            }
+        ]
+    }
+}

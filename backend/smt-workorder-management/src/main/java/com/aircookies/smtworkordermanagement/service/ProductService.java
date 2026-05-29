@@ -4,6 +4,7 @@ import com.aircookies.smtworkordermanagement.common.Result;
 import com.aircookies.smtworkordermanagement.dto.QueryProductDTO;
 import com.aircookies.smtworkordermanagement.entity.Product;
 
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -41,5 +42,13 @@ public interface ProductService {
      */
     Result findAll(Integer pageNum, Integer pageSize);
 
+    /**
+    * 批量删除产品
+    */
     Result deleteBatch(List<Long> ids);
+
+    /**
+     * 查询指定日期内各个产品的产量统计
+     */
+    Result statistics(LocalDate startTime, LocalDate endTime);
 }

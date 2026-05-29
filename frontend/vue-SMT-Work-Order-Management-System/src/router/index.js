@@ -32,19 +32,29 @@ const router = createRouter({
           component: () => import("@/views/line/index.vue"),
         },
         {
-          path: "data-list",
+          path: "/data-list",
           name: "data-list",
           component: () => import("@/views/datalist/index.vue"),
         },
         {
-          path: "report",
+          path: "/report",
           name: "report",
           component: () => import("@/views/report/index.vue"),
         },
         {
-          path: "system",
-          name: "system",
-          component: () => import("@/views/system/index.vue"),
+          path: "/system/user_management",
+          name: "user-management",
+          component: () => import("@/views/system/user_management/index.vue"),
+        },
+        {
+          path: "/system/role_management",
+          name: "role-management",
+          component: () => import("@/views/system/role_management/index.vue"),
+        },
+        {
+          path: "/system/department_management",
+          name: "department-management",
+          component: () => import("@/views/system/department_management/index.vue"),
         }
       ],
     },

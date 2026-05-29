@@ -11,6 +11,7 @@ import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -61,7 +62,7 @@ public class ProductServiceImpl implements ProductService {
         productMapper.deleteBatch(ids);
         return Result.success("批量删除产品成功");
     }
-    
+
     /**
      * 更新产品
      */
@@ -127,5 +128,13 @@ public class ProductServiceImpl implements ProductService {
             List<Product> products = productMapper.findAll();
             return success(products);
         }
+    }
+
+    /**
+     * 查询指定日期内各个产品的产量统计
+     */
+    @Override
+    public Result statistics(LocalDate startTime, LocalDate endTime) {
+        return Result.success(productMapper.statistics(startTime, endTime));
     }
 }

@@ -7,6 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+
 /**
  * 产线管理控制器
  */
@@ -65,5 +67,13 @@ public class LineController {
     public Result findAll() {
         log.debug("查询所有产线");
         return lineService.findAll();
+    }
+
+    /**
+     *  统计每条产线在指定日期范围内的计划数量和完成数量
+     */
+    @GetMapping("/statistics")
+    public Result statistics(@RequestParam LocalDate startTime, @RequestParam LocalDate endTime) {
+        return lineService.statistics(startTime, endTime);
     }
 }

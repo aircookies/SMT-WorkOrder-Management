@@ -3,6 +3,8 @@ package com.aircookies.smtworkordermanagement.service;
 import com.aircookies.smtworkordermanagement.common.Result;
 import com.aircookies.smtworkordermanagement.entity.Line;
 
+import java.time.LocalDate;
+
 /**
  * 产线服务接口
  */
@@ -32,4 +34,9 @@ public interface LineService {
      * 查询所有产线（分页）
      */
     Result findAll();
+
+    /**
+     * 统计每条产线在指定日期范围内的计划数量和完成数量
+     */
+    Result statistics(LocalDate startTime, LocalDate endTime);
 }
