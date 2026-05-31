@@ -4,10 +4,12 @@ import com.aircookies.smtworkordermanagement.common.Result;
 import com.aircookies.smtworkordermanagement.dto.QueryUserDTO;
 import com.aircookies.smtworkordermanagement.entity.SysUser;
 
+import java.util.List;
+
 public interface UserService {
     Result addUser(SysUser user);
 
-    Result deleteUser(long id);
+    Result deleteUser(List<Long> ids);
 
     Result UserList(QueryUserDTO keyword);
 
@@ -15,5 +17,5 @@ public interface UserService {
 
     Result findUser(long id);
 
-    Result findPage(Integer pageNum, Integer pageSize);
+    Result findAll(Integer pageNum, Integer pageSize);
 }

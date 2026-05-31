@@ -76,16 +76,16 @@ vue
                                 数据报表
                             </template>
                         </el-menu-item>
-                        <el-sub-menu>
+                        <el-sub-menu index="/system-management">
                             <template #title>
                                 <el-icon>
                                     <Operation />
                                 </el-icon>
                                 系统管理
                             </template>
-                            <el-menu-item index="/system/user_management">用户管理</el-menu-item>
-                            <el-menu-item index="/system/role_management">部门管理</el-menu-item>
-                            <el-menu-item index="/system/department_management">角色管理</el-menu-item>
+                            <el-menu-item index="/system/user-management">用户管理</el-menu-item>
+                            <!-- <el-menu-item index="/system/role-management">角色管理</el-menu-item> -->
+                            <el-menu-item index="/system/department_management">部门管理</el-menu-item>
                         </el-sub-menu>
                     </el-menu>
                 </el-scrollbar>

@@ -42,12 +42,12 @@ const router = createRouter({
           component: () => import("@/views/report/index.vue"),
         },
         {
-          path: "/system/user_management",
+          path: "/system/user-management",
           name: "user-management",
           component: () => import("@/views/system/user_management/index.vue"),
         },
         {
-          path: "/system/role_management",
+          path: "/system/role-management",
           name: "role-management",
           component: () => import("@/views/system/role_management/index.vue"),
         },

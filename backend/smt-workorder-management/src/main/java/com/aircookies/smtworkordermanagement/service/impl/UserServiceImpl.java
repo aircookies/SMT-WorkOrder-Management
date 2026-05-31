@@ -37,9 +37,8 @@ public class UserServiceImpl implements UserService {
 
     // 根据ID删除用户
     @Override
-    public Result deleteUser(long id) {
-        sysUserMapper.deleteUser(id);
-        return Result.success();
+    public Result deleteUser(List<Long> ids) {
+        return Result.success(sysUserMapper.deleteUser(ids));
     }
 
     // 查询所有用户或指定用户
@@ -70,7 +69,7 @@ public class UserServiceImpl implements UserService {
 
     // 分页查询所有用户
     @Override
-    public Result findPage(Integer pageNum, Integer pageSize) {
+    public Result findAll(Integer pageNum, Integer pageSize) {
         // 开启分页
         PageHelper.startPage(pageNum, pageSize);
         List<SysUser> sysUsers = sysUserMapper.findAll();

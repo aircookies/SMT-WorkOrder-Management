@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 // 部门控制器
 @Slf4j
 @RestController
-@RequestMapping("/dept")
+@RequestMapping("/department")
 public class DeptController {
     private final DeptService deptService;
 
@@ -34,8 +34,8 @@ public class DeptController {
     }
 
     // 查询部门
-    @GetMapping("/find")
-    public Result findDept(Dept dept) {
+    @PostMapping("/find")
+    public Result findDept(@RequestBody Dept dept) {
         log.debug("查询部门列表");
         return deptService.findDept(dept);
     }

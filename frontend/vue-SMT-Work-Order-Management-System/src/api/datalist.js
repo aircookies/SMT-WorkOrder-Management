@@ -4,7 +4,7 @@ import request from "@/utils/request";
  * 获取指定时间内工单详细信息
  * @param {*} startTime 开始时间
  * @param {*} endTime 结束时间
- * @example {
+ * @returns {Object} {
     "code": 200,
     "message": "success",
     "data": [
@@ -48,7 +48,7 @@ export const getWorkOrderDetailApi = (startTime, endTime) => request.get("/worko
  * 查询指定时间内的良品数和不良数统计
  * @param {*} startTime 开始时间
  * @param {*} endTime 结束时间
- * @example {
+ * @returns {Object} {
     "code": 200,
     "message": "success",
     "data": [
@@ -83,7 +83,7 @@ export const getstatisticsProductionQualityApi = (startTime, endTime) => request
  * 统计每条产线在指定日期范围内的计划数量和完成数量
  * @param {*} startTime 开始时间
  * @param {*} endTime 结束时间
- * @example {
+ * @returns {Object} {
     "code": 200,
     "message": "success",
     "data": [
@@ -124,7 +124,7 @@ export const getStatisticsLineProductionApi = (startTime, endTime) => request.ge
  * 查询指定日期内各个产品的产量统计
  * @param {string} startTime 开始时间
  * @param {string} endTime 结束时间
- * @example {
+ * @returns {Object} {
     "code": 200,
     "message": "success",
     "data": [

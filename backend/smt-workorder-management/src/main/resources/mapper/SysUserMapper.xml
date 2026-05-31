@@ -122,7 +122,10 @@
     <delete id="deleteUser">
         DELETE
         FROM sys_user
-        WHERE id = #{id}
+        WHERE id IN
+        <foreach item="id" collection="ids" open="(" separator="," close=")">
+            #{id}
+        </foreach>
     </delete>
 
 </mapper>

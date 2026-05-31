@@ -10,7 +10,7 @@ import java.util.List;
 public interface SysUserMapper {
     int addUser(SysUser user);
 
-    void deleteUser(long id);
+    int deleteUser(List<Long> ids);
 
     List<SysUser> UserList(QueryUserDTO keyword);
 

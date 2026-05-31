@@ -1,6 +1,6 @@
 index.vue
 <template>
-    <div class="container">
+    <div class="container" v-loading="loading">
         <h1>数据报表</h1>
         <div class="toolbar">
             <el-form :model="form" class="search-form">
@@ -23,7 +23,7 @@ index.vue
         </div>
         <!-- 展示数值数据 -->
         <div class="numbercards">
-            <el-row :gutter="20">
+            <el-row :gutter="20" >
                 <el-col :span="6">
                     <el-card>
                         <span>
@@ -210,6 +210,9 @@ const lineProductionQualityData = ref([]);
 // 各产品产量统计数据
 const productProductionList = ref([]);
 
+// 控制加载动画
+const loading = ref(false);
+
 // 获取指定时间内工单详细信息
 const getWorkOrderDetail = async (startTime, endTime) => {
     try {
@@ -309,12 +312,14 @@ const onReset = () => {
 
 // 初始化数据
 onMounted(async () => {
+    loading.value = true
     await Promise.all([
         getWorkOrderDetail(form.value.dateRange[0], form.value.dateRange[1]),
         getstatisticsProductionQuality(form.value.dateRange[0], form.value.dateRange[1]),
         getstatisticsLineProduction(form.value.dateRange[0], form.value.dateRange[1]),
         getstatisticsProductProduction(form.value.dateRange[0], form.value.dateRange[1])
     ])
+    loading.value = false
 })
 </script>
 

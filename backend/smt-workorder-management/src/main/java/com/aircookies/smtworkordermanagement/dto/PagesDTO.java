@@ -10,8 +10,8 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PagesDTO<T> {
-    private int pageNum;    // 当前页码
-    private int pageSize;   // 每页显示数量
-    private long total;  // 总页数
+    private Integer pageNum;    // 当前页码
+    private Integer pageSize;   // 每页显示数量
+    private Long total;  // 总页数
     private List<T> list;  // 数据
 }
