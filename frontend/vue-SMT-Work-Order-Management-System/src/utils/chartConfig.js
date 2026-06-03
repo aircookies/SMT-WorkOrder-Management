@@ -26,7 +26,7 @@ export const passRateLineChart = (data = []) => {
         grid: {
             left: '3%',
             right: '4%',
-            bottom: '3%',
+            bottom: '15%',  // 留出空间给滑块
             containLabel: true
         },
         toolbox: {
@@ -37,7 +37,11 @@ export const passRateLineChart = (data = []) => {
         xAxis: {
             type: 'category',
             boundaryGap: false,
-            data: dates
+            data: dates,
+            axisLabel: {
+                rotate: 45,      // 旋转标签避免重叠
+                interval: 0
+            }
         },
         yAxis: {
             type: 'value',
@@ -45,9 +49,23 @@ export const passRateLineChart = (data = []) => {
             min: 95,
             max: 100,
             axisLabel: {
-                formatter: '{value}%'
+                formatter: '{value}%',
             }
         },
+        dataZoom: [
+            {
+                type: 'inside',
+                start: Math.max(0, 100 - (7 / dates.length * 100)),  // 默认显示最近7天
+                end: 100
+            },
+            {
+                type: 'slider',
+                start: Math.max(0, 100 - (7 / dates.length * 100)),
+                end: 100,
+                bottom: 10,
+                height: 20
+            }
+        ],
         series: [
             {
                 name: '良品率',
@@ -85,7 +103,7 @@ export const passRateLineChart = (data = []) => {
 
 export const barChart = (data = {}) => {
     const { xAxisData = [], seriesData = [], title = '', legend = [] } = data
-    
+
     return {
         title: {
             text: title,
@@ -132,7 +150,7 @@ export const pieChart = (title = '', data = []) => {
         name: item.name,
         value: item.value,
     }))
-    
+
     return {
         title: {
             text: title,

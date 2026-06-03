@@ -91,7 +91,7 @@ index.vue
                 </el-col>
                 <el-col :span="12">
                     <el-card>
-                        <!-- // 工单趋势折线图 -->
+                        <!-- // 良品率趋势折线图 -->
                         <BaseChart :options="qualityRateTrendChartOptions" />
                     </el-card>
                 </el-col>
@@ -143,7 +143,7 @@ const form = ref({
 const workOrderList = ref([])
 
 // 质量信息
-const qualityList = ref([])
+const qualityData = ref([])
 
 // 工单总数
 const workOrderCount = computed(() => {
@@ -164,10 +164,10 @@ const workOrderCompletedRate = computed(() => {
 
 // 产品不良数
 const badCount = computed(() => {
-    if (qualityList.value.length === 0) return 0
+    if (qualityData.value.length === 0) return 0
 
     let count = 0
-    qualityList.value.forEach(quality => {
+    qualityData.value.forEach(quality => {
         count += quality.badQuantity
     })
     return count
@@ -230,7 +230,7 @@ const getstatisticsProductionQuality = async (startTime, endTime) => {
     try {
         const res = await getstatisticsProductionQualityApi(startTime, endTime)
         if (res.code === 200) {
-            qualityList.value = res.data
+            qualityData.value = res.data
         }
     } catch (error) {
         console.error('获取质量数据失败:', error)
@@ -268,7 +268,7 @@ const workOrderStatusChartOptions = computed(() => {
 
 // 良品率趋势图表配置
 const qualityRateTrendChartOptions = computed(() => {
-    const trendData = qualityList.value.map(item => ({
+    const trendData = qualityData.value.map(item => ({
         date: item.date,
         value: item.passRate
     }))

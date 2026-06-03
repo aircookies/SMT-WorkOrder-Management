@@ -396,7 +396,7 @@ onMounted(async () => {
     loading.value = true
     try {
         // 获取工单列表
-        const res = await getWorkOrderListApi()
+        const res = await getWorkOrderListApi(pageNum.value, pageSize.value)
         if (res.code === 200) {
             tableData.value = res.data.list
             pageNum.value = res.data.pageNum

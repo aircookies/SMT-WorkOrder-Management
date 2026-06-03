@@ -1,6 +1,6 @@
 import request from "@/utils/request";
 
-export const getWorkOrderListApi = () => request.get("/workorder/findAll");
+export const getWorkOrderListApi = (pageNum, pageSize) => request.get("/workorder/findAll" + "?pageNum=" + pageNum + "&pageSize=" + pageSize);
 
 export const getWorkOrderByIdApi = (id) => request.get("/workorder/find/" + id);
 

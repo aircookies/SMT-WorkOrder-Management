@@ -15,7 +15,7 @@ public class SpringSecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) {
         // 禁用认证和授权
         http
-                .authorizeHttpRequests(authz -> authz
+                .authorizeHttpRequests(auth -> auth
                         .anyRequest().permitAll() // 允许所有请求无需认证
                 )
                 .csrf(AbstractHttpConfigurer::disable) // 禁用CSRF保护（调试时常用）
