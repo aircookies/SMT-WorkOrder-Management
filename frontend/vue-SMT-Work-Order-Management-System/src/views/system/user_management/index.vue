@@ -129,14 +129,12 @@ import { onMounted, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { queryUserApi, getUserByIdApi, addUserApi, updateUserApi, deleteUserApi } from '@/api/userManagement';
 import { queryDepartmentApi } from '@/api/departmentManagement';
+import { getSystemRoleListApi } from '@/api/role';
 import { Edit, Delete } from '@element-plus/icons-vue';
 import { isEmpty } from 'element-plus/es/utils/types.mjs';
 
 // 角色列表
-const roleList = ref([
-    { id: 1, name: '管理员' },
-    { id: 2, name: '普通用户' }
-])
+const roleList = ref([])
 
 // 部门列表
 const departmentList = ref([])
@@ -373,6 +371,22 @@ const queryUser = async () => {
     }
 }
 
+/** 
+ * 查询角色列表
+*/
+const queryRole = async () => {
+    try {
+        const res = await getSystemRoleListApi()
+        if (res.code === 200) {
+            roleList.value = res.data
+        } else {
+            ElMessage.error(res.message || '查询角色列表失败')
+        }
+    } catch (error) {
+        ElMessage.error(error.message || '查询角色列表失败')
+    }
+}
+
 /**
  * 删除用户
  * @param {Number|Array} row - 用户ID或ID数组
@@ -432,13 +446,16 @@ onMounted(async () => {
     loading.value = true
     try {
         // 获取部门列表
-        const deptRes = await queryDepartmentApi({})
+        const deptRes = await queryDepartmentApi()
         if (deptRes.code === 200) {
             departmentList.value = deptRes.data
         }
         
         // 获取用户列表
         await queryUser()
+
+        // 获取角色列表
+        await queryRole()
     } catch (error) {
         ElMessage.error(error.message || '初始化数据失败')
     } finally {

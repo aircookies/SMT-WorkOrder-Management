@@ -85,6 +85,21 @@
         </where>
         ORDER BY create_time DESC
     </select>
+<!--    根据用户名查询用户-->
+    <select id="findUserByUserName" resultType="com.aircookies.smtworkordermanagement.entity.SysUser">
+        SELECT id,
+               username,
+               password,
+               name,
+               gender,
+               role_id,
+               department_id,
+               status,
+               create_time,
+               update_time
+        FROM sys_user
+        WHERE username = #{username}
+    </select>
 
     <!-- 更新用户 -->
     <update id="updateUser" parameterType="com.aircookies.smtworkordermanagement.entity.SysUser">

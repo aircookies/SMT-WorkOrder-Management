@@ -6,6 +6,7 @@ import com.aircookies.smtworkordermanagement.entity.SysUser;
 import com.aircookies.smtworkordermanagement.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,6 +24,7 @@ public class UserController {
 
     // 添加用户
     @PostMapping("/add")
+    @PreAuthorize("hasAnyRole('1')") // 角色为1的用户可以访问(1:管理员)
     public Result addUser(@RequestBody SysUser user) {
         log.debug("添加用户: {}", user);
         return userService.addUser(user);
@@ -30,6 +32,7 @@ public class UserController {
 
     // 根据ID删除用户
     @DeleteMapping("/delete")
+    @PreAuthorize("hasAnyRole('1')") // 角色为1的用户可以访问(1:管理员)
     public Result deleteUser(@RequestBody List<Long> ids) {
         log.debug("删除用户: {}", ids);
         return userService.deleteUser(ids);
@@ -59,6 +62,7 @@ public class UserController {
 
     // 修改用户
     @PutMapping("/update")
+    @PreAuthorize("hasAnyRole('1')") // 角色为1的用户可以访问(1:管理员)
     public Result updateUser(@RequestBody SysUser user) {
         log.debug("修改用户: {}", user);
         return userService.updateUser(user);

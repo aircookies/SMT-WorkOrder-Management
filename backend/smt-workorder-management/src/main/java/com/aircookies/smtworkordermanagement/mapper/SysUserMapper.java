@@ -19,4 +19,6 @@ public interface SysUserMapper {
     Object findUser(long id);
 
     List<SysUser> findAll();
+
+    SysUser findUserByUserName(String username);
 }

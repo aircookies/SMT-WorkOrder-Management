@@ -9,6 +9,7 @@ import com.aircookies.smtworkordermanagement.service.UserService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,15 +19,20 @@ import static com.aircookies.smtworkordermanagement.common.Result.success;
 @Service
 public class UserServiceImpl implements UserService {
     private final SysUserMapper sysUserMapper;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserServiceImpl(SysUserMapper sysUserMapper) {
+    public UserServiceImpl(SysUserMapper sysUserMapper, PasswordEncoder passwordEncoder) {
         this.sysUserMapper = sysUserMapper;
+        this.passwordEncoder = passwordEncoder;
     }
 
     // 添加用户
     @Override
     public Result addUser(SysUser user) {
+        // 加密用户密码
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        // 添加用户
         int res = sysUserMapper.addUser(user);
         if (res != 0) {
             return success();

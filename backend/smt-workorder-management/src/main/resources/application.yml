@@ -10,6 +10,19 @@ spring:
     username: root
     password: 88888888
     driver-class-name: com.mysql.cj.jdbc.Driver
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password:
+      database: 0
+      timeout: 3000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-wait: -1ms
+          max-idle: 8
+          min-idle: 0
 
 mybatis :
   # 指定配置文件位置
@@ -29,6 +42,13 @@ mybatis :
 pagehelper:
   helper-dialect: mysql
   reasonable: true
+
+  # jwt密钥与过期时间环境变量
+jwt:
+    # 密钥
+  secret: ${JWT_SECRET:smt-workorder-management-secret-key-2026-aircookies-change-in-production}
+    # 过期时间
+  expiration: ${JWT_EXPIRATION:86400000}
 
 logging:
   level:
