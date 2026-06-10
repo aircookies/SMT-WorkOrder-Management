@@ -1,54 +1,87 @@
 <template>
     <div class="container">
-        <h1>部门管理</h1>
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <h1 class="page-title">
+                <el-icon class="title-icon"><OfficeBuilding /></el-icon>
+                部门管理
+            </h1>
+            <p class="page-subtitle">管理和维护组织架构信息</p>
+        </div>
+        
         <!-- 工具栏 -->
-        <div class="toolbar">
-            <div class="buttons">
-                <el-button type="primary" @click="handleAdd" plain>新建部门</el-button>
-            </div>
-            <!-- 搜索栏 -->
-            <div class="search">
+        <el-card class="toolbar-card" shadow="hover">
+            <div class="toolbar">
+                <div class="toolbar-actions">
+                    <el-button type="primary" @click="handleAdd" :icon="Plus" plain>新建部门</el-button>
+                </div>
+                <!-- 搜索栏 -->
                 <el-form :inline="true" :model="queryFormModel" class="search-form">
-                    <el-form-item label="部门名称:">
-                        <el-input v-model="queryFormModel.name" placeholder="请输入部门名称" />
+                    <el-form-item label="部门名称">
+                        <el-input v-model="queryFormModel.name" placeholder="请输入部门名称" clearable 
+                            prefix-icon="Search" style="width: 240px" />
                     </el-form-item>
                     <el-form-item>
-                        <el-button type="primary" @click="queryDepartment">查询</el-button>
-                        <el-button @click="clearQueryForm">清空</el-button>
+                        <el-button type="primary" @click="queryDepartment" :icon="Search">查询</el-button>
+                        <el-button @click="clearQueryForm" :icon="Refresh">重置</el-button>
                     </el-form-item>
                 </el-form>
             </div>
-        </div>
-        <!-- 表格 -->
-        <div class="table">
-            <el-table v-loading="loading" :data="tableData" style="width: 100%">
-                <el-table-column property="id" label="ID" width="80" />
-                <el-table-column property="name" label="部门名称" show-overflow-tooltip />
-                <el-table-column property="createTime" label="创建时间"  />
-                <el-table-column property="updateTime" label="更新时间"  />
-                <!-- 操作按钮 -->
-                <el-table-column label="操作" width="150">
-                    <template #default="scope">
-                        <el-button size="small" type="primary" :icon="Edit" @click="handleEdit(scope.row)" circle />
-                        <el-button size="small" type="danger" :icon="Delete" @click="handleDelete(scope.row.id)"
-                            circle />
-                    </template>
-                </el-table-column>
-            </el-table>
-        </div>
-        <!-- dialog对话框 -->
-        <el-dialog v-if="dialogFormVisible" v-model="dialogFormVisible" :title="isEdit ? '编辑部门' : '新建部门'" width="500" center>
-            <el-form :model="departmentDTO" :rules="formRules" ref="formRef" label-width="auto" label-position="right">
+        </el-card>
+        
+        <!-- 数据表格 -->
+        <el-card class="table-card" shadow="hover">
+            <div class="table-wrapper">
+                <el-table v-loading="loading" :data="tableData" style="width: 100%" stripe border class="custom-table">
+                    <el-table-column property="id" label="ID" min-width="100" align="center">
+                        <template #default="{ row }">
+                            <el-tag type="info" effect="plain">{{ row.id }}</el-tag>
+                        </template>
+                    </el-table-column>
+                    <el-table-column property="name" label="部门名称" min-width="200" show-overflow-tooltip align="center">
+                        <template #default="{ row }">
+                            <el-icon><OfficeBuilding /></el-icon>
+                            {{ row.name }}
+                        </template>
+                    </el-table-column>
+                    <el-table-column property="createTime" label="创建时间" min-width="180" align="center">
+                        <template #default="{ row }">
+                            <el-icon><Clock /></el-icon>
+                            {{ row.createTime }}
+                        </template>
+                    </el-table-column>
+                    <el-table-column property="updateTime" label="更新时间" min-width="180" align="center">
+                        <template #default="{ row }">
+                            <el-icon><Refresh /></el-icon>
+                            {{ row.updateTime }}
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="操作" width="150" align="center" fixed="right">
+                        <template #default="scope">
+                            <el-button size="small" type="primary" :icon="Edit" 
+                                @click="handleEdit(scope.row)" link>编辑</el-button>
+                            <el-button size="small" type="danger" :icon="Delete" 
+                                @click="handleDelete(scope.row.id)" link>删除</el-button>
+                        </template>
+                    </el-table-column>
+                </el-table>
+            </div>
+        </el-card>
+        
+        <!-- 添加/编辑部门对话框 -->
+        <el-dialog v-if="dialogFormVisible" v-model="dialogFormVisible" :title="isEdit ? '编辑部门' : '新建部门'" 
+            width="600px" center destroy-on-close class="department-dialog">
+            <el-form :model="departmentDTO" :rules="formRules" ref="formRef" label-width="100px" 
+                label-position="right" class="department-form">
                 <el-form-item label="部门名称" prop="name">
-                    <el-input v-model="departmentDTO.name" placeholder="请输入部门名称" />
+                    <el-input v-model="departmentDTO.name" placeholder="请输入部门名称" 
+                        prefix-icon="OfficeBuilding" clearable />
                 </el-form-item>
             </el-form>
             <template #footer>
                 <div class="dialog-footer">
-                    <el-button @click="handleCancel">取消</el-button>
-                    <el-button type="primary" @click="handleSubmit">
-                        提交
-                    </el-button>
+                    <el-button @click="handleCancel" :icon="Close">取消</el-button>
+                    <el-button type="primary" @click="handleSubmit" :icon="Check">提交</el-button>
                 </div>
             </template>
         </el-dialog>
@@ -59,7 +92,11 @@
 import { onMounted, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { queryDepartmentApi, addDepartmentApi, updateDepartmentApi, deleteDepartmentApi } from '@/api/departmentManagement';
-import { Edit, Delete } from '@element-plus/icons-vue';
+import { Edit, Delete, Plus, OfficeBuilding, Search, Refresh, Clock, Close, Check } from '@element-plus/icons-vue';
+
+defineOptions({
+    name: 'DepartmentManagement'
+})
 
 // 表格数据
 const tableData = ref([])
@@ -144,34 +181,26 @@ const handleSubmit = async () => {
             ElMessage.error('请完善表单信息')
             return
         }
-        
-        try {
-            let res
-            if (!isEdit.value) {
-                // 新建部门
-                res = await addDepartmentApi(departmentDTO.value)
-                if (res.code === 200) {
-                    ElMessage.success('部门创建成功')
-                    dialogFormVisible.value = false
-                    resetForm()
-                    queryDepartment()
-                } else {
-                    ElMessage.error(res.message || '部门创建失败')
-                }
-            } else {
-                // 编辑部门
-                res = await updateDepartmentApi(departmentDTO.value)
-                if (res.code === 200) {
-                    ElMessage.success('部门修改成功')
-                    dialogFormVisible.value = false
-                    resetForm()
-                    queryDepartment()
-                } else {
-                    ElMessage.error(res.message || '部门修改失败')
-                }
+
+        let res
+        if (!isEdit.value) {
+            // 新建部门
+            res = await addDepartmentApi(departmentDTO.value)
+            if (res.code === 200) {
+                ElMessage.success('部门创建成功')
+                dialogFormVisible.value = false
+                resetForm()
+                queryDepartment()
             }
-        } catch (error) {
-            ElMessage.error(error.message || '操作失败')
+        } else {
+            // 编辑部门
+            res = await updateDepartmentApi(departmentDTO.value)
+            if (res.code === 200) {
+                ElMessage.success('部门修改成功')
+                dialogFormVisible.value = false
+                resetForm()
+                queryDepartment()
+            }
         }
     })
 }
@@ -194,22 +223,15 @@ const handleEdit = (row) => {
  */
 const queryDepartment = async () => {
     loading.value = true
-    try {
-        const params = {}
-        if (queryFormModel.value.name) {
-            params.name = queryFormModel.value.name
-        }
-        const res = await queryDepartmentApi(params)
-        if (res.code === 200) {
-            tableData.value = res.data
-        } else {
-            ElMessage.error(res.message || '查询部门失败')
-        }
-    } catch (error) {
-        ElMessage.error(error.message || '查询部门失败')
-    } finally {
-        loading.value = false
+    const params = {}
+    if (queryFormModel.value.name) {
+        params.name = queryFormModel.value.name
     }
+    const res = await queryDepartmentApi(params)
+    if (res.code === 200) {
+        tableData.value = res.data
+    }
+    loading.value = false
 }
 
 /**
@@ -222,19 +244,11 @@ const handleDelete = async (id) => {
         cancelButtonText: '取消',
         type: 'warning'
     }).then(async () => {
-        try {
-            const res = await deleteDepartmentApi(id)
-            if (res.code === 200) {
-                ElMessage.success('删除部门成功')
-                queryDepartment()
-            } else {
-                ElMessage.error(res.message || '删除部门失败')
-            }
-        } catch (error) {
-            ElMessage.error(error.message || '删除部门失败')
+        const res = await deleteDepartmentApi(id)
+        if (res.code === 200) {
+            ElMessage.success('删除部门成功')
+            queryDepartment()
         }
-    }).catch(() => {
-        ElMessage.info('取消操作')
     })
 }
 
@@ -243,48 +257,228 @@ const handleDelete = async (id) => {
  */
 onMounted(async () => {
     loading.value = true
-    try {
-        // 获取部门列表
-        await queryDepartment()
-    } catch (error) {
-        ElMessage.error(error.message || '初始化数据失败')
-    } finally {
-        loading.value = false
-    }
+    // 获取部门列表
+    await queryDepartment()
+    loading.value = false
 })
 </script>
 
 <style scoped>
 .container {
-    padding: 10px 20px;
+    padding: 20px;
     width: 100%;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+    min-height: 100vh;
 }
 
-.toolbar {
-    display: grid;
-    grid-template-columns: 20% auto;
-    padding: 20px 0;
+/* 页面标题区域 */
+.page-header {
+    margin-bottom: 24px;
+    padding: 20px 24px;
+    background: linear-gradient(315deg, #856cff 0.000%, #856cff 10.000%, #8568ff calc(10.000% + 1px), #8568ff 20.000%, #846eff calc(20.000% + 1px), #846eff 30.000%, #847aff calc(30.000% + 1px), #847aff 40.000%, #8487ff calc(40.000% + 1px), #8487ff 50.000%, #838fff calc(50.000% + 1px), #838fff 60.000%, #8390ff calc(60.000% + 1px), #8390ff 70.000%, #8387ff calc(70.000% + 1px), #8387ff 80.000%, #827aff calc(80.000% + 1px), #827aff 90.000%, #826eff calc(90.000% + 1px) 100.000%);
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 
-.search {
+.page-title {
+    color: #ffffff;
+    font-size: 28px;
+    font-weight: 600;
+    margin: 0 0 8px 0;
     display: flex;
-    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+}
+
+.title-icon {
+    font-size: 32px;
+}
+
+.page-subtitle {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 14px;
+    margin: 0;
+}
+
+/* 卡片样式 */
+.toolbar-card,
+.table-card {
+    margin-bottom: 20px;
+    border-radius: 4px;
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.toolbar-card:hover,
+.table-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+/* 工具栏样式 */
+.toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.toolbar-actions {
+    display: flex;
+    gap: 12px;
 }
 
 .search-form {
-    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
 }
 
-.pagination {
-    padding: 20px 0;
+.search-form :deep(.el-form-item) {
+    margin-bottom: 0;
 }
 
-:deep(.el-dialog) {
-    .el-form {
-        display: grid;
-        grid-template-columns: auto;
-        gap: 20px 0;
-        padding: 0 20px;
+/* 表格样式 */
+.table-wrapper {
+    margin: 16px 0;
+}
+
+.custom-table {
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.custom-table :deep(.el-table__header th) {
+    background: #3F51B5;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 16px 0;
+}
+
+.custom-table :deep(.el-table__row) {
+    transition: all 0.2s ease;
+}
+
+.custom-table :deep(.el-table__row:hover) {
+    background-color: #f5f7fa !important;
+    transform: scale(1.005);
+}
+
+.custom-table :deep(.el-table__cell) {
+    padding: 14px 0;
+}
+
+/* 对话框样式 */
+.department-dialog :deep(.el-dialog__header) {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 20px 24px;
+    margin: 0;
+}
+
+.department-dialog :deep(.el-dialog__title) {
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.department-dialog :deep(.el-dialog__close) {
+    color: #ffffff;
+}
+
+.department-dialog :deep(.el-dialog__close:hover) {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.department-dialog :deep(.el-dialog__body) {
+    padding: 32px 24px;
+}
+
+.department-form {
+    padding: 0 12px;
+}
+
+.department-form :deep(.el-form-item__label) {
+    font-weight: 500;
+    color: #606266;
+}
+
+.department-form :deep(.el-input__wrapper) {
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.department-form :deep(.el-input__wrapper:hover) {
+    box-shadow: 0 0 0 1px #667eea inset;
+}
+
+.dialog-footer {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    padding-top: 16px;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .container {
+        padding: 12px;
     }
+    
+    .page-header {
+        padding: 16px;
+    }
+    
+    .page-title {
+        font-size: 22px;
+    }
+    
+    .toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .toolbar-actions {
+        justify-content: center;
+    }
+    
+    .search-form {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .search-form :deep(.el-form-item) {
+        width: 100%;
+    }
+    
+    .search-form :deep(.el-input) {
+        width: 100% !important;
+    }
+}
+
+/* 动画效果 */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.page-header {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.toolbar-card {
+    animation: fadeInUp 0.6s ease-out 0.1s both;
+}
+
+.table-card {
+    animation: fadeInUp 0.6s ease-out 0.2s both;
 }
 </style>

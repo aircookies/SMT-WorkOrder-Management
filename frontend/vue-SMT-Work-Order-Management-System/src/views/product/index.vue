@@ -1,81 +1,106 @@
 <template>
     <div class="container">
-        <!-- 标题 -->
-        <h1>产品管理</h1>
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <h1 class="page-title">
+                <el-icon class="title-icon">
+                    <Box />
+                </el-icon>
+                产品管理
+            </h1>
+            <p class="page-subtitle">管理和维护产品信息</p>
+        </div>
+
         <!-- 工具栏 -->
-        <div class="toolbar">
-            <div>
-                <el-button type="primary" @click="showAddDialog" plain>添加产品</el-button>
-                <el-button type="danger" @click="deleteProductConfirm()" plain>批量删除</el-button>
+        <el-card class="toolbar-card" shadow="hover">
+            <div class="toolbar">
+                <div class="toolbar-actions">
+                    <el-button type="primary" @click="showAddDialog" :icon="Plus" plain>添加产品</el-button>
+                    <el-button type="danger" @click="deleteProductConfirm()" :icon="Delete" plain>批量删除</el-button>
+                </div>
+                <el-form :inline="true" :model="productDTO" class="query-form">
+                    <el-form-item label="产品名称">
+                        <el-input v-model="productDTO.name" placeholder="请输入产品名称" clearable prefix-icon="Search"
+                            style="width: 180px" />
+                    </el-form-item>
+                    <el-form-item label="产品编号">
+                        <el-input v-model="productDTO.code" placeholder="请输入产品编号" clearable prefix-icon="Document"
+                            style="width: 180px" />
+                    </el-form-item>
+                    <el-form-item label="创建日期">
+                        <el-date-picker v-model="productDTO.createTime" type="date" placeholder="请选择日期"
+                            format="YYYY-MM-DD" value-format="YYYY-MM-DD" clearable style="width: 180px" />
+                    </el-form-item>
+                    <el-form-item>
+                        <el-button type="primary" @click="queryProduct" :icon="Search">查询</el-button>
+                        <el-button @click="clearQuery" :icon="Refresh">重置</el-button>
+                    </el-form-item>
+                </el-form>
             </div>
-            <el-form :inline="true" :model="productDTO" class="demo-form-inline" >
-                <el-form-item label="产品名称:">
-                    <el-input v-model="productDTO.name" placeholder="请输入" clearable />
-                </el-form-item>
-                <el-form-item label="产品编号:">
-                    <el-input v-model="productDTO.code" placeholder="请输入" clearable />
-                </el-form-item>
-                <el-form-item label="创建日期:">
-                    <!-- 设置日期格式为 YYYY-MM-DD -->
-                    <el-date-picker v-model="productDTO.createTime" type="date" placeholder="请选择日期" format="YYYY-MM-DD"
-                        value-format="YYYY-MM-DD" clearable />
-                </el-form-item>
-                <el-form-item>
-                    <el-button type="primary" @click="queryProduct">查询</el-button>
-                    <el-button type="default" @click="clearQuery">清空</el-button>
-                </el-form-item>
-            </el-form>
-        </div>
-        <!-- 表格 -->
-        <div class="table">
-            <el-table v-loading="tableLoading" :data="tableData" row-key="id" style="width: 100%"
-                @selection-change="handleSelectionChange" table-layout="fixed">
-                <el-table-column type="selection" width="55" />
-                <el-table-column property="code" label="产品编号" min-width="120" />
-                <el-table-column property="name" label="产品名称" min-width="120" />
-                <el-table-column property="spec" label="产品规格" min-width="150" show-overflow-tooltip />
-                <el-table-column property="updateTime" label="更新时间" min-width="120" />
-                <el-table-column label="操作">
-                    <template #default="scope">
-                        <el-button type="primary" :icon="Edit" size="small" @click="showEditDialog(scope.row.id)"
-                            circle />
-                        <el-button type="danger" :icon="Delete" size="small" @click="deleteProductConfirm(scope.row.id)"
-                            circle />
-                    </template>
-                </el-table-column>
-            </el-table>
-        </div>
-        <!-- 分页 -->
-        <el-pagination :current-page="productDTO.pageNum" :page-size="productDTO.pageSize"
-            :page-sizes="[10, 25, 50, 100, 500]" layout="total, sizes, prev, pager, next, jumper"
-            :total="productDTO.total" @size-change="handleSizeChange" @current-change="handleCurrentChange" />
+        </el-card>
+
+        <!-- 数据表格 -->
+        <el-card class="table-card" shadow="hover">
+            <div class="table-wrapper">
+                <el-table v-loading="tableLoading" :data="tableData" row-key="id" style="width: 100%"
+                    @selection-change="handleSelectionChange" stripe border class="custom-table">
+                    <el-table-column type="selection" width="55" align="center" />
+                    <el-table-column property="code" label="产品编号" min-width="150" align="center">
+                        <template #default="{ row }">
+                            <el-tag type="info" effect="plain">{{ row.code }}</el-tag>
+                        </template>
+                    </el-table-column>
+                    <el-table-column property="name" label="产品名称" min-width="150" align="center" />
+                    <el-table-column property="spec" label="产品规格" min-width="200" show-overflow-tooltip
+                        align="center" />
+                    <el-table-column property="updateTime" label="更新时间" min-width="180" align="center">
+                        <template #default="{ row }">
+                            <el-icon>
+                                <Clock />
+                            </el-icon>
+                            {{ row.updateTime }}
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="操作" width="150" align="center" fixed="right">
+                        <template #default="scope">
+                            <el-button type="primary" :icon="Edit" size="small" @click="showEditDialog(scope.row.id)"
+                                link>编辑</el-button>
+                            <el-button type="danger" :icon="Delete" size="small"
+                                @click="deleteProductConfirm(scope.row.id)" link>删除</el-button>
+                        </template>
+                    </el-table-column>
+                </el-table>
+            </div>
+
+            <!-- 分页 -->
+            <div class="pagination-wrapper">
+                <el-pagination :current-page="productDTO.pageNum" :page-size="productDTO.pageSize"
+                    :page-sizes="[10, 25, 50, 100, 500]" layout="total, sizes, prev, pager, next, jumper"
+                    :total="productDTO.total" @size-change="handleSizeChange" @current-change="handleCurrentChange"
+                    background />
+            </div>
+        </el-card>
+
         <!-- 添加/编辑产品对话框 -->
-        <el-dialog class="dialog" v-model="dialogVisible" :title="isEdit ? '编辑产品' : '添加产品'" width="500px" center>
-            <el-form :model="currentProduct" :rules="productFormRules" ref="productFormRef" label-width="auto"
-                label-position="right">
+        <el-dialog v-model="dialogVisible" :title="isEdit ? '编辑产品' : '添加产品'" width="600px" center destroy-on-close
+            class="product-dialog">
+            <el-form :model="currentProduct" :rules="productFormRules" ref="productFormRef" label-width="100px"
+                label-position="right" class="product-form">
                 <el-form-item label="产品编号" prop="code">
-                    <el-input v-model="currentProduct.code" placeholder="请输入产品编号" />
+                    <el-input v-model="currentProduct.code" placeholder="请输入产品编号" prefix-icon="Document" clearable />
                 </el-form-item>
                 <el-form-item label="产品名称" prop="name">
-                    <el-input v-model="currentProduct.name" placeholder="请输入产品名称" />
+                    <el-input v-model="currentProduct.name" placeholder="请输入产品名称" prefix-icon="Goods" clearable />
                 </el-form-item>
                 <el-form-item label="产品规格" prop="spec">
-                    <el-input type="textarea" v-model="currentProduct.spec" placeholder="请输入产品规格" />
-                </el-form-item>
-                <el-form-item label="产品图片">
-                    <el-upload class="avatar-uploader" action="#" :show-file-list="false"
-                        :on-success="handleAvatarSuccess" :before-upload="beforeAvatarUpload">
-                        <img v-if="imageUrl" :src="imageUrl" class="avatar" />
-                        <el-icon v-else class="avatar-uploader-icon">
-                            <Plus />
-                        </el-icon>
-                    </el-upload>
+                    <el-input type="textarea" v-model="currentProduct.spec" placeholder="请输入产品规格" :rows="4"
+                        maxlength="500" show-word-limit />
                 </el-form-item>
             </el-form>
             <template #footer>
                 <div class="dialog-footer">
-                    <el-button type="default" @click="dialogVisible = false">取消</el-button>
-                    <el-button type="primary" @click="submit">确定</el-button>
+                    <el-button @click="dialogVisible = false" :icon="Close">取消</el-button>
+                    <el-button type="primary" @click="submit" :icon="Check">确定</el-button>
                 </div>
             </template>
         </el-dialog>
@@ -85,14 +110,18 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import {
-    ElButton, ElFormItem, ElInput, ElDatePicker, ElMessage, ElDialog, ElUpload,
-    ElMessageBox, ElNotification, ElForm
+    ElButton, ElFormItem, ElInput, ElDatePicker, ElMessage, ElDialog,
+    ElMessageBox, ElForm, ElTag
 } from 'element-plus';
 import {
     getProductListApi, queryProductApi, addProductApi, getProductByIdApi, editProductApi,
     deleteProductApi, deleteProductByIdApi
 } from '@/api/product';
-import { Plus, Edit, Delete } from '@element-plus/icons-vue'
+import { Plus, Edit, Delete, Search, Refresh, Box, Clock, Close, Check } from '@element-plus/icons-vue'
+
+defineOptions({
+    name: 'ProductManagement'
+})
 
 // 产品数据传输对象
 const productDTO = ref({
@@ -128,26 +157,17 @@ const currentProduct = ref({
     image: ''  // 图片字段
 })
 
-// 错误通知
-const errorNotify = (message) => {
-    ElNotification({
-        title: '错误',
-        message: message,
-        type: 'error'
-    })
-}
-
 // 选择的行
 const selectedRows = ref([])
 const handleSelectionChange = (val) => {
     selectedRows.value = val.map(item => item.id)
 }
 
-// 上传头像相关配置
-const uploadHeaders = ref({
-    // 可以在这里添加认证token等头部信息
-    // 'Authorization': 'Bearer ' + localStorage.getItem('token')
-})
+// 上传图片相关配置
+// const uploadHeaders = ref({
+//     // 可以在这里添加认证token等头部信息
+//     // 'Authorization': 'Bearer ' + localStorage.getItem('token')
+// })
 
 // 表单验证规则
 const productFormRules = {
@@ -189,41 +209,30 @@ const handleCurrentChange = (val) => {
 // 获取产品列表
 const getProductList = async () => {
     tableLoading.value = true
-    try {
-        await getProductListApi(productDTO.value.pageNum, productDTO.value.pageSize).then(res => {
-            if (res.code === 200) {
-                tableData.value = res.data.list
-                productDTO.value.pageNum = res.data.pageNum
-                productDTO.value.pageSize = res.data.pageSize
-                productDTO.value.total = res.data.total
-            }
-        })
-    } catch (error) {
-        errorNotify(error.message || "发生错误")
-    } finally {
-        tableLoading.value = false
-    }
+    await getProductListApi(productDTO.value.pageNum, productDTO.value.pageSize).then(res => {
+        if (res.code === 200) {
+            tableData.value = res.data.list
+            productDTO.value.pageNum = res.data.pageNum
+            productDTO.value.pageSize = res.data.pageSize
+            productDTO.value.total = res.data.total
+        }
+    })
+    tableLoading.value = false
 }
 
 // 查询产品
 const queryProduct = async () => {
     // 查询产品列表
     tableLoading.value = true
-    try {
-        const res = await queryProductApi(productDTO.value)
-        // 判断响应结果是否正确
-        if (res.code === 200) {
-            tableData.value = res.data.list
-            productDTO.value.pageNum = res.data.pageNum
-            productDTO.value.pageSize = res.data.pageSize
-            productDTO.value.total = res.data.total
-        } else {
-            ElMessage.error(res.message || '查询产品列表失败')
-        }
-        tableLoading.value = false
-    } catch (error) {
-        ElMessage.error('发生错误: ' + error.message)
+    const res = await queryProductApi(productDTO.value)
+    // 判断响应结果是否正确
+    if (res.code === 200) {
+        tableData.value = res.data.list
+        productDTO.value.pageNum = res.data.pageNum
+        productDTO.value.pageSize = res.data.pageSize
+        productDTO.value.total = res.data.total
     }
+    tableLoading.value = false
 }
 
 // 批量删除产品
@@ -232,31 +241,19 @@ const deleteProduct = async () => {
         ElMessage.warning('请选择要删除的产品')
         return
     }
-    try {
-        const res = await deleteProductApi(selectedRows.value)
-        if (res.code === 200) {
-            ElMessage.success('删除产品成功')
-            queryProduct()
-        } else {
-            ElMessage.error(res.message || '删除产品失败')
-        }
-    } catch (error) {
-        ElMessage.error('发生错误: ' + error.message)
+    const res = await deleteProductApi(selectedRows.value)
+    if (res.code === 200) {
+        ElMessage.success('删除产品成功')
+        queryProduct()
     }
 }
 
 // 根据ID删除产品
 const deleteProductById = async (id) => {
-    try {
-        const res = await deleteProductByIdApi(id)
-        if (res.code === 200) {
-            ElMessage.success('删除产品成功')
-            queryProduct()
-        } else {
-            ElMessage.error(res.message || '删除产品失败')
-        }
-    } catch (error) {
-        ElMessage.error('发生错误: ' + error.message)
+    const res = await deleteProductByIdApi(id)
+    if (res.code === 200) {
+        ElMessage.success('删除产品成功')
+        queryProduct()
     }
 }
 
@@ -272,8 +269,6 @@ const deleteProductConfirm = (id) => {
         } else {
             deleteProduct()
         }
-    }).catch(() => {
-        ElMessage.info('取消操作')
     })
 }
 
@@ -305,49 +300,30 @@ const showEditDialog = async (id) => {
         image: ''
     }
     currentProduct.value.id = id;
-    try {
-        const res = await getProductByIdApi(id)
-        if (res.code === 200) {
-            currentProduct.value = res.data
-        } else {
-            ElMessage.error(res.message || '获取产品数据失败')
-            return
-        }
-    } catch (error) {
-        ElMessage.error('发生错误: ' + error.message)
+    const res = await getProductByIdApi(id)
+    if (res.code === 200) {
+        currentProduct.value = res.data
     }
     dialogVisible.value = true
 }
 
 // 添加产品
 const addProduct = async () => {
-    try {
-        const res = await addProductApi(currentProduct.value)
-        if (res.code === 200) {
-            ElMessage.success('添加产品成功')
-            dialogVisible.value = false
-            queryProduct()
-        } else {
-            ElMessage.error(res.message || '添加产品失败')
-        }
-    } catch (error) {
-        ElMessage.error('发生错误: ' + error.message)
+    const res = await addProductApi(currentProduct.value)
+    if (res.code === 200) {
+        ElMessage.success('添加产品成功')
+        dialogVisible.value = false
+        queryProduct()
     }
 }
 
 // 修改产品
 const editProduct = async () => {
-    try {
-        const res = await editProductApi(currentProduct.value)
-        if (res.code === 200) {
-            ElMessage.success('修改产品成功')
-            dialogVisible.value = false
-            queryProduct()
-        } else {
-            ElMessage.error(res.message || '修改产品失败')
-        }
-    } catch (error) {
-        ElMessage.error('发生错误: ' + error.message)
+    const res = await editProductApi(currentProduct.value)
+    if (res.code === 200) {
+        ElMessage.success('修改产品成功')
+        dialogVisible.value = false
+        queryProduct()
     }
 }
 
@@ -383,65 +359,237 @@ const clearQuery = () => {
 
 onMounted(async () => {
     // 获取产品列表
-    getProductList()
+    await getProductList()
 })
 </script>
 
 <style scoped>
 .container {
-    padding: 10px 20px;
+    padding: 20px;
     width: 100%;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+    min-height: 100vh;
 }
 
+/* 页面标题区域 */
+.page-header {
+    margin-bottom: 24px;
+    padding: 20px 24px;
+    border-radius: 4px;
+    background: linear-gradient(60deg, #4c9cdd 0%, #c2e59c 100%);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.page-title {
+    color: #ffffff;
+    font-size: 28px;
+    font-weight: 600;
+    margin: 0 0 8px 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.title-icon {
+    font-size: 32px;
+}
+
+.page-subtitle {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 14px;
+    margin: 0;
+}
+
+/* 卡片样式 */
+.toolbar-card,
+.table-card {
+    margin-bottom: 20px;
+    border-radius: 4px;
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.toolbar-card:hover,
+.table-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+/* 工具栏样式 */
 .toolbar {
-    display: grid;
-    grid-template-columns: 20% auto;
-    padding: 20px 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
 }
 
-.table {
-    margin: 20px 0;
+.toolbar-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.query-form {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.query-form :deep(.el-form-item) {
+    margin-bottom: 0;
+}
+
+/* 表格样式 */
+.table-wrapper {
+    margin: 16px 0;
+}
+
+.custom-table {
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.custom-table :deep(.el-table__header th) {
+    background: #00BCD4;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 16px 0;
+}
+
+.custom-table :deep(.el-table__row) {
+    transition: all 0.2s ease;
+}
+
+.custom-table :deep(.el-table__row:hover) {
+    background-color: #f5f7fa !important;
+    transform: scale(1.005);
+}
+
+.custom-table :deep(.el-table__cell) {
+    padding: 14px 0;
+}
+
+/* 分页样式 */
+.pagination-wrapper {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 20px;
+    border-top: 1px solid #ebeef5;
+}
+
+/* 对话框样式 */
+.product-dialog :deep(.el-dialog__header) {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 20px 24px;
+    margin: 0;
+}
+
+.product-dialog :deep(.el-dialog__title) {
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.product-dialog :deep(.el-dialog__close) {
+    color: #ffffff;
+}
+
+.product-dialog :deep(.el-dialog__close:hover) {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.product-dialog :deep(.el-dialog__body) {
+    padding: 32px 24px;
+}
+
+.product-form {
+    padding: 0 12px;
+}
+
+.product-form :deep(.el-form-item__label) {
+    font-weight: 500;
+    color: #606266;
+}
+
+.product-form :deep(.el-input__wrapper),
+.product-form :deep(.el-textarea__inner) {
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.product-form :deep(.el-input__wrapper:hover),
+.product-form :deep(.el-textarea__inner:hover) {
+    box-shadow: 0 0 0 1px #667eea inset;
 }
 
 .dialog-footer {
-    text-align: center;
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    padding-top: 16px;
 }
 
-.avatar-uploader .avatar {
-    width: 178px;
-    height: 178px;
-    display: block;
-}
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .container {
+        padding: 12px;
+    }
 
-:deep(.dialog) {
-    .el-form {
-        display: grid;
-        grid-template-columns: auto;
-        gap: 30px 0;
-        padding: 0 20px;
+    .page-header {
+        padding: 16px;
+    }
+
+    .page-title {
+        font-size: 22px;
+    }
+
+    .toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .toolbar-actions {
+        justify-content: center;
+    }
+
+    .query-form {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .query-form :deep(.el-form-item) {
+        width: 100%;
+    }
+
+    .query-form :deep(.el-input) {
+        width: 100% !important;
     }
 }
-</style>
 
-<style>
-.avatar-uploader .el-upload {
-    border: 1px dashed var(--el-border-color);
-    border-radius: 6px;
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
-    transition: var(--el-transition-duration-fast);
+/* 动画效果 */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
-.avatar-uploader .el-upload:hover {
-    border-color: var(--el-color-primary);
+.page-header {
+    animation: fadeInUp 0.6s ease-out;
 }
 
-.el-icon.avatar-uploader-icon {
-    font-size: 28px;
-    color: #8c939d;
-    width: 178px;
-    height: 178px;
-    text-align: center;
+.toolbar-card {
+    animation: fadeInUp 0.6s ease-out 0.1s both;
+}
+
+.table-card {
+    animation: fadeInUp 0.6s ease-out 0.2s both;
 }
 </style>

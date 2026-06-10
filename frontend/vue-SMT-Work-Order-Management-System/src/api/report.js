@@ -4,3 +4,7 @@ import request from "@/utils/request";
 export const getReportListApi = (pageNum, pageSize) => request.get("/workorder/process/findAll" + "?pageNum=" + pageNum + "&pageSize=" + pageSize);
 // 添加报工
 export const addReportApi = (report) => request.post("/workorder/process/add", report);
+
+
+// 删除报工
+export const deleteReportApi = (id) => request.delete("/workorder/process/delete/" + id);

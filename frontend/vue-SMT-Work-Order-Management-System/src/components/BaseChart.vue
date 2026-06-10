@@ -71,13 +71,13 @@ watch(() => props.options, (newOptions) => {
 }, { deep: true })
 
 // 手动刷新图表
-const flushChart = () => {
-    if (!chartInstance) return
+// const flushChart = () => {
+//     if (!chartInstance) return
 
-    nextTick(() => {
-        chartInstance.setOption(props.options, true)
-    })
-}
+//     nextTick(() => {
+//         chartInstance.setOption(props.options, true)
+//     })
+// }
 
 // 组件挂载时初始化图表并注册窗口大小变化监听器
 onMounted(() => {

@@ -1,4 +1,7 @@
 import request from "@/utils/request"
+import { encryptPassword } from "@/utils/RSAUtil"
+
+
 
 /**
  * 登录接口
@@ -15,4 +18,19 @@ import request from "@/utils/request"
     }
 }
  */
-export const loginApi = (username, password) => request.post("/login", { username, password })
+export const loginApi = async (username, password) => {
+    // 加密密码
+    const encryptedPassword = await encryptPassword(password)
+
+    // 发送登录请求
+    return request.post("/login", {
+        username: username,
+        password: encryptedPassword
+    })
+}
+
+/**
+ * 登出接口
+ * @returns {null}
+ */
+export const logoutApi = () => request.post("/logout")
