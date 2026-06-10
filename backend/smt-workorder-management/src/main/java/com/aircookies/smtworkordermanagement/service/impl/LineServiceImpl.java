@@ -31,6 +31,11 @@ public class LineServiceImpl implements LineService {
      */
     @Override
     public Result addLine(Line line) {
+        // 判断产线是否已存在
+        if (lineMapper.findLineByName(line.getName()) != null) {
+            throw new BusinessException("该产线已存在");
+        }
+
         line.setCreateTime(LocalDateTime.now());
         line.setUpdateTime(LocalDateTime.now());
         int res = lineMapper.addLine(line);
@@ -59,6 +64,11 @@ public class LineServiceImpl implements LineService {
      */
     @Override
     public Result updateLine(Line line) {
+        // 判断产线是否已存在
+        if (lineMapper.findLineByName(line.getName()) != null) {
+            throw new BusinessException("该产线已存在");
+        }
+
         line.setUpdateTime(LocalDateTime.now());
         lineMapper.updateLine(line);
         return Result.success("更新产线成功");

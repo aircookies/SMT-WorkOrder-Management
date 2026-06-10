@@ -27,6 +27,12 @@ public class DeptServiceImpl implements DeptService {
 
     @Override
     public Result addDept(Dept dept) {
+        if (dept.getName() == null) {
+            throw new BusinessException("部门名称不能为空");
+        } else if (deptMapper.findDeptByName(dept.getName()) != null) {
+            throw new BusinessException("该部门已存在");
+        }
+
         dept.setCreateTime(LocalDateTime.now());
         dept.setUpdateTime(LocalDateTime.now());
         int res = deptMapper.addDept(dept);
@@ -50,6 +56,12 @@ public class DeptServiceImpl implements DeptService {
 
     @Override
     public Result updateDept(Dept dept) {
+        if (dept.getName() == null) {
+            throw new BusinessException("部门名称不能为空");
+        } else if (deptMapper.findDeptByName(dept.getName()) != null) {
+            throw new BusinessException("该部门已存在");
+        }
+
         dept.setUpdateTime(LocalDateTime.now());
         deptMapper.updateDept(dept);
         return Result.success("更新部门成功");

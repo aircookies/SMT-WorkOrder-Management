@@ -14,5 +14,7 @@ public interface DeptMapper {
 
     List<Dept> findDept(Dept dept);
 
+    Dept findDeptByName(String name);
+
     void updateDept(Dept dept);
 }

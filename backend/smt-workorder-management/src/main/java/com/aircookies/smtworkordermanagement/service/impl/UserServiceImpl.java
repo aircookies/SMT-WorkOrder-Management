@@ -38,13 +38,18 @@ public class UserServiceImpl implements UserService {
     // 添加用户
     @Override
     public Result addUser(SysUser user) {
-        // 如果密码为空则使用默认密码(123456)
-        if (user.getPassword().isEmpty()) {
-            user.setPassword(passwordEncoder.encode("123456"));
+        // 检查用户名是否已存在
+        if (sysUserMapper.findUserByUserName(user.getUsername()) != null) {
+            throw new BusinessException("用户名已存在");
         }
 
-        // 加密用户密码
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        // 如果密码为空则使用默认密码(123456)
+        if (user.getPassword().isEmpty()) {
+            // 加密用户密码
+            user.setPassword(passwordEncoder.encode("123456"));
+        } else {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+        }
 
         // 添加用户
         int res = sysUserMapper.addUser(user);
@@ -109,6 +114,11 @@ public class UserServiceImpl implements UserService {
     // 修改用户
     @Override
     public Result updateUser(SysUser user) {
+        // 检查用户名是否已存在
+        if (sysUserMapper.findUserByUserName(user.getUsername()) != null) {
+            throw new BusinessException("用户名已存在");
+        }
+
         user.setUpdateTime(null);
         sysUserMapper.updateUser(user);
         return Result.success();

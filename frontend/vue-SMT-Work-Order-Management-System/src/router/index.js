@@ -1,6 +1,6 @@
-import { createRouter, createWebHistory } from "vue-router";
+import {createRouter, createWebHistory} from "vue-router";
 
-import layout from "@/views/layout/index.vue";  // 布局组件
+import layout from "@/views/layout/index.vue"; // 布局组件
 
 const router = createRouter({
   history: createWebHistory(),

@@ -34,6 +34,11 @@ public interface LineMapper {
     Line findLineById(Long id);
 
     /**
+     * 根据名称查询产线
+     */
+    Line findLineByName(String name);
+
+    /**
      * 查询所有产线
      */
     List<Line> findAll();

@@ -195,13 +195,25 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
-import { ElMessage, ElMessageBox, ElTag } from 'element-plus';
-import { queryUserApi, getUserByIdApi, addUserApi, updateUserApi, deleteUserApi } from '@/api/userManagement';
-import { queryDepartmentApi } from '@/api/departmentManagement';
-import { getSystemRoleListApi } from '@/api/role';
-import { Edit, Delete, Plus, User, Search, Refresh, Clock, Close, Check, Avatar, OfficeBuilding } from '@element-plus/icons-vue';
-import { isEmpty } from 'element-plus/es/utils/types.mjs';
+import {onMounted, ref} from 'vue'
+import {ElMessage, ElMessageBox, ElTag} from 'element-plus';
+import {addUserApi, deleteUserApi, getUserByIdApi, queryUserApi, updateUserApi} from '@/api/userManagement';
+import {queryDepartmentApi} from '@/api/departmentManagement';
+import {getSystemRoleListApi} from '@/api/role';
+import {
+  Avatar,
+  Check,
+  Clock,
+  Close,
+  Delete,
+  Edit,
+  OfficeBuilding,
+  Plus,
+  Refresh,
+  Search,
+  User
+} from '@element-plus/icons-vue';
+import {isEmpty} from 'element-plus/es/utils/types.mjs';
 
 defineOptions({
     name: 'UserManagement'
@@ -421,6 +433,7 @@ const queryUser = async () => {
         pageSize.value = res.data.pageSize
         total.value = res.data.total
     }
+    loading.value = false
 }
 
 /** 
@@ -509,7 +522,7 @@ const handleCurrentChange = (val) => {
 onMounted(async () => {
     loading.value = true
     // 发送异步请求
-    Promise.all([
+    Promise.allSettled([
         queryUser(),
         queryRole(),
         queryDepartment()

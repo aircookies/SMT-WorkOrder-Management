@@ -12,7 +12,9 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,6 +26,13 @@ public class GlobalExceptionHandler {
     public Result handleBusinessException(BusinessException e) {
         log.error("业务异常: {}", e.getMessage());
         return Result.error(e.getCode(), e.getMessage());
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Result handleNoResourceFoundException(NoResourceFoundException e) {
+        log.error("请求的资源未找到: {}", e.getMessage());
+        return Result.error(404, "请求的资源未找到");
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -83,6 +92,13 @@ public class GlobalExceptionHandler {
     public Result handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException e) {
         log.error("请求方法不支持: {}", e.getMessage());
         return Result.error(405, "请求方法不支持，请使用正确的方法（GET/POST/PUT/DELETE）");
+    }
+
+    @ExceptionHandler(SQLException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public Result handleSQLIntegrityConstraintViolationException(SQLException e) {
+        log.error("数据库操作异常: {}", e.getMessage());
+        return Result.error(500, "数据库操作异常，请检查数据是否重复");
     }
 
     @ExceptionHandler(Exception.class)

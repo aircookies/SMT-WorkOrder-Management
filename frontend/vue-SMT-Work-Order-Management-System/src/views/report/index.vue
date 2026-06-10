@@ -80,7 +80,7 @@
                                     <el-icon>
                                         <Box />
                                     </el-icon>
-                                    计划数量
+                                    计划生产数量
                                 </template>
                                 <strong>{{ workOrderInfo.quantity }}</strong>
                             </el-descriptions-item>
@@ -280,11 +280,31 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue"
-import { ElMessage, ElMessageBox, ElDescriptions, ElTag } from 'element-plus'
-import { getReportListApi, addReportApi, deleteReportApi } from "@/api/report";
-import { getWorkOrderByIdApi } from "@/api/workorder";
-import { TrendCharts, EditPen, Document, Search, Refresh, Ticket, Goods, Connection, Box, Clock, Flag, CircleCheck, Calendar, Check, List, CircleClose, User, DocumentChecked, Delete } from '@element-plus/icons-vue'
+import {onMounted, ref} from "vue"
+import {ElDescriptions, ElMessage, ElMessageBox, ElTag} from 'element-plus'
+import {addReportApi, deleteReportApi, getReportListApi} from "@/api/report";
+import {getWorkOrderByIdApi} from "@/api/workorder";
+import {
+  Box,
+  Calendar,
+  Check,
+  CircleCheck,
+  CircleClose,
+  Clock,
+  Connection,
+  Delete,
+  Document,
+  DocumentChecked,
+  EditPen,
+  Flag,
+  Goods,
+  List,
+  Refresh,
+  Search,
+  Ticket,
+  TrendCharts,
+  User
+} from '@element-plus/icons-vue'
 
 defineOptions({
     name: 'ProductionReport'

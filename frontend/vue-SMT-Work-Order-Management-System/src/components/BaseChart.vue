@@ -3,7 +3,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, watch, nextTick } from 'vue'
+import {nextTick, onBeforeUnmount, onMounted, ref, watch} from 'vue'
 import * as echarts from 'echarts'
 
 /**

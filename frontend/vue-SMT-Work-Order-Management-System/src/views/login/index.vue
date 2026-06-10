@@ -57,12 +57,12 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
-import { User, Lock, Monitor } from '@element-plus/icons-vue'
-import { loginApi } from '@/api/login'
-import { getPublicKey } from '@/utils/RSAUtil'
+import {onMounted, reactive, ref} from 'vue'
+import {useRouter} from 'vue-router'
+import {ElMessage} from 'element-plus'
+import {Lock, Monitor, User} from '@element-plus/icons-vue'
+import {loginApi} from '@/api/login'
+import {getPublicKey} from '@/utils/RSAUtil'
 
 defineOptions({
     name: 'LoginView'

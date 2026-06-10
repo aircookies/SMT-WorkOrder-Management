@@ -196,13 +196,32 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
-import { ElForm, ElFormItem, ElInput, ElSelect, ElButton, ElMessage, ElDialog, ElMessageBox, ElTag } from 'element-plus';
-import { getWorkOrderListApi, queryWorkOrderApi, addWorkOrderApi, getWorkOrderByIdApi, editWorkOrderApi, deleteWorkOrderApi } from '@/api/workorder';
-import { getLineListApi } from '@/api/line';
-import { getProductListApi } from '@/api/product';
-import { Edit, Delete, Plus, Document, Search, Refresh, User, Box, Calendar, Close, Check } from '@element-plus/icons-vue';
-import { isEmpty } from 'element-plus/es/utils/types.mjs';
+import {onMounted, ref} from 'vue'
+import {ElButton, ElDialog, ElForm, ElFormItem, ElInput, ElMessage, ElMessageBox, ElSelect, ElTag} from 'element-plus';
+import {
+  addWorkOrderApi,
+  deleteWorkOrderApi,
+  editWorkOrderApi,
+  getWorkOrderByIdApi,
+  getWorkOrderListApi,
+  queryWorkOrderApi
+} from '@/api/workorder';
+import {getLineListApi} from '@/api/line';
+import {getProductListApi} from '@/api/product';
+import {
+  Box,
+  Calendar,
+  Check,
+  Close,
+  Delete,
+  Document,
+  Edit,
+  Plus,
+  Refresh,
+  Search,
+  User
+} from '@element-plus/icons-vue';
+import {isEmpty} from 'element-plus/es/utils/types.mjs';
 
 defineOptions({
     name: 'WorkOrderManagement'
@@ -465,7 +484,7 @@ onMounted(async () => {
     loading.value = true
 
     // 并行发送网络请求
-    await Promise.all([
+    await Promise.allSettled([
         getWorkOrderList(),
         getLineList(),
         getProductList()

@@ -77,10 +77,10 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
-import { Edit, Delete, Plus, Connection, Clock, Close, Check } from '@element-plus/icons-vue'
-import { getLineListApi, addLineApi, deleteLineApi, getLineByIdApi, editLineApi } from '@/api/line';
-import { ElMessage, ElMessageBox, ElDialog, ElForm, ElFormItem, ElTag } from 'element-plus'
+import {onMounted, ref} from 'vue'
+import {Check, Clock, Close, Connection, Delete, Edit, Plus} from '@element-plus/icons-vue'
+import {addLineApi, deleteLineApi, editLineApi, getLineByIdApi, getLineListApi} from '@/api/line';
+import {ElDialog, ElForm, ElFormItem, ElMessage, ElMessageBox, ElTag} from 'element-plus'
 
 defineOptions({
     name: 'LineManagement'

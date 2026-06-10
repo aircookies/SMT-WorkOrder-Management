@@ -108,13 +108,23 @@
 </template>
 
 <script setup>
-import { RouterView, useRouter } from 'vue-router'
+import {RouterView, useRouter} from 'vue-router'
 import {
-    Platform, House, Box, Connection, Tickets, EditPen, DataAnalysis,
-    Setting, User, OfficeBuilding, UserFilled, SwitchButton
+  Box,
+  Connection,
+  DataAnalysis,
+  EditPen,
+  House,
+  OfficeBuilding,
+  Platform,
+  Setting,
+  SwitchButton,
+  Tickets,
+  User,
+  UserFilled
 } from '@element-plus/icons-vue'
-import { logoutApi } from '@/api/login'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import {logoutApi} from '@/api/login'
+import {ElMessage, ElMessageBox} from 'element-plus'
 
 const router = useRouter()
 
@@ -130,6 +140,7 @@ const currentRoleName = () => localStorage.getItem('roleName') ? localStorage.ge
 
 // 退出登录
 const logout = async () => {
+    ElMessage.info('正在登出...')
     const result = await logoutApi()
 
     if (result.code === 200) {

@@ -108,16 +108,28 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
+import {onMounted, ref} from 'vue'
 import {
-    ElButton, ElFormItem, ElInput, ElDatePicker, ElMessage, ElDialog,
-    ElMessageBox, ElForm, ElTag
+  ElButton,
+  ElDatePicker,
+  ElDialog,
+  ElForm,
+  ElFormItem,
+  ElInput,
+  ElMessage,
+  ElMessageBox,
+  ElTag
 } from 'element-plus';
 import {
-    getProductListApi, queryProductApi, addProductApi, getProductByIdApi, editProductApi,
-    deleteProductApi, deleteProductByIdApi
+  addProductApi,
+  deleteProductApi,
+  deleteProductByIdApi,
+  editProductApi,
+  getProductByIdApi,
+  getProductListApi,
+  queryProductApi
 } from '@/api/product';
-import { Plus, Edit, Delete, Search, Refresh, Box, Clock, Close, Check } from '@element-plus/icons-vue'
+import {Box, Check, Clock, Close, Delete, Edit, Plus, Refresh, Search} from '@element-plus/icons-vue'
 
 defineOptions({
     name: 'ProductManagement'

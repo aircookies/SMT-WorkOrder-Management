@@ -83,5 +83,15 @@
         FROM work_order
         WHERE line_id = #{lineId} AND (status = 0 OR status = 1)
     </select>
+<!--    根据名称查询产线-->
+    <select id="findLineByName" resultType="com.aircookies.smtworkordermanagement.entity.Line">
+        SELECT id,
+               name,
+               description,
+               create_time,
+               update_time
+        FROM line
+        WHERE name = #{name}
+    </select>
 
 </mapper>

@@ -48,5 +48,14 @@
         </where>
         ORDER BY create_time DESC
     </select>
+<!--    通过名称查询部门-->
+    <select id="findDeptByName" resultType="com.aircookies.smtworkordermanagement.entity.Dept">
+        SELECT id,
+               name,
+               create_time,
+               update_time
+        FROM dept
+        WHERE name = #{name}
+    </select>
 
 </mapper>

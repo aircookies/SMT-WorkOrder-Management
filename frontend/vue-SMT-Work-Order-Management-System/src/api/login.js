@@ -1,6 +1,5 @@
 import request from "@/utils/request"
-import { encryptPassword } from "@/utils/RSAUtil"
-
+import {encryptPassword} from "@/utils/RSAUtil"
 
 
 /**

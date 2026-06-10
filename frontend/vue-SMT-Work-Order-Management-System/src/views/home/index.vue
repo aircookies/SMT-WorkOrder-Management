@@ -227,16 +227,28 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
-import { useRouter } from 'vue-router'
+import {computed, onBeforeUnmount, onMounted, ref} from 'vue'
+import {useRouter} from 'vue-router'
 import {
-    HomeFilled, Document, Loading, CircleCheck, TrendCharts,
-    Plus, EditPen, DataAnalysis, Box, Van, User, List, ArrowRight, Clock
+  ArrowRight,
+  Box,
+  CircleCheck,
+  Clock,
+  DataAnalysis,
+  Document,
+  EditPen,
+  HomeFilled,
+  List,
+  Loading,
+  Plus,
+  TrendCharts,
+  User,
+  Van
 } from '@element-plus/icons-vue'
 import BaseChart from '@/components/BaseChart.vue'
-import { getstatisticsProductionQualityApi, getWorkOrderDetailApi } from '@/api/datalist'
-import { getWorkOrderListApi } from '@/api/workorder'
-import { passRateLineChart } from '@/utils/chartConfig'
+import {getstatisticsProductionQualityApi, getWorkOrderDetailApi} from '@/api/datalist'
+import {getWorkOrderListApi} from '@/api/workorder'
+import {passRateLineChart} from '@/utils/chartConfig'
 
 defineOptions({
     name: 'HomePage'
@@ -416,7 +428,7 @@ onMounted(async () => {
     timeInterval = setInterval(updateTime, 1000)
 
     // 并行获取数据
-    await Promise.all([
+    await Promise.allSettled([
         getstatisticsProductionQuality(currentDate[0], currentDate[1]),
         getWorkOrderDetail(currentDate[0], currentDate[1]),
         getWorkOrderList(1, 6)

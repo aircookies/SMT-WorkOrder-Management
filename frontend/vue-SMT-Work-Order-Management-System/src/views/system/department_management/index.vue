@@ -89,10 +89,15 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus';
-import { queryDepartmentApi, addDepartmentApi, updateDepartmentApi, deleteDepartmentApi } from '@/api/departmentManagement';
-import { Edit, Delete, Plus, OfficeBuilding, Search, Refresh, Clock, Close, Check } from '@element-plus/icons-vue';
+import {onMounted, ref} from 'vue'
+import {ElMessage, ElMessageBox} from 'element-plus';
+import {
+  addDepartmentApi,
+  deleteDepartmentApi,
+  queryDepartmentApi,
+  updateDepartmentApi
+} from '@/api/departmentManagement';
+import {Check, Clock, Close, Delete, Edit, OfficeBuilding, Plus, Refresh, Search} from '@element-plus/icons-vue';
 
 defineOptions({
     name: 'DepartmentManagement'

@@ -1,6 +1,6 @@
 import axios from "axios";
 import router from "@/router";
-import { ElMessage } from "element-plus";
+import {ElMessage} from "element-plus";
 
 // 创建axios实例
 const request = axios.create({
@@ -55,7 +55,8 @@ request.interceptors.response.use(
           // router.push('/login')
           break
         case 403:
-          message = error.response.data.message || '拒绝访问'
+          message = error.response.data.message || '请重新登录'
+          router.push('/login')
           break
         case 404:
           message = error.response.data.message || '请求资源不存在'

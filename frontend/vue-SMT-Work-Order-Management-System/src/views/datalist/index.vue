@@ -160,12 +160,29 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
-import { getWorkOrderDetailApi, getstatisticsProductionQualityApi, getStatisticsLineProductionApi, getStatisticsProductProductionApi } from '@/api/datalist'
-import { DataAnalysis, Search, Refresh, Tickets, CircleCheck, TrendCharts, Warning, PieChart, DataLine, Histogram, Trophy } from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
+import {computed, onMounted, ref} from 'vue'
+import {
+  getStatisticsLineProductionApi,
+  getstatisticsProductionQualityApi,
+  getStatisticsProductProductionApi,
+  getWorkOrderDetailApi
+} from '@/api/datalist'
+import {
+  CircleCheck,
+  DataAnalysis,
+  DataLine,
+  Histogram,
+  PieChart,
+  Refresh,
+  Search,
+  Tickets,
+  TrendCharts,
+  Trophy,
+  Warning
+} from '@element-plus/icons-vue'
+import {ElMessage} from 'element-plus'
 import BaseChart from '@/components/BaseChart.vue'
-import { pieChart, passRateLineChart, lineProductionBarChart, productTop5BarChart } from '@/utils/chartConfig'
+import {lineProductionBarChart, passRateLineChart, pieChart, productTop5BarChart} from '@/utils/chartConfig'
 
 defineOptions({
     name: 'DataList'
@@ -320,7 +337,7 @@ const onQuery = async () => {
         return
     }
     // 并行发送异步请求
-    await Promise.all([
+    await Promise.allSettled([
         getWorkOrderDetail(form.value.dateRange[0], form.value.dateRange[1]),
         getstatisticsProductionQuality(form.value.dateRange[0], form.value.dateRange[1]),
         getstatisticsLineProduction(form.value.dateRange[0], form.value.dateRange[1]),
@@ -342,7 +359,7 @@ const onReset = () => {
 onMounted(async () => {
     loading.value = true
     // 并行发送异步请求
-    await Promise.all([
+    await Promise.allSettled([
         getWorkOrderDetail(form.value.dateRange[0], form.value.dateRange[1]),
         getstatisticsProductionQuality(form.value.dateRange[0], form.value.dateRange[1]),
         getstatisticsLineProduction(form.value.dateRange[0], form.value.dateRange[1]),
