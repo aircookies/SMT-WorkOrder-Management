@@ -5,6 +5,7 @@ import com.aircookies.smtworkordermanagement.entity.Dept;
 import com.aircookies.smtworkordermanagement.service.DeptService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 // 部门控制器
@@ -21,6 +22,7 @@ public class DeptController {
 
     // 添加部门
     @PostMapping("/add")
+    @PreAuthorize("hasAnyRole('1')") // 角色为1的用户可以访问(1:管理员)
     public Result addDept(@RequestBody Dept dept) {
         log.debug("添加部门: {}", dept);
         return deptService.addDept(dept);
@@ -28,6 +30,7 @@ public class DeptController {
 
     // 删除部门
     @DeleteMapping("/delete/{id}")
+    @PreAuthorize("hasAnyRole('1')") // 角色为1的用户可以访问(1:管理员)
     public Result deleteDept(@PathVariable Integer id) {
         log.debug("删除部门: {}", id);
         return deptService.deleteDept(id);
@@ -42,6 +45,7 @@ public class DeptController {
 
     // 修改部门
     @PutMapping("/update")
+    @PreAuthorize("hasAnyRole('1')") // 角色为1的用户可以访问(1:管理员)
     public Result updateDept(@RequestBody Dept dept) {
         log.debug("修改部门: {}", dept);
         return deptService.updateDept(dept);

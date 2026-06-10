@@ -1,14 +1,20 @@
 package com.aircookies.smtworkordermanagement.service.impl;
 
+import com.aircookies.smtworkordermanagement.common.BusinessException;
+import com.aircookies.smtworkordermanagement.common.CacheConstants;
 import com.aircookies.smtworkordermanagement.common.Result;
 import com.aircookies.smtworkordermanagement.dto.PagesDTO;
 import com.aircookies.smtworkordermanagement.dto.QueryUserDTO;
 import com.aircookies.smtworkordermanagement.entity.SysUser;
 import com.aircookies.smtworkordermanagement.mapper.SysUserMapper;
 import com.aircookies.smtworkordermanagement.service.UserService;
+import com.aircookies.smtworkordermanagement.util.RedisUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -20,24 +26,32 @@ import static com.aircookies.smtworkordermanagement.common.Result.success;
 public class UserServiceImpl implements UserService {
     private final SysUserMapper sysUserMapper;
     private final PasswordEncoder passwordEncoder;
+    private final RedisUtil redisUtil;
 
     @Autowired
-    public UserServiceImpl(SysUserMapper sysUserMapper, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(SysUserMapper sysUserMapper, PasswordEncoder passwordEncoder, RedisUtil redisUtil) {
         this.sysUserMapper = sysUserMapper;
         this.passwordEncoder = passwordEncoder;
+        this.redisUtil = redisUtil;
     }
 
     // 添加用户
     @Override
     public Result addUser(SysUser user) {
+        // 如果密码为空则使用默认密码(123456)
+        if (user.getPassword().isEmpty()) {
+            user.setPassword(passwordEncoder.encode("123456"));
+        }
+
         // 加密用户密码
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+
         // 添加用户
         int res = sysUserMapper.addUser(user);
         if (res != 0) {
             return success();
         } else {
-            return Result.error("添加用户失败");
+            throw new BusinessException("添加用户失败");
         }
     }
 

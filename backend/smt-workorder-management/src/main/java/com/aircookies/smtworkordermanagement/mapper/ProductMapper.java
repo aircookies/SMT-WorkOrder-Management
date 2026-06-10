@@ -29,4 +29,6 @@ public interface ProductMapper {
     void deleteBatch(List<Long> ids);
 
     List<ProductionQuantityDTO> statistics(LocalDate startTime, LocalDate endTime);
+
+    int isProductProducing(Long productId);
 }

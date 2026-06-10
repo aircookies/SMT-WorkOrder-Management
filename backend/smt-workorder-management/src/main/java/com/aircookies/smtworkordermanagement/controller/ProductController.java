@@ -6,6 +6,7 @@ import com.aircookies.smtworkordermanagement.entity.Product;
 import com.aircookies.smtworkordermanagement.service.ProductService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -30,6 +31,7 @@ public class ProductController {
      * 添加产品
      */
     @PostMapping("/add")
+    @PreAuthorize("hasAnyRole('1')") // 角色为1的用户可以访问(1:管理员)
     public Result addProduct(@RequestBody Product product) {
         log.debug("添加产品: {}", product);
         return productService.addProduct(product);
@@ -39,6 +41,7 @@ public class ProductController {
      * 根据ID删除产品
      */
     @DeleteMapping("/delete/{id}")
+    @PreAuthorize("hasAnyRole('1')") // 角色为1的用户可以访问(1:管理员)
     public Result deleteProduct(@PathVariable Long id) {
         log.debug("删除产品: {}", id);
         return productService.deleteProduct(id);
@@ -48,6 +51,7 @@ public class ProductController {
      * 批量删除产品
      */
     @DeleteMapping("/deleteBatch")
+    @PreAuthorize("hasAnyRole('1')") // 角色为1的用户可以访问(1:管理员)
     public Result deleteBatch(@RequestBody List<Long> ids) {
         log.debug("批量删除产品: {}", ids);
         return productService.deleteBatch(ids);
@@ -57,6 +61,7 @@ public class ProductController {
      * 更新产品
      */
     @PutMapping("/update")
+    @PreAuthorize("hasAnyRole('1')") // 角色为1的用户可以访问(1:管理员)
     public Result updateProduct(@RequestBody Product product) {
         log.debug("更新产品: {}", product);
         return productService.updateProduct(product);

@@ -1,5 +1,6 @@
 package com.aircookies.smtworkordermanagement.service.impl;
 
+import com.aircookies.smtworkordermanagement.common.BusinessException;
 import com.aircookies.smtworkordermanagement.common.Result;
 import com.aircookies.smtworkordermanagement.dto.PagesDTO;
 import com.aircookies.smtworkordermanagement.entity.WorkOrder;
@@ -9,6 +10,9 @@ import com.aircookies.smtworkordermanagement.service.WorkOrderService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -41,7 +45,7 @@ public class WorkOrderServiceImpl implements WorkOrderService {
         if (res != 0) {
             return success("添加工单成功");
         } else {
-            return Result.error("添加工单失败");
+            throw new BusinessException("添加工单失败");
         }
     }
 
@@ -123,7 +127,7 @@ public class WorkOrderServiceImpl implements WorkOrderService {
         // 先检查是否该工单是否存在该工序报工记录
         int existRecord = workOrderMapper.findByIdAndSeq(workProcessReport.getOrderId(), workProcessReport.getProcessSeq());
         if (existRecord != 0) {
-            return Result.error("请勿重复报工");
+            throw new BusinessException("请勿重复报工");
         }
         workProcessReport.setCreateTime(LocalDateTime.now());
         workProcessReport.setUpdateTime(LocalDateTime.now());
@@ -132,20 +136,20 @@ public class WorkOrderServiceImpl implements WorkOrderService {
         if (res != 0) {
             return Result.success("报工成功");
         } else {
-            return Result.error("报工失败");
+            throw new BusinessException("报工失败");
         }
     }
 
     /**
-     * 根据工单ID删除工序报工表
+     * 根据报工单ID删除工序报工表
      */
     @Override
-    public Result deleteWorkProcessReport(Long orderId) {
-        int res = workOrderMapper.deleteWorkProcessReport(orderId);
+    public Result deleteWorkProcessReport(Long Id) {
+        int res = workOrderMapper.deleteWorkProcessReport(Id);
         if (res != 0) {
             return Result.success("删除成功");
         } else {
-            return Result.error("删除失败");
+            throw new BusinessException("删除失败");
         }
     }
 
@@ -159,7 +163,7 @@ public class WorkOrderServiceImpl implements WorkOrderService {
         if (res != 0) {
             return Result.success("更新成功");
         } else {
-            return Result.error("更新失败");
+            throw new BusinessException("更新失败");
         }
     }
 
@@ -169,7 +173,7 @@ public class WorkOrderServiceImpl implements WorkOrderService {
     @Override
     public Result findWorkProcessReport(Long orderId) {
         WorkProcessReport workProcessReport = workOrderMapper.findWorkProcessReport(orderId);
-        return Result.success(workProcessReport);
+        throw new BusinessException("查询数据失败");
     }
 
     @Override

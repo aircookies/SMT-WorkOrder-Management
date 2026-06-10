@@ -1,5 +1,6 @@
 package com.aircookies.smtworkordermanagement.service.impl;
 
+import com.aircookies.smtworkordermanagement.common.BusinessException;
 import com.aircookies.smtworkordermanagement.common.Result;
 import com.aircookies.smtworkordermanagement.dto.PagesDTO;
 import com.aircookies.smtworkordermanagement.dto.QueryProductDTO;
@@ -41,7 +42,7 @@ public class ProductServiceImpl implements ProductService {
         if (res != 0) {
             return success("添加产品成功");
         } else {
-            return Result.error("添加产品失败");
+            throw new BusinessException("添加产品失败");
         }
     }
     
@@ -50,6 +51,10 @@ public class ProductServiceImpl implements ProductService {
      */
     @Override
     public Result deleteProduct(Long id) {
+        if (productMapper.isProductProducing(id) != 0) {
+            throw new BusinessException("该产品正在生产中，请先停止该产品下的所有工单");
+        }
+
         productMapper.deleteProduct(id);
         return Result.success("删除产品成功");
     }
@@ -59,6 +64,12 @@ public class ProductServiceImpl implements ProductService {
      */
     @Override
     public Result deleteBatch(List<Long> ids) {
+        for (Long id : ids) {
+            if (productMapper.isProductProducing(id) != 0) {
+                throw new BusinessException("该产品正在生产中，请先停止该产品下的所有工单");
+            }
+        }
+
         productMapper.deleteBatch(ids);
         return Result.success("批量删除产品成功");
     }

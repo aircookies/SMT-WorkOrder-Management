@@ -291,7 +291,7 @@
     <delete id="deleteWorkProcessReport">
         DELETE
         FROM work_process
-        WHERE order_id = #{orderId}
+        WHERE id = #{Id}
     </delete>
 
     <!--    查询指定时间内的良品数和不良数统计-->

@@ -1,5 +1,6 @@
 package com.aircookies.smtworkordermanagement.service.impl;
 
+import com.aircookies.smtworkordermanagement.common.BusinessException;
 import com.aircookies.smtworkordermanagement.common.Result;
 import com.aircookies.smtworkordermanagement.entity.Line;
 import com.aircookies.smtworkordermanagement.mapper.LineMapper;
@@ -36,7 +37,7 @@ public class LineServiceImpl implements LineService {
         if (res != 0) {
             return success("添加产线成功");
         } else {
-            return Result.error("添加产线失败");
+            throw new BusinessException("添加产线失败");
         }
     }
 
@@ -45,6 +46,10 @@ public class LineServiceImpl implements LineService {
      */
     @Override
     public Result deleteLine(Long id) {
+        if (lineMapper.isLineUsed(id) != 0) {
+            throw new BusinessException("该产线正在使用中，请先删除该产线下的工单");
+        }
+
         lineMapper.deleteLine(id);
         return Result.success("删除产线成功");
     }

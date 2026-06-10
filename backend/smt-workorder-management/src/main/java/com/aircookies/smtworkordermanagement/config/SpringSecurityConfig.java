@@ -30,18 +30,22 @@ public class SpringSecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) {
         // 禁用认证和授权
         http
+                .csrf(AbstractHttpConfigurer::disable) // 禁用CSRF保护（调试时常用）
+                .httpBasic(AbstractHttpConfigurer::disable) // 禁用HTTP基本认证
+                .formLogin(AbstractHttpConfigurer::disable) // 禁用表单登录
+                .logout(AbstractHttpConfigurer::disable) // 禁用Spring Security默认的logout
+
                 .authorizeHttpRequests(auth -> auth
-//                        .anyRequest().permitAll() // 允许所有请求无需认证
+                                .requestMatchers("/publickey").permitAll()
                                 .requestMatchers("/login").permitAll()
+                                .requestMatchers("/logout").permitAll()
                                 .anyRequest().authenticated()
 
                 )
                 .sessionManagement(session ->
-                    session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
-                .csrf(AbstractHttpConfigurer::disable) // 禁用CSRF保护（调试时常用）
-                .httpBasic(AbstractHttpConfigurer::disable) // 禁用HTTP基本认证
-                .formLogin(AbstractHttpConfigurer::disable) // 禁用表单登录
+
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

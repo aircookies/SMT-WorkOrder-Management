@@ -58,7 +58,7 @@
     <delete id="deleteLine">
         DELETE
         FROM line
-        WHERE id = #{id}
+        WHERE (SELECT COUNT(*) FROM work_order where line_id = line.id) = 0 AND id = #{id}
     </delete>
 
     <!--    统计每条产线在指定日期范围内的计划数量和完成数量-->
@@ -76,6 +76,12 @@
             AND wo.create_time &lt; DATE_ADD(#{endTime}, INTERVAL 1 DAY)
         GROUP BY line.id, line.name
         ORDER BY line.id
+    </select>
+<!--    查询产线是否被使用-->
+    <select id="isLineUsed" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM work_order
+        WHERE line_id = #{lineId} AND (status = 0 OR status = 1)
     </select>
 
 </mapper>

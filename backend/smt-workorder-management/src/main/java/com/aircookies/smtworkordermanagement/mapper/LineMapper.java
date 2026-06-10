@@ -42,4 +42,9 @@ public interface LineMapper {
      * 统计每条产线在指定日期范围内的计划数量和完成数量
      */
     List<LineOutputDTO> statistics(LocalDate startTime, LocalDate endTime);
+
+    /**
+     * 查询产线是否被使用
+     */
+    int isLineUsed(Long id);
 }

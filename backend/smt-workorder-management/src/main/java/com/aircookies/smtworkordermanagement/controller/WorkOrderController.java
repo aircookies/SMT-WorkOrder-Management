@@ -6,6 +6,7 @@ import com.aircookies.smtworkordermanagement.entity.WorkProcessReport;
 import com.aircookies.smtworkordermanagement.service.WorkOrderService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -30,6 +31,7 @@ public class WorkOrderController {
      * 添加工单
      */
     @PostMapping("/add")
+    @PreAuthorize("hasAnyRole('1', '2')") // 角色为1和3的用户可以访问(1:管理员 2:生产计划员)
     public Result addWorkOrder(@RequestBody WorkOrder workOrder) {
         log.debug("添加工单: {}", workOrder);
         return workOrderService.addWorkOrder(workOrder);
@@ -39,6 +41,7 @@ public class WorkOrderController {
      * 根据ID删除工单
      */
     @DeleteMapping("/delete")
+    @PreAuthorize("hasAnyRole('1', '2')") // 角色为1和3的用户可以访问(1:管理员 2:生产计划员)
     public Result deleteWorkOrder(@RequestBody List<Long> ids) {
         log.debug("删除工单: {}", ids);
         return workOrderService.deleteWorkOrder(ids);
@@ -48,6 +51,7 @@ public class WorkOrderController {
      * 更新工单
      */
     @PutMapping("/update")
+    @PreAuthorize("hasAnyRole('1', '2')") // 角色为1和3的用户可以访问(1:管理员 2:生产计划员)
     public Result updateWorkOrder(@RequestBody WorkOrder workOrder) {
         log.debug("更新工单: {}", workOrder);
         return workOrderService.updateWorkOrder(workOrder);
@@ -99,24 +103,27 @@ public class WorkOrderController {
      * 添加工序报工表
      */
     @PostMapping("/process/add")
+    @PreAuthorize("hasAnyRole('1', '2', '3')") // 角色为1,2,3的用户可以访问(1:管理员 2:生产计划员 3:车间操作员)
     public Result addWorkProcessReport(@RequestBody WorkProcessReport workProcessReport) {
         log.debug("添加工序: {}", workProcessReport);
         return workOrderService.addWorkProcessReport(workProcessReport);
     }
 
     /**
-     * 根据工单ID删除工序报工表
+     * 根据报工单ID删除工序报工表
      */
-    @DeleteMapping("/process/delete/{orderId}")
-    public Result deleteWorkProcessReport(@PathVariable Long orderId) {
-        log.debug("删除工序: orderId={}", orderId);
-        return workOrderService.deleteWorkProcessReport(orderId);
+    @DeleteMapping("/process/delete/{Id}")
+    @PreAuthorize("hasAnyRole('1', '2', '3')") // 角色为1,2,3的用户可以访问(1:管理员 2:生产计划员 3:车间操作员)
+    public Result deleteWorkProcessReport(@PathVariable Long Id) {
+        log.debug("删除工序: Id={}", Id);
+        return workOrderService.deleteWorkProcessReport(Id);
     }
 
     /**
      * 更新工序报工表
      */
     @PutMapping("/process/update")
+    @PreAuthorize("hasAnyRole('1', '2', '3')") // 角色为1,2,3的用户可以访问(1:管理员 2:生产计划员 3:车间操作员)
     public Result updateWorkProcessReport(@RequestBody WorkProcessReport workProcessReport) {
         log.debug("更新工序: {}", workProcessReport);
         return workOrderService.updateWorkProcessReport(workProcessReport);

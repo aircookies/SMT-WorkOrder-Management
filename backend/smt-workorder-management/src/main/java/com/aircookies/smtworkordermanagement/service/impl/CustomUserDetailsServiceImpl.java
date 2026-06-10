@@ -33,7 +33,7 @@ public class CustomUserDetailsServiceImpl implements UserDetailsService {
         }
         // 验证用户权限
         List<SimpleGrantedAuthority> authorities = Collections.singletonList(
-                new SimpleGrantedAuthority("ROLE_" + (user.getRoleId() != null ? user.getRoleId().toString() : "USER"))
+                new SimpleGrantedAuthority("ROLE_" + (user.getRoleId() != null ? user.getRoleId().toString() : "GUEST"))
         );
 
         // 封装UserDetails并返回

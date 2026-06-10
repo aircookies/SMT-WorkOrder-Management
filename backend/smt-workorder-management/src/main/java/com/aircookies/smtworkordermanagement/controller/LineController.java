@@ -5,6 +5,7 @@ import com.aircookies.smtworkordermanagement.entity.Line;
 import com.aircookies.smtworkordermanagement.service.LineService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -28,6 +29,7 @@ public class LineController {
      * 添加产线
      */
     @PostMapping("/add")
+    @PreAuthorize("hasAnyRole('1')") // 角色为1的用户可以访问(1:管理员)
     public Result addLine(@RequestBody Line line) {
         log.debug("添加产线: {}", line);
         return lineService.addLine(line);
@@ -37,6 +39,7 @@ public class LineController {
      * 根据ID删除产线
      */
     @DeleteMapping("/delete/{id}")
+    @PreAuthorize("hasAnyRole('1')") // 角色为1的用户可以访问(1:管理员)
     public Result deleteLine(@PathVariable Long id) {
         log.debug("删除产线: {}", id);
         return lineService.deleteLine(id);
@@ -46,6 +49,7 @@ public class LineController {
      * 更新产线
      */
     @PutMapping("/update")
+    @PreAuthorize("hasAnyRole('1')") // 角色为1的用户可以访问(1:管理员)
     public Result updateLine(@RequestBody Line line) {
         log.debug("更新产线: {}", line);
         return lineService.updateLine(line);

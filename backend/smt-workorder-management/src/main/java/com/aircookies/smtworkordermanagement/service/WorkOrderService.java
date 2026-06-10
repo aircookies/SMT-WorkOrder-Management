@@ -50,7 +50,7 @@ public interface WorkOrderService {
     /**
      * 根据工单ID删除工序报工表
      */
-    Result deleteWorkProcessReport(Long orderId);
+    Result deleteWorkProcessReport(Long Id);
 
     /**
      * 更新工序报工表

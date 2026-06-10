@@ -8,7 +8,9 @@ import com.aircookies.smtworkordermanagement.mapper.SysUserMapper;
 import com.aircookies.smtworkordermanagement.service.LoginService;
 
 import com.aircookies.smtworkordermanagement.util.JWTUtil;
+import com.aircookies.smtworkordermanagement.util.RSAUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -21,30 +23,47 @@ public class LoginServiceImpl implements LoginService {
     private final SysUserMapper sysUserMapper;
     private final JWTUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
+    private final RSAUtil rsaUtil;
+    private final JwtTokenCacheService jwtTokenCacheService;
 
     @Autowired
-    public LoginServiceImpl(SysUserMapper sysUserMapper, JWTUtil jwtUtil, PasswordEncoder passwordEncoder) {
+    public LoginServiceImpl(SysUserMapper sysUserMapper,
+                            JWTUtil jwtUtil,
+                            PasswordEncoder passwordEncoder,
+                            RSAUtil rsaUtil,
+                            JwtTokenCacheService jwtTokenCacheService
+                            ) {
         this.sysUserMapper = sysUserMapper;
         this.jwtUtil = jwtUtil;
         this.passwordEncoder = passwordEncoder;
+        this.rsaUtil = rsaUtil;
+        this.jwtTokenCacheService = jwtTokenCacheService;
     }
 
     @Override
     public Result login(LoginDTO loginDTO) {
         if (Objects.isNull(loginDTO)) {
-            return Result.error(422, "参数错误");
+            throw new NullPointerException("登录参数不能为空");
         }
 
         if (loginDTO.getUsername().isEmpty() || loginDTO.getPassword().isEmpty()) {
-            return Result.error(422, "用户名或密码不能为空");
+            throw new NullPointerException("用户名或密码不能为空");
         }
 
         SysUser user = sysUserMapper.findUserByUserName(loginDTO.getUsername());
         if (user == null) {
-            return Result.error(401, "用户名或密码错误");
+            throw new BadCredentialsException("用户名或密码错误");
         }
-        if (!passwordEncoder.matches(loginDTO.getPassword(), user.getPassword())) {
-            return Result.error(401, "用户名或密码错误");
+
+        // 解密密码
+        String decryptedPassword;
+        try {
+            decryptedPassword = rsaUtil.decrypt(loginDTO.getPassword());
+        } catch (Exception e) {
+            throw new IllegalArgumentException("解密失败");
+        }
+        if (!passwordEncoder.matches(decryptedPassword, user.getPassword())) {
+                throw new BadCredentialsException("用户名或密码错误");
         }
 
         Map<String, Object> claims = new HashMap<>();
@@ -52,11 +71,23 @@ public class LoginServiceImpl implements LoginService {
         claims.put("roleId", user.getRoleId());
         String token = jwtUtil.generateToken(user.getUsername(), claims);
 
+        Map<String, Object> tokenInfo = new HashMap<>();
+        tokenInfo.put("userId", user.getId());
+        tokenInfo.put("username", user.getUsername());
+        tokenInfo.put("name", user.getName());
+        tokenInfo.put("roleId", user.getRoleId());
+        tokenInfo.put("roleName", user.getRoleName());
+        tokenInfo.put("loginTime", System.currentTimeMillis());
+        jwtTokenCacheService.cacheToken(token, tokenInfo);
+
+
         LoginResponseDTO loginResponseDTO = new LoginResponseDTO(
                 token,
+                user.getId(),
                 user.getUsername(),
                 user.getName(),
-                user.getRoleId() != null ? user.getRoleId().toString() : "USER"
+                user.getRoleId().toString(),
+                user.getRoleName()
         );
 
         return Result.success(loginResponseDTO);

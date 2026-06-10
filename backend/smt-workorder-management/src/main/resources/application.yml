@@ -6,17 +6,17 @@ spring:
     name: smt-workorder-management
     version: 1.0.0
   datasource:
-    url: jdbc:mysql://localhost:3306/smt_workorder_management?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true&zeroDateTimeBehavior=convertToNull&transformedBitIsBoolean=true&allowMultiQueries=true&tinyInt1isBit=false
-    username: root
-    password: 88888888
+    url: ${DB_URL:jdbc:mysql://localhost:3306/smt_workorder_management?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true&zeroDateTimeBehavior=convertToNull&transformedBitIsBoolean=true&allowMultiQueries=true&tinyInt1isBit=false}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:88888888}
     driver-class-name: com.mysql.cj.jdbc.Driver
   data:
     redis:
-      host: localhost
-      port: 6379
-      password:
-      database: 0
-      timeout: 3000ms
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      database: ${REDIS_DATABASE:0}
+      timeout: ${REDIS_TIMEOUT:3000ms}
       lettuce:
         pool:
           max-active: 8
@@ -48,7 +48,11 @@ jwt:
     # 密钥
   secret: ${JWT_SECRET:smt-workorder-management-secret-key-2026-aircookies-change-in-production}
     # 过期时间
-  expiration: ${JWT_EXPIRATION:86400000}
+  expiration: ${JWT_EXPIRATION:86400000} # 1天
+
+  # RSA密钥存储路径
+  rsa:
+    key-file-path: ${RSA_KEY_FILE_PATH:./keys/}
 
 logging:
   level:

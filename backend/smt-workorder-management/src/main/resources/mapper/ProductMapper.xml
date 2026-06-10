@@ -127,5 +127,11 @@
         GROUP BY product.id, product.code, product.name, product.spec
         ORDER BY product.id;
     </select>
+<!--    查询产品是否正在生产-->
+    <select id="isProductProducing" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM work_order
+        WHERE product_id = #{productId} AND (status = 0 OR status = 1)
+    </select>
 
 </mapper>

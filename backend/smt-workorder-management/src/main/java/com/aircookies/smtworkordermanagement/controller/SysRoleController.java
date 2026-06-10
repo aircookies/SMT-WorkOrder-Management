@@ -5,6 +5,7 @@ import com.aircookies.smtworkordermanagement.entity.SysRole;
 import com.aircookies.smtworkordermanagement.service.SysRoleService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -20,6 +21,7 @@ public class SysRoleController {
 
     // 添加角色
     @PostMapping("/add")
+    @PreAuthorize("hasAnyRole('1')") // 角色为1的用户可以访问(1:管理员)
     public Result addRole(@RequestBody SysRole sysRole) {
         log.debug("添加角色: {}", sysRole);
         return sysRoleService.addRole(sysRole);
@@ -27,6 +29,7 @@ public class SysRoleController {
 
     // 更新角色
     @PutMapping("/update")
+    @PreAuthorize("hasAnyRole('1')") // 角色为1的用户可以访问(1:管理员)
     public Result updateRole(@RequestBody SysRole sysRole) {
         log.debug("更新角色: {}", sysRole);
         return sysRoleService.updateRole(sysRole);
@@ -34,6 +37,7 @@ public class SysRoleController {
 
     // 删除角色
     @DeleteMapping("/delete/{id}")
+    @PreAuthorize("hasAnyRole('1')") // 角色为1的用户可以访问(1:管理员)
     public Result deleteRole(@PathVariable Integer id) {
         log.debug("删除角色: {}", id);
         return sysRoleService.deleteRole(id);

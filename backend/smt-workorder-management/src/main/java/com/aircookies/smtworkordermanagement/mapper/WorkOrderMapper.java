@@ -56,7 +56,7 @@ public interface WorkOrderMapper {
     /**
      * 根据工单ID删除工序报工表
      */
-    int deleteWorkProcessReport(Long orderId);
+    int deleteWorkProcessReport(Long Id);
 
     /**
      * 更新工序报工表

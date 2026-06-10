@@ -17,6 +17,7 @@ public class SysUser {
     private String name; // 真实姓名
     private Integer gender; // 性别: 1男 0女
     private Long roleId; // 角色id
+    private String roleName; // 角色名称
     private Long departmentId; // 部门id
     private Integer status; // 状态: 1正常 0禁用
     private LocalDateTime createTime; // 创建时间
