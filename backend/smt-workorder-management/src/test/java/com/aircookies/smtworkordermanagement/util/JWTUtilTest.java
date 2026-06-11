@@ -1,6 +1,5 @@
-package com.aircookies.smtworkordermanagement;
+package com.aircookies.smtworkordermanagement.util;
 
-import com.aircookies.smtworkordermanagement.util.JWTUtil;
 import io.jsonwebtoken.Claims;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

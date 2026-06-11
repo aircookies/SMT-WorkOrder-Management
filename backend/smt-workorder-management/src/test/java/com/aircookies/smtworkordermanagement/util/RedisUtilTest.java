@@ -1,6 +1,5 @@
-package com.aircookies.smtworkordermanagement;
+package com.aircookies.smtworkordermanagement.util;
 
-import com.aircookies.smtworkordermanagement.util.RedisUtil;
 import com.alibaba.fastjson.TypeReference;
 import lombok.AllArgsConstructor;
 import lombok.Data;
