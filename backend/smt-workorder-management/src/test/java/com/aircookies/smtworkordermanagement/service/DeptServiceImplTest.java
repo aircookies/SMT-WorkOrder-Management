@@ -14,11 +14,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -112,7 +111,7 @@ public class DeptServiceImplTest {
     @Test
     @DisplayName("查询部门成功")
     void testFindDept() {
-        List<Dept> depts = Arrays.asList(testDept);
+        List<Dept> depts = Collections.singletonList(testDept);
         when(deptMapper.findDept(any(Dept.class))).thenReturn(depts);
 
         Result result = deptService.findDept(testDept);
@@ -128,13 +127,24 @@ public class DeptServiceImplTest {
     @DisplayName("更新部门成功")
     void testUpdateDeptSuccess() {
         when(deptMapper.findDeptByName("研发部")).thenReturn(null);
-        doNothing().when(deptMapper).updateDept(any(Dept.class));
+        when(deptMapper.updateDept(any(Dept.class))).thenReturn(1);
 
         Result result = deptService.updateDept(testDept);
 
         assertEquals(200, result.getCode());
         assertEquals("更新部门成功", result.getMessage());
         assertNotNull(testDept.getUpdateTime(), "应自动设置更新时间");
+    }
+
+    @Test
+    @DisplayName("更新部门失败 - 数据库更新返回0")
+    void testUpdateDeptFailure() {
+        when(deptMapper.findDeptByName("研发部")).thenReturn(null);
+        when(deptMapper.updateDept(any(Dept.class))).thenReturn(0);
+
+        BusinessException exception = assertThrows(BusinessException.class,
+                () -> deptService.updateDept(testDept));
+        assertEquals("更新部门失败", exception.getMessage());
     }
 
     @Test

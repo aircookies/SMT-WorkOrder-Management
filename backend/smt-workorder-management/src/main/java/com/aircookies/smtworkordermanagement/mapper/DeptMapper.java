@@ -16,5 +16,5 @@ public interface DeptMapper {
 
     Dept findDeptByName(String name);
 
-    void updateDept(Dept dept);
+    int updateDept(Dept dept);
 }

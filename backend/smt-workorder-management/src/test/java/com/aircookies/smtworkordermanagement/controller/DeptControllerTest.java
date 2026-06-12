@@ -15,7 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import java.util.Arrays;
+import java.util.Collections;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -84,7 +84,7 @@ class DeptControllerTest {
         Dept queryDept = new Dept();
         queryDept.setName("研发部");
 
-        Result expectedResult = Result.success(Arrays.asList(testDept));
+        Result expectedResult = Result.success(Collections.singletonList(testDept));
         when(deptService.findDept(any(Dept.class))).thenReturn(expectedResult);
 
         mockMvc.perform(post("/department/find")

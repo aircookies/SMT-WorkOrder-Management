@@ -8,6 +8,7 @@ import javax.crypto.Cipher;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.KeyFactory;
 import java.security.KeyPair;
@@ -104,16 +105,18 @@ public class RSAUtil {
     public Map<String, String> loadKeysFromFile() throws IOException {
         Map<String, String> keys = new HashMap<>();
 
-        String publicKeyPath = keyFilePath + "public.key";
-        String privateKeyPath = keyFilePath + "private.key";
+        String publicKey = keyFilePath + "public.key";
+        String privateKey = keyFilePath + "private.key";
+        Path publicKeyPath = Paths.get(publicKey);
+        Path privateKeyPath = Paths.get(privateKey);
 
-        if (Files.exists(Paths.get(publicKeyPath)) && Files.exists(Paths.get(privateKeyPath))) {
+        if (Files.exists(publicKeyPath) && Files.exists(privateKeyPath)) {
             // 读取公钥
-            String publicKeyContent = new String(Files.readAllBytes(Paths.get(publicKeyPath)));
+            String publicKeyContent = new String(Files.readAllBytes(publicKeyPath));
             keys.put("publicKey", extractKeyContent(publicKeyContent));
 
             // 读取私钥
-            String privateKeyContent = new String(Files.readAllBytes(Paths.get(privateKeyPath)));
+            String privateKeyContent = new String(Files.readAllBytes(privateKeyPath));
             keys.put("privateKey", extractKeyContent(privateKeyContent));
         }
 

@@ -4,15 +4,11 @@ import com.aircookies.smtworkordermanagement.common.Result;
 import com.aircookies.smtworkordermanagement.dto.QueryUserDTO;
 import com.aircookies.smtworkordermanagement.entity.SysUser;
 import com.aircookies.smtworkordermanagement.service.UserService;
-import com.aircookies.smtworkordermanagement.util.RedisUtil;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
 import java.util.List;
 
 @Slf4j

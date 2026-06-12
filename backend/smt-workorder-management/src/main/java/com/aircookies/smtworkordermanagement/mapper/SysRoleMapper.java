@@ -7,11 +7,11 @@ import java.util.List;
 
 @Mapper
 public interface SysRoleMapper {
-    void addRole(SysRole sysRole);
+    int addRole(SysRole sysRole);
     
-    void updateRole(SysRole sysRole);
+    int updateRole(SysRole sysRole);
     
-    void deleteRole(Integer id);
+    int deleteRole(Integer id);
     
     SysRole findById(Integer id);
     

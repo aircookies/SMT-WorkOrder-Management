@@ -9,10 +9,8 @@ import com.aircookies.smtworkordermanagement.mapper.WorkOrderMapper;
 import com.aircookies.smtworkordermanagement.service.WorkOrderService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -25,6 +23,7 @@ import static com.aircookies.smtworkordermanagement.common.Result.success;
  * 工单服务实现类
  */
 @Service
+@Slf4j
 public class WorkOrderServiceImpl implements WorkOrderService {
 
     private final WorkOrderMapper workOrderMapper;
@@ -45,6 +44,7 @@ public class WorkOrderServiceImpl implements WorkOrderService {
         if (res != 0) {
             return success("添加工单成功");
         } else {
+            log.warn("添加工单失败，工单ID：{}", workOrder.getId());
             throw new BusinessException("添加工单失败");
         }
     }
@@ -136,6 +136,7 @@ public class WorkOrderServiceImpl implements WorkOrderService {
         if (res != 0) {
             return Result.success("报工成功");
         } else {
+            log.warn("报工失败，工单ID：{}", workProcessReport.getOrderId());
             throw new BusinessException("报工失败");
         }
     }
@@ -149,6 +150,7 @@ public class WorkOrderServiceImpl implements WorkOrderService {
         if (res != 0) {
             return Result.success("删除成功");
         } else {
+            log.warn("删除工序报工表失败，工序报工表ID：{}", Id);
             throw new BusinessException("删除失败");
         }
     }
@@ -163,6 +165,7 @@ public class WorkOrderServiceImpl implements WorkOrderService {
         if (res != 0) {
             return Result.success("更新成功");
         } else {
+            log.warn("更新工序报工表失败，工序报工表ID：{}", workProcessReport.getId());
             throw new BusinessException("更新失败");
         }
     }
@@ -173,7 +176,11 @@ public class WorkOrderServiceImpl implements WorkOrderService {
     @Override
     public Result findWorkProcessReport(Long orderId) {
         WorkProcessReport workProcessReport = workOrderMapper.findWorkProcessReport(orderId);
-        throw new BusinessException("查询数据失败");
+        if (workProcessReport == null) {
+            log.warn("查询工序报工表失败，工单ID：{}", orderId);
+            throw new BusinessException("查询数据失败");
+        }
+        return Result.success(workProcessReport);
     }
 
     @Override

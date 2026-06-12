@@ -1,20 +1,16 @@
 package com.aircookies.smtworkordermanagement.service.impl;
 
 import com.aircookies.smtworkordermanagement.common.BusinessException;
-import com.aircookies.smtworkordermanagement.common.CacheConstants;
 import com.aircookies.smtworkordermanagement.common.Result;
 import com.aircookies.smtworkordermanagement.dto.PagesDTO;
 import com.aircookies.smtworkordermanagement.dto.QueryUserDTO;
 import com.aircookies.smtworkordermanagement.entity.SysUser;
 import com.aircookies.smtworkordermanagement.mapper.SysUserMapper;
 import com.aircookies.smtworkordermanagement.service.UserService;
-import com.aircookies.smtworkordermanagement.util.RedisUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -23,16 +19,15 @@ import java.util.List;
 import static com.aircookies.smtworkordermanagement.common.Result.success;
 
 @Service
+@Slf4j
 public class UserServiceImpl implements UserService {
     private final SysUserMapper sysUserMapper;
     private final PasswordEncoder passwordEncoder;
-    private final RedisUtil redisUtil;
 
     @Autowired
-    public UserServiceImpl(SysUserMapper sysUserMapper, PasswordEncoder passwordEncoder, RedisUtil redisUtil) {
+    public UserServiceImpl(SysUserMapper sysUserMapper, PasswordEncoder passwordEncoder) {
         this.sysUserMapper = sysUserMapper;
         this.passwordEncoder = passwordEncoder;
-        this.redisUtil = redisUtil;
     }
 
     // 添加用户
@@ -56,6 +51,7 @@ public class UserServiceImpl implements UserService {
         if (res != 0) {
             return success();
         } else {
+            log.warn("添加用户失败，用户名：{}", user.getUsername());
             throw new BusinessException("添加用户失败");
         }
     }
@@ -120,7 +116,13 @@ public class UserServiceImpl implements UserService {
         }
 
         user.setUpdateTime(null);
-        sysUserMapper.updateUser(user);
-        return Result.success();
+        int res = sysUserMapper.updateUser(user);
+        if (res != 0) {
+            log.info("修改用户成功，用户名：{}", user.getUsername());
+            return Result.success();
+        } else {
+            log.warn("修改用户失败，用户名：{}", user.getUsername());
+            throw new BusinessException("修改用户失败");
+        }
     }
 }

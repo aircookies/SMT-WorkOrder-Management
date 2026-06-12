@@ -2,6 +2,8 @@ package com.aircookies.smtworkordermanagement.service;
 
 import com.aircookies.smtworkordermanagement.common.BusinessException;
 import com.aircookies.smtworkordermanagement.common.Result;
+import com.aircookies.smtworkordermanagement.dto.PagesDTO;
+import com.aircookies.smtworkordermanagement.dto.QueryUserDTO;
 import com.aircookies.smtworkordermanagement.entity.SysUser;
 import com.aircookies.smtworkordermanagement.mapper.SysUserMapper;
 import com.aircookies.smtworkordermanagement.service.impl.UserServiceImpl;
@@ -16,10 +18,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -153,13 +155,24 @@ public class UserServiceImplTest {
     @DisplayName("更新用户成功")
     void testUpdateUserSuccess() {
         when(sysUserMapper.findUserByUserName("zhangsan")).thenReturn(null);
-        doNothing().when(sysUserMapper).updateUser(any(SysUser.class));
+        when(sysUserMapper.updateUser(any(SysUser.class))).thenReturn(1);
 
         Result result = userService.updateUser(testUser);
 
         assertEquals(200, result.getCode());
         assertNull(testUser.getUpdateTime(), "更新用户时应清空updateTime由数据库自动设置");
         verify(sysUserMapper).updateUser(testUser);
+    }
+
+    @Test
+    @DisplayName("更新用户失败 - 数据库更新返回0")
+    void testUpdateUserFailure() {
+        when(sysUserMapper.findUserByUserName("zhangsan")).thenReturn(null);
+        when(sysUserMapper.updateUser(any(SysUser.class))).thenReturn(0);
+
+        BusinessException exception = assertThrows(BusinessException.class,
+                () -> userService.updateUser(testUser));
+        assertEquals("修改用户失败", exception.getMessage());
     }
 
     @Test
@@ -175,5 +188,37 @@ public class UserServiceImplTest {
         assertEquals("用户名已存在", exception.getMessage());
 
         verify(sysUserMapper, never()).updateUser(any());
+    }
+
+    // ==================== 分页查询测试 ====================
+
+    @Test
+    @DisplayName("分页查询所有用户成功")
+    void testFindAll() {
+        List<SysUser> users = Collections.singletonList(testUser);
+        when(sysUserMapper.findAll()).thenReturn(users);
+
+        Result result = userService.findAll(1, 10);
+
+        assertEquals(200, result.getCode());
+        assertNotNull(result.getData());
+        assertInstanceOf(PagesDTO.class, result.getData());
+    }
+
+    @Test
+    @DisplayName("条件查询用户列表成功")
+    void testUserList() {
+        QueryUserDTO queryDTO = new QueryUserDTO();
+        queryDTO.setPageNum(1);
+        queryDTO.setPageSize(10);
+
+        List<SysUser> users = Collections.singletonList(testUser);
+        when(sysUserMapper.UserList(queryDTO)).thenReturn(users);
+
+        Result result = userService.UserList(queryDTO);
+
+        assertEquals(200, result.getCode());
+        assertNotNull(result.getData());
+        assertInstanceOf(PagesDTO.class, result.getData());
     }
 }

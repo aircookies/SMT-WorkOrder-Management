@@ -389,7 +389,7 @@ const handleSubmit = async () => {
                 queryUser()
             }
         } else {
-            // 编辑用户
+            // 修改用户
             res = await updateUserApi(userDTO.value)
             if (res.code === 200) {
                 ElMessage.success('用户修改成功')
@@ -402,7 +402,7 @@ const handleSubmit = async () => {
 }
 
 /**
- * 编辑用户
+ * 根据id查询用户
  * @param {Number} id - 用户ID
  */
 const handleEdit = async (id) => {

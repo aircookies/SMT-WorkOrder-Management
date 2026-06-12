@@ -17,6 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -98,7 +99,7 @@ class UserControllerTest {
         queryDTO.setPageNum(1);
         queryDTO.setPageSize(10);
 
-        Result expectedResult = Result.success(Arrays.asList(testUser));
+        Result expectedResult = Result.success(Collections.singletonList(testUser));
         when(userService.UserList(any(QueryUserDTO.class))).thenReturn(expectedResult);
 
         mockMvc.perform(post("/user/list")
@@ -113,7 +114,7 @@ class UserControllerTest {
     @Test
     @DisplayName("分页查询所有用户 - 默认参数")
     void testFindAllWithDefaultParams() throws Exception {
-        Result expectedResult = Result.success(Arrays.asList(testUser));
+        Result expectedResult = Result.success(Collections.singletonList(testUser));
         when(userService.findAll(1, 10)).thenReturn(expectedResult);
 
         mockMvc.perform(get("/user/findAll"))
@@ -126,7 +127,7 @@ class UserControllerTest {
     @Test
     @DisplayName("分页查询所有用户 - 自定义分页参数")
     void testFindAllWithCustomParams() throws Exception {
-        Result expectedResult = Result.success(Arrays.asList(testUser));
+        Result expectedResult = Result.success(Collections.singletonList(testUser));
         when(userService.findAll(2, 20)).thenReturn(expectedResult);
 
         mockMvc.perform(get("/user/findAll")

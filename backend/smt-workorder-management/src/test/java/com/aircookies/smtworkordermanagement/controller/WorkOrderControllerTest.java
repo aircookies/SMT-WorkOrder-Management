@@ -18,10 +18,10 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -139,7 +139,7 @@ class WorkOrderControllerTest {
     @Test
     @DisplayName("分页查询所有工单 - 默认参数")
     void testFindPageWithDefaultParams() throws Exception {
-        Result expectedResult = Result.success(Arrays.asList(testWorkOrder));
+        Result expectedResult = Result.success(Collections.singletonList(testWorkOrder));
         when(workOrderService.findPage(1, 10)).thenReturn(expectedResult);
 
         mockMvc.perform(get("/workorder/findAll"))
@@ -152,7 +152,7 @@ class WorkOrderControllerTest {
     @Test
     @DisplayName("分页查询所有工单 - 自定义参数")
     void testFindPageWithCustomParams() throws Exception {
-        Result expectedResult = Result.success(Arrays.asList(testWorkOrder));
+        Result expectedResult = Result.success(Collections.singletonList(testWorkOrder));
         when(workOrderService.findPage(2, 20)).thenReturn(expectedResult);
 
         mockMvc.perform(get("/workorder/findAll")
@@ -169,7 +169,7 @@ class WorkOrderControllerTest {
     @Test
     @DisplayName("条件查询工单 - GET方式")
     void testQueryWorkOrder() throws Exception {
-        Result expectedResult = Result.success(Arrays.asList(testWorkOrder));
+        Result expectedResult = Result.success(Collections.singletonList(testWorkOrder));
         when(workOrderService.queryWorkOrder(eq(1), eq(10), any(WorkOrder.class))).thenReturn(expectedResult);
 
         mockMvc.perform(get("/workorder/query")
@@ -189,7 +189,7 @@ class WorkOrderControllerTest {
     void testWorkOrderDetailed() throws Exception {
         LocalDate startTime = LocalDate.of(2026, 6, 1);
         LocalDate endTime = LocalDate.of(2026, 6, 10);
-        Result expectedResult = Result.success(Arrays.asList());
+        Result expectedResult = Result.success(List.of());
 
         when(workOrderService.workOrderDetailed(startTime, endTime)).thenReturn(expectedResult);
 
@@ -256,7 +256,7 @@ class WorkOrderControllerTest {
     @Test
     @DisplayName("根据工单ID查询工序报工表")
     void testFindWorkProcessReport() throws Exception {
-        Result expectedResult = Result.success(Arrays.asList(testReport));
+        Result expectedResult = Result.success(Collections.singletonList(testReport));
         when(workOrderService.findWorkProcessReport(1L)).thenReturn(expectedResult);
 
         mockMvc.perform(get("/workorder/process/find/1"))
@@ -271,7 +271,7 @@ class WorkOrderControllerTest {
     @Test
     @DisplayName("查询所有工序报工表 - 分页")
     void testFindWorkProcessReportAll() throws Exception {
-        Result expectedResult = Result.success(Arrays.asList(testReport));
+        Result expectedResult = Result.success(Collections.singletonList(testReport));
         when(workOrderService.findWorkProcessReportAll(1, 10)).thenReturn(expectedResult);
 
         mockMvc.perform(get("/workorder/process/findAll")
@@ -290,7 +290,7 @@ class WorkOrderControllerTest {
     void testStatisticsProductionQuality() throws Exception {
         LocalDate startTime = LocalDate.of(2026, 6, 1);
         LocalDate endTime = LocalDate.of(2026, 6, 10);
-        Result expectedResult = Result.success(Arrays.asList());
+        Result expectedResult = Result.success(List.of());
 
         when(workOrderService.statisticsProductionQuality(startTime, endTime)).thenReturn(expectedResult);
 

@@ -19,7 +19,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -114,7 +113,7 @@ public class LineServiceImplTest {
     @Test
     @DisplayName("更新产线成功")
     void testUpdateLineSuccess() {
-        when(lineMapper.findLineByName("SMT-产线A")).thenReturn(null);
+        when(lineMapper.findLineById(1L)).thenReturn(testLine);
         doNothing().when(lineMapper).updateLine(any(Line.class));
 
         Result result = lineService.updateLine(testLine);
@@ -125,13 +124,13 @@ public class LineServiceImplTest {
     }
 
     @Test
-    @DisplayName("更新产线失败 - 产线名称已存在")
-    void testUpdateLineNameExists() {
-        when(lineMapper.findLineByName("SMT-产线A")).thenReturn(testLine);
+    @DisplayName("更新产线失败 - 产线不存在")
+    void testUpdateLineNotFound() {
+        when(lineMapper.findLineById(1L)).thenReturn(null);
 
         BusinessException exception = assertThrows(BusinessException.class,
                 () -> lineService.updateLine(testLine));
-        assertEquals("该产线已存在", exception.getMessage());
+        assertEquals("该产线不存在", exception.getMessage());
 
         verify(lineMapper, never()).updateLine(any());
     }

@@ -82,7 +82,8 @@ public class RedisUtilTest {
         );
         redisUtil.set(TEST_KEY, userList);
 
-        List<TestUser> result = redisUtil.get(TEST_KEY, new TypeReference<List<TestUser>>() {});
+        List<TestUser> result = redisUtil.get(TEST_KEY, new TypeReference<>() {
+        });
         assertNotNull(result);
         assertEquals(2, result.size());
         assertEquals("张三", result.get(0).getName());

@@ -15,7 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import java.util.Arrays;
+import java.util.Collections;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -120,7 +120,7 @@ class SysRoleControllerTest {
     @Test
     @DisplayName("查询所有角色")
     void testListRoles() throws Exception {
-        Result expectedResult = Result.success(Arrays.asList(testRole));
+        Result expectedResult = Result.success(Collections.singletonList(testRole));
         when(sysRoleService.findAll()).thenReturn(expectedResult);
 
         mockMvc.perform(get("/sysRole/list"))
@@ -135,7 +135,7 @@ class SysRoleControllerTest {
     @Test
     @DisplayName("条件查询角色 - GET方式带RequestBody")
     void testSearchRoles() throws Exception {
-        Result expectedResult = Result.success(Arrays.asList(testRole));
+        Result expectedResult = Result.success(Collections.singletonList(testRole));
         when(sysRoleService.findRoles(any(SysRole.class))).thenReturn(expectedResult);
 
         mockMvc.perform(get("/sysRole/search")

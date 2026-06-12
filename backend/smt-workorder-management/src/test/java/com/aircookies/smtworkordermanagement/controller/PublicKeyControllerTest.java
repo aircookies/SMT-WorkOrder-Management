@@ -1,6 +1,5 @@
 package com.aircookies.smtworkordermanagement.controller;
 
-import com.aircookies.smtworkordermanagement.common.Result;
 import com.aircookies.smtworkordermanagement.util.RSAUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

@@ -14,7 +14,7 @@ public interface SysUserMapper {
 
     List<SysUser> UserList(QueryUserDTO keyword);
 
-    void updateUser(SysUser user);
+    int updateUser(SysUser user);
 
     Object findUser(long id);
 

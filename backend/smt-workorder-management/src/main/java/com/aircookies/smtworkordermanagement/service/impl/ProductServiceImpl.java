@@ -9,6 +9,7 @@ import com.aircookies.smtworkordermanagement.mapper.ProductMapper;
 import com.aircookies.smtworkordermanagement.service.ProductService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +23,7 @@ import static com.aircookies.smtworkordermanagement.common.Result.success;
  * 产品服务实现类
  */
 @Service
+@Slf4j
 public class ProductServiceImpl implements ProductService {
     
     private final ProductMapper productMapper;
@@ -40,8 +42,10 @@ public class ProductServiceImpl implements ProductService {
         product.setUpdateTime(LocalDateTime.now());
         int res = productMapper.addProduct(product);
         if (res != 0) {
+            log.info("添加产品成功，产品ID：{}", product.getId());
             return success("添加产品成功");
         } else {
+            log.error("添加产品失败");
             throw new BusinessException("添加产品失败");
         }
     }
@@ -56,7 +60,8 @@ public class ProductServiceImpl implements ProductService {
         }
 
         productMapper.deleteProduct(id);
-        return Result.success("删除产品成功");
+        log.info("删除产品成功，产品ID：{}", id);
+        return success("删除产品成功");
     }
 
     /**
@@ -71,7 +76,7 @@ public class ProductServiceImpl implements ProductService {
         }
 
         productMapper.deleteBatch(ids);
-        return Result.success("批量删除产品成功");
+        return success("批量删除产品成功");
     }
 
     /**
@@ -80,8 +85,14 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Result updateProduct(Product product) {
         product.setUpdateTime(LocalDateTime.now());
-        productMapper.updateProduct(product);
-        return Result.success("更新产品成功");
+        int res = productMapper.updateProduct(product);
+        if (res != 0) {
+            log.info("更新产品成功，产品ID：{}", product.getId());
+            return success("更新产品成功");
+        } else {
+            log.error("更新产品失败，产品ID：{}", product.getId());
+            throw new BusinessException("更新产品失败");
+        }
     }
     
     /**
@@ -146,6 +157,6 @@ public class ProductServiceImpl implements ProductService {
      */
     @Override
     public Result statistics(LocalDate startTime, LocalDate endTime) {
-        return Result.success(productMapper.statistics(startTime, endTime));
+        return success(productMapper.statistics(startTime, endTime));
     }
 }

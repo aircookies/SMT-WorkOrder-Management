@@ -36,8 +36,8 @@ mybatis :
       auto-mapping-behavior: full
     # 设置语句执行超时时间
       default-statement-timeout: 30
-    # 日志实现
-      log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    # 日志实现：使用SLF4J让SQL日志纳入Logback管理
+      log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
 
 pagehelper:
   helper-dialect: mysql
@@ -56,4 +56,4 @@ jwt:
 
 logging:
   level:
-    root: info
+    root: warn

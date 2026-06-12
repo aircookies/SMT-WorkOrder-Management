@@ -18,6 +18,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -134,7 +135,7 @@ class ProductControllerTest {
         queryDTO.setPageNum(1);
         queryDTO.setPageSize(10);
 
-        Result expectedResult = Result.success(Arrays.asList(testProduct));
+        Result expectedResult = Result.success(Collections.singletonList(testProduct));
         when(productService.productList(any(QueryProductDTO.class))).thenReturn(expectedResult);
 
         mockMvc.perform(post("/product/query")
@@ -149,7 +150,7 @@ class ProductControllerTest {
     @Test
     @DisplayName("分页查询所有产品")
     void testFindAll() throws Exception {
-        Result expectedResult = Result.success(Arrays.asList(testProduct));
+        Result expectedResult = Result.success(Collections.singletonList(testProduct));
         when(productService.findAll(1, 10)).thenReturn(expectedResult);
 
         mockMvc.perform(get("/product/findAll")
@@ -166,7 +167,7 @@ class ProductControllerTest {
     void testStatistics() throws Exception {
         LocalDate startTime = LocalDate.of(2026, 6, 1);
         LocalDate endTime = LocalDate.of(2026, 6, 10);
-        Result expectedResult = Result.success(Arrays.asList());
+        Result expectedResult = Result.success(List.of());
 
         when(productService.statistics(startTime, endTime)).thenReturn(expectedResult);
 

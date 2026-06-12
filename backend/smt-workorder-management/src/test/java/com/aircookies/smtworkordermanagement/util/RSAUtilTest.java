@@ -123,9 +123,7 @@ public class RSAUtilTest {
     public void testDecryptInvalidBase64ThrowsException() {
         String invalidBase64 = "invalid_base64_string!!!";
 
-        assertThrows(Exception.class, () -> {
-            rsaUtil.decrypt(invalidBase64);
-        }, "无效的Base64字符串解密应抛出异常");
+        assertThrows(Exception.class, () -> rsaUtil.decrypt(invalidBase64), "无效的Base64字符串解密应抛出异常");
     }
 
     @Test
@@ -134,9 +132,7 @@ public class RSAUtilTest {
         String validBase64ButInvalidCipher = java.util.Base64.getEncoder()
                 .encodeToString("invalid_encrypted_data".getBytes());
 
-        assertThrows(Exception.class, () -> {
-            rsaUtil.decrypt(validBase64ButInvalidCipher);
-        }, "无效密文解密应抛出异常");
+        assertThrows(Exception.class, () -> rsaUtil.decrypt(validBase64ButInvalidCipher), "无效密文解密应抛出异常");
     }
 
     @Test
@@ -174,7 +170,7 @@ public class RSAUtilTest {
 
     @Test
     @DisplayName("测试公钥格式正确性")
-    public void testPublicKeyFormat() throws Exception {
+    public void testPublicKeyFormat() {
         String publicKey = rsaUtil.getPublicKey();
 
         byte[] decodedBytes = java.util.Base64.getDecoder().decode(publicKey);

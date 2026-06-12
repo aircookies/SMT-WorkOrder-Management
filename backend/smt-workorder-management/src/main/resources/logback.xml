@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Logback配置文件 - 详细中文注释版
+    Logback配置文件
 
     本配置文件定义了日志记录的行为，包括：
     - 日志级别控制
@@ -16,7 +16,8 @@
     <property name="LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"/>
 
     <!-- 定义日志文件存储路径 -->
-    <property name="LOG_PATH" value="./smt-workorder-management/backend/logs"/>
+    <!-- 优先使用系统属性 LOG_PATH，否则使用默认相对路径 -->
+    <property name="LOG_PATH" value="${LOG_PATH:-./logs}"/>
 
     <!-- 定义应用名称，用于日志文件命名 -->
     <property name="APP_NAME" value="smt-workorder-management"/>
@@ -117,6 +118,8 @@
 
         <!-- 特定包的日志级别设置 -->
         <logger name="com.aircookies.smtworkordermanagement" level="DEBUG"/>
+        <!-- MyBatis SQL日志：开发环境打印SQL，生产环境设为WARN -->
+        <logger name="com.aircookies.smtworkordermanagement.mapper" level="DEBUG"/>
         <logger name="org.springframework" level="INFO"/>
         <logger name="org.hibernate" level="WARN"/>
     </springProfile>
@@ -135,22 +138,28 @@
 
     <!-- 生产环境配置 -->
     <springProfile name="prod">
-        <root level="INFO">
-            <!-- 生产环境主要使用异步方式写入文件 -->
-<!--            <appender-ref ref="ASYNC"/>-->
+        <!-- 生产环境使用异步方式写入文件，提升性能 -->
+        <appender name="ASYNC_FILE" class="ch.qos.logback.classic.AsyncAppender">
+            <appender-ref ref="FILE"/>
+            <queueSize>512</queueSize>           <!-- 队列大小 -->
+            <discardingThreshold>0</discardingThreshold>  <!-- 队列满时不丢弃 -->
+            <includeCallerData>false</includeCallerData>  <!-- 不包含调用者信息，提升性能 -->
+        </appender>
+        <appender name="ASYNC_ERROR" class="ch.qos.logback.classic.AsyncAppender">
             <appender-ref ref="ERROR_FILE"/>
-            <!-- 生产环境通常不开启控制台输出以提高性能 -->
-<!--             <appender-ref ref="CONSOLE"/>-->
-        </root>
-        <root level="DEBUG">
-            <appender-ref ref="CONSOLE"/>
+            <queueSize>512</queueSize>
+            <discardingThreshold>0</discardingThreshold>
+            <includeCallerData>false</includeCallerData>
+        </appender>
+
+        <root level="INFO">
+            <appender-ref ref="ASYNC_FILE"/>
+            <appender-ref ref="ASYNC_ERROR"/>
         </root>
 
         <logger name="com.aircookies.smtworkordermanagement" level="INFO"/>
         <logger name="org.springframework" level="WARN"/>
         <logger name="org.hibernate" level="WARN"/>
-
-        <!-- 关闭一些框架的DEBUG日志以减少日志量 -->
         <logger name="org.apache" level="WARN"/>
         <logger name="com.zaxxer.hikari" level="INFO"/>
     </springProfile>

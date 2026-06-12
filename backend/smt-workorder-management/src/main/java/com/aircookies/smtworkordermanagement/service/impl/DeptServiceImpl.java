@@ -5,31 +5,29 @@ import com.aircookies.smtworkordermanagement.common.Result;
 import com.aircookies.smtworkordermanagement.entity.Dept;
 import com.aircookies.smtworkordermanagement.mapper.DeptMapper;
 import com.aircookies.smtworkordermanagement.service.DeptService;
-import com.aircookies.smtworkordermanagement.util.RedisUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 
 @Service
+@Slf4j
 public class DeptServiceImpl implements DeptService {
     private final DeptMapper deptMapper;
-    private final RedisUtil redisUtil;
 
     @Autowired
-    public DeptServiceImpl(DeptMapper deptMapper, RedisUtil redisUtil) {
+    public DeptServiceImpl(DeptMapper deptMapper) {
         this.deptMapper = deptMapper;
-        this.redisUtil = redisUtil;
     }
 
     @Override
     public Result addDept(Dept dept) {
         if (dept.getName() == null) {
+            log.info("部门名称不能为空");
             throw new BusinessException("部门名称不能为空");
         } else if (deptMapper.findDeptByName(dept.getName()) != null) {
+            log.info("该部门已存在，部门名称：{}", dept.getName());
             throw new BusinessException("该部门已存在");
         }
 
@@ -37,15 +35,19 @@ public class DeptServiceImpl implements DeptService {
         dept.setUpdateTime(LocalDateTime.now());
         int res = deptMapper.addDept(dept);
         if (res != 0) {
+            log.info("添加部门成功，部门名称：{}", dept.getName());
             return Result.success("添加部门成功");
         } else {
+            log.info("添加部门失败，部门名称：{}", dept.getName());
             throw new BusinessException("添加部门失败");
         }
     }
 
     @Override
     public Result deleteDept(int id) {
+        log.info("删除部门，部门id：{}", id);
         deptMapper.deleteDept(id);
+        log.info("删除部门成功，部门id：{}", id);
         return Result.success("删除部门成功");
     }
 
@@ -57,13 +59,21 @@ public class DeptServiceImpl implements DeptService {
     @Override
     public Result updateDept(Dept dept) {
         if (dept.getName() == null) {
+            log.info("部门名称不能为空");
             throw new BusinessException("部门名称不能为空");
         } else if (deptMapper.findDeptByName(dept.getName()) != null) {
+            log.info("该部门已存在，部门名称：{}", dept.getName());
             throw new BusinessException("该部门已存在");
         }
 
         dept.setUpdateTime(LocalDateTime.now());
-        deptMapper.updateDept(dept);
-        return Result.success("更新部门成功");
+        int res = deptMapper.updateDept(dept);
+        if (res != 0) {
+            log.info("更新部门成功，部门名称：{}", dept.getName());
+            return Result.success("更新部门成功");
+        } else {
+            log.info("更新部门失败，部门名称：{}", dept.getName());
+            throw new BusinessException("更新部门失败");
+        }
     }
 }

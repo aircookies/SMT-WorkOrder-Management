@@ -2,6 +2,7 @@ package com.aircookies.smtworkordermanagement.service;
 
 import com.aircookies.smtworkordermanagement.common.BusinessException;
 import com.aircookies.smtworkordermanagement.common.Result;
+import com.aircookies.smtworkordermanagement.dto.PagesDTO;
 import com.aircookies.smtworkordermanagement.dto.ProductionQualityDTO;
 import com.aircookies.smtworkordermanagement.dto.WorkOrderDetailedDTO;
 import com.aircookies.smtworkordermanagement.entity.WorkOrder;
@@ -23,7 +24,6 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -259,5 +259,69 @@ public class WorkOrderServiceImplTest {
         assertEquals(200, result.getCode());
         assertNotNull(result.getData());
         verify(workOrderMapper).statisticsProductionQuality(start, end);
+    }
+
+    // ==================== 分页查询工单测试 ====================
+
+    @Test
+    @DisplayName("分页查询所有工单成功")
+    void testFindPage() {
+        List<WorkOrder> workOrders = Collections.singletonList(testWorkOrder);
+        when(workOrderMapper.findAll()).thenReturn(workOrders);
+
+        Result result = workOrderService.findPage(1, 10);
+
+        assertEquals(200, result.getCode());
+        assertNotNull(result.getData());
+        assertInstanceOf(PagesDTO.class, result.getData());
+    }
+
+    @Test
+    @DisplayName("条件查询工单成功")
+    void testQueryWorkOrder() {
+        List<WorkOrder> workOrders = Collections.singletonList(testWorkOrder);
+        when(workOrderMapper.queryWorkOrder(any(WorkOrder.class))).thenReturn(workOrders);
+
+        Result result = workOrderService.queryWorkOrder(1, 10, testWorkOrder);
+
+        assertEquals(200, result.getCode());
+        assertNotNull(result.getData());
+        assertInstanceOf(PagesDTO.class, result.getData());
+    }
+
+    // ==================== 查询工序报工测试 ====================
+
+    @Test
+    @DisplayName("根据工单ID查询工序报工成功")
+    void testFindWorkProcessReportSuccess() {
+        when(workOrderMapper.findWorkProcessReport(1L)).thenReturn(testReport);
+
+        Result result = workOrderService.findWorkProcessReport(1L);
+
+        assertEquals(200, result.getCode());
+        assertEquals(testReport, result.getData());
+    }
+
+    @Test
+    @DisplayName("根据工单ID查询工序报工失败 - 记录不存在")
+    void testFindWorkProcessReportNotFound() {
+        when(workOrderMapper.findWorkProcessReport(999L)).thenReturn(null);
+
+        BusinessException exception = assertThrows(BusinessException.class,
+                () -> workOrderService.findWorkProcessReport(999L));
+        assertEquals("查询数据失败", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("分页查询所有工序报工成功")
+    void testFindWorkProcessReportAll() {
+        List<WorkProcessReport> reports = Collections.singletonList(testReport);
+        when(workOrderMapper.findWorkProcessReportAll()).thenReturn(reports);
+
+        Result result = workOrderService.findWorkProcessReportAll(1, 10);
+
+        assertEquals(200, result.getCode());
+        assertNotNull(result.getData());
+        assertInstanceOf(PagesDTO.class, result.getData());
     }
 }

@@ -2,7 +2,9 @@ package com.aircookies.smtworkordermanagement.service;
 
 import com.aircookies.smtworkordermanagement.common.BusinessException;
 import com.aircookies.smtworkordermanagement.common.Result;
+import com.aircookies.smtworkordermanagement.dto.PagesDTO;
 import com.aircookies.smtworkordermanagement.dto.ProductionQuantityDTO;
+import com.aircookies.smtworkordermanagement.dto.QueryProductDTO;
 import com.aircookies.smtworkordermanagement.entity.Product;
 import com.aircookies.smtworkordermanagement.mapper.ProductMapper;
 import com.aircookies.smtworkordermanagement.service.impl.ProductServiceImpl;
@@ -16,10 +18,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -132,13 +134,23 @@ public class ProductServiceImplTest {
     @Test
     @DisplayName("更新产品成功")
     void testUpdateProductSuccess() {
-        doNothing().when(productMapper).updateProduct(any(Product.class));
+        when(productMapper.updateProduct(any(Product.class))).thenReturn(1);
 
         Result result = productService.updateProduct(testProduct);
 
         assertEquals(200, result.getCode());
         assertEquals("更新产品成功", result.getMessage());
         assertNotNull(testProduct.getUpdateTime(), "应自动设置更新时间");
+    }
+
+    @Test
+    @DisplayName("更新产品失败 - 数据库更新返回0")
+    void testUpdateProductFailure() {
+        when(productMapper.updateProduct(any(Product.class))).thenReturn(0);
+
+        BusinessException exception = assertThrows(BusinessException.class,
+                () -> productService.updateProduct(testProduct));
+        assertEquals("更新产品失败", exception.getMessage());
     }
 
     // ==================== 查询产品测试 ====================
@@ -181,5 +193,52 @@ public class ProductServiceImplTest {
         assertEquals(200, result.getCode());
         assertNotNull(result.getData());
         verify(productMapper).statistics(start, end);
+    }
+
+    // ==================== 分页查询测试 ====================
+
+    @Test
+    @DisplayName("分页查询所有产品成功")
+    void testFindAllWithPagination() {
+        List<Product> products = Collections.singletonList(testProduct);
+        when(productMapper.findAll()).thenReturn(products);
+
+        Result result = productService.findAll(1, 10);
+
+        assertEquals(200, result.getCode());
+        assertNotNull(result.getData());
+        assertInstanceOf(PagesDTO.class, result.getData());
+    }
+
+    @Test
+    @DisplayName("查询所有产品不使用分页成功")
+    void testFindAllWithoutPagination() {
+        List<Product> products = Collections.singletonList(testProduct);
+        when(productMapper.findAll()).thenReturn(products);
+
+        Result result = productService.findAll(null, null);
+
+        assertEquals(200, result.getCode());
+        assertNotNull(result.getData());
+        assertInstanceOf(List.class, result.getData());
+        assertEquals(1, ((List<?>) result.getData()).size());
+    }
+
+    @Test
+    @DisplayName("条件查询产品列表成功")
+    void testProductList() {
+        QueryProductDTO queryDTO = new QueryProductDTO();
+        queryDTO.setName("测试");
+        queryDTO.setPageNum(1);
+        queryDTO.setPageSize(10);
+
+        List<Product> products = Collections.singletonList(testProduct);
+        when(productMapper.productList(queryDTO)).thenReturn(products);
+
+        Result result = productService.productList(queryDTO);
+
+        assertEquals(200, result.getCode());
+        assertNotNull(result.getData());
+        assertInstanceOf(PagesDTO.class, result.getData());
     }
 }

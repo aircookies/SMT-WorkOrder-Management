@@ -13,10 +13,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -45,7 +45,7 @@ public class SysRoleServiceImplTest {
     @Test
     @DisplayName("添加角色成功")
     void testAddRoleSuccess() {
-        doNothing().when(sysRoleMapper).addRole(any(SysRole.class));
+        when(sysRoleMapper.addRole(any(SysRole.class))).thenReturn(1);
 
         Result result = sysRoleService.addRole(testRole);
 
@@ -56,12 +56,23 @@ public class SysRoleServiceImplTest {
         verify(sysRoleMapper).addRole(testRole);
     }
 
+    @Test
+    @DisplayName("添加角色失败 - 数据库插入返回0")
+    void testAddRoleFailure() {
+        when(sysRoleMapper.addRole(any(SysRole.class))).thenReturn(0);
+
+        Result result = sysRoleService.addRole(testRole);
+
+        assertEquals(500, result.getCode());
+        assertEquals("添加角色失败", result.getMessage());
+    }
+
     // ==================== 更新角色测试 ====================
 
     @Test
     @DisplayName("更新角色成功")
     void testUpdateRoleSuccess() {
-        doNothing().when(sysRoleMapper).updateRole(any(SysRole.class));
+        when(sysRoleMapper.updateRole(any(SysRole.class))).thenReturn(1);
 
         Result result = sysRoleService.updateRole(testRole);
 
@@ -71,18 +82,40 @@ public class SysRoleServiceImplTest {
         verify(sysRoleMapper).updateRole(testRole);
     }
 
+    @Test
+    @DisplayName("更新角色失败 - 数据库更新返回0")
+    void testUpdateRoleFailure() {
+        when(sysRoleMapper.updateRole(any(SysRole.class))).thenReturn(0);
+
+        Result result = sysRoleService.updateRole(testRole);
+
+        assertEquals(500, result.getCode());
+        assertEquals("更新角色失败", result.getMessage());
+    }
+
     // ==================== 删除角色测试 ====================
 
     @Test
     @DisplayName("删除角色成功")
     void testDeleteRoleSuccess() {
-        doNothing().when(sysRoleMapper).deleteRole(1);
+        when(sysRoleMapper.deleteRole(1)).thenReturn(1);
 
         Result result = sysRoleService.deleteRole(1);
 
         assertEquals(200, result.getCode());
         assertEquals("删除角色成功", result.getMessage());
         verify(sysRoleMapper).deleteRole(1);
+    }
+
+    @Test
+    @DisplayName("删除角色失败 - 数据库删除返回0")
+    void testDeleteRoleFailure() {
+        when(sysRoleMapper.deleteRole(999)).thenReturn(0);
+
+        Result result = sysRoleService.deleteRole(999);
+
+        assertEquals(500, result.getCode());
+        assertEquals("删除角色失败", result.getMessage());
     }
 
     // ==================== 查询角色测试 ====================
@@ -99,14 +132,14 @@ public class SysRoleServiceImplTest {
     }
 
     @Test
-    @DisplayName("根据ID查询不存在的角色 - 返回null数据")
+    @DisplayName("根据ID查询不存在的角色 - 返回错误信息")
     void testFindByIdNotFound() {
         when(sysRoleMapper.findById(999)).thenReturn(null);
 
         Result result = sysRoleService.findById(999);
 
-        assertEquals(200, result.getCode());
-        assertNull(result.getData());
+        assertEquals(500, result.getCode());
+        assertEquals("角色不存在", result.getMessage());
     }
 
     @Test
@@ -127,6 +160,17 @@ public class SysRoleServiceImplTest {
     }
 
     @Test
+    @DisplayName("查询所有角色失败 - 列表为空")
+    void testFindAllEmpty() {
+        when(sysRoleMapper.findAll()).thenReturn(Collections.emptyList());
+
+        Result result = sysRoleService.findAll();
+
+        assertEquals(500, result.getCode());
+        assertEquals("角色列表为空", result.getMessage());
+    }
+
+    @Test
     @DisplayName("条件查询角色成功")
     void testFindRoles() {
         SysRole query = new SysRole();
@@ -141,5 +185,19 @@ public class SysRoleServiceImplTest {
         assertNotNull(result.getData());
         assertInstanceOf(List.class, result.getData());
         assertEquals(1, ((List<?>) result.getData()).size());
+    }
+
+    @Test
+    @DisplayName("条件查询角色失败 - 列表为空")
+    void testFindRolesEmpty() {
+        SysRole query = new SysRole();
+        query.setName("不存在的角色");
+
+        when(sysRoleMapper.findRoles(query)).thenReturn(Collections.emptyList());
+
+        Result result = sysRoleService.findRoles(query);
+
+        assertEquals(500, result.getCode());
+        assertEquals("角色列表为空", result.getMessage());
     }
 }

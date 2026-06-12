@@ -5,6 +5,7 @@ import com.aircookies.smtworkordermanagement.common.Result;
 import com.aircookies.smtworkordermanagement.entity.Line;
 import com.aircookies.smtworkordermanagement.mapper.LineMapper;
 import com.aircookies.smtworkordermanagement.service.LineService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +18,7 @@ import static com.aircookies.smtworkordermanagement.common.Result.success;
  * 产线服务实现类
  */
 @Service
+@Slf4j
 public class LineServiceImpl implements LineService {
 
     private final LineMapper lineMapper;
@@ -33,6 +35,7 @@ public class LineServiceImpl implements LineService {
     public Result addLine(Line line) {
         // 判断产线是否已存在
         if (lineMapper.findLineByName(line.getName()) != null) {
+            log.info("尝试添加已存在的产线 {}，失败", line.getName());
             throw new BusinessException("该产线已存在");
         }
 
@@ -42,6 +45,7 @@ public class LineServiceImpl implements LineService {
         if (res != 0) {
             return success("添加产线成功");
         } else {
+            log.info("添加产线 {} 失败", line.getName());
             throw new BusinessException("添加产线失败");
         }
     }
@@ -52,6 +56,7 @@ public class LineServiceImpl implements LineService {
     @Override
     public Result deleteLine(Long id) {
         if (lineMapper.isLineUsed(id) != 0) {
+            log.info("尝试删除正在使用的中的产线 {}，失败", id);
             throw new BusinessException("该产线正在使用中，请先删除该产线下的工单");
         }
 
@@ -65,8 +70,9 @@ public class LineServiceImpl implements LineService {
     @Override
     public Result updateLine(Line line) {
         // 判断产线是否已存在
-        if (lineMapper.findLineByName(line.getName()) != null) {
-            throw new BusinessException("该产线已存在");
+        if (lineMapper.findLineById(line.getId()) == null) {
+            log.info("尝试更新不存在存在的产线 {}，失败", line.getName());
+            throw new BusinessException("该产线不存在");
         }
 
         line.setUpdateTime(LocalDateTime.now());

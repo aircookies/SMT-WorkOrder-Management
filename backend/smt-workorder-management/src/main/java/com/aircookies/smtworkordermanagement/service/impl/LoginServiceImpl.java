@@ -9,6 +9,7 @@ import com.aircookies.smtworkordermanagement.service.LoginService;
 
 import com.aircookies.smtworkordermanagement.util.JWTUtil;
 import com.aircookies.smtworkordermanagement.util.RSAUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,6 +20,7 @@ import java.util.Map;
 import java.util.Objects;
 
 @Service
+@Slf4j
 public class LoginServiceImpl implements LoginService {
     private final SysUserMapper sysUserMapper;
     private final JWTUtil jwtUtil;
@@ -43,10 +45,12 @@ public class LoginServiceImpl implements LoginService {
     @Override
     public Result login(LoginDTO loginDTO) {
         if (Objects.isNull(loginDTO)) {
+            log.error("登录参数不能为空");
             throw new NullPointerException("登录参数不能为空");
         }
 
         if (loginDTO.getUsername().isEmpty() || loginDTO.getPassword().isEmpty()) {
+            log.error("用户名或密码不能为空");
             throw new NullPointerException("用户名或密码不能为空");
         }
 
@@ -60,6 +64,7 @@ public class LoginServiceImpl implements LoginService {
         try {
             decryptedPassword = rsaUtil.decrypt(loginDTO.getPassword());
         } catch (Exception e) {
+            log.error("解密密码失败", e);
             throw new IllegalArgumentException("解密失败");
         }
         if (!passwordEncoder.matches(decryptedPassword, user.getPassword())) {

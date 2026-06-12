@@ -5,7 +5,6 @@ import com.aircookies.smtworkordermanagement.dto.LoginDTO;
 import com.aircookies.smtworkordermanagement.dto.LoginResponseDTO;
 import com.aircookies.smtworkordermanagement.service.LoginService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
