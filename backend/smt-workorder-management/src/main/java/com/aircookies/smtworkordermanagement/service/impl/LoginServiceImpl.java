@@ -1,5 +1,6 @@
 package com.aircookies.smtworkordermanagement.service.impl;
 
+import com.aircookies.smtworkordermanagement.common.BusinessException;
 import com.aircookies.smtworkordermanagement.common.Result;
 import com.aircookies.smtworkordermanagement.dto.LoginDTO;
 import com.aircookies.smtworkordermanagement.dto.LoginResponseDTO;
@@ -57,6 +58,10 @@ public class LoginServiceImpl implements LoginService {
         SysUser user = sysUserMapper.findUserByUserName(loginDTO.getUsername());
         if (user == null) {
             throw new BadCredentialsException("用户名或密码错误");
+        }
+
+        if (user.getStatus() != null && user.getStatus() == 0) {
+            throw new BusinessException("账户已被禁用");
         }
 
         // 解密密码

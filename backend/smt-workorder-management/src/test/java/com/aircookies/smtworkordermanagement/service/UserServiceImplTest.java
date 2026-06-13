@@ -130,7 +130,7 @@ public class UserServiceImplTest {
     @Test
     @DisplayName("根据ID查询用户成功")
     void testFindUserById() {
-        when(sysUserMapper.findUser(1L)).thenReturn(testUser);
+        when(sysUserMapper.findById(1L)).thenReturn(testUser);
 
         Result result = userService.findUser(1L);
 
@@ -141,7 +141,7 @@ public class UserServiceImplTest {
     @Test
     @DisplayName("根据ID查询不存在的用户 - 返回null数据")
     void testFindUserByIdNotFound() {
-        when(sysUserMapper.findUser(999L)).thenReturn(null);
+        when(sysUserMapper.findById(999L)).thenReturn(null);
 
         Result result = userService.findUser(999L);
 
@@ -154,20 +154,20 @@ public class UserServiceImplTest {
     @Test
     @DisplayName("更新用户成功")
     void testUpdateUserSuccess() {
-        when(sysUserMapper.findUserByUserName("zhangsan")).thenReturn(null);
+        when(sysUserMapper.findById(1L)).thenReturn(testUser);
         when(sysUserMapper.updateUser(any(SysUser.class))).thenReturn(1);
 
         Result result = userService.updateUser(testUser);
 
         assertEquals(200, result.getCode());
-        assertNull(testUser.getUpdateTime(), "更新用户时应清空updateTime由数据库自动设置");
+        assertNotNull(testUser.getUpdateTime(), "更新用户时应设置updateTime");
         verify(sysUserMapper).updateUser(testUser);
     }
 
     @Test
     @DisplayName("更新用户失败 - 数据库更新返回0")
     void testUpdateUserFailure() {
-        when(sysUserMapper.findUserByUserName("zhangsan")).thenReturn(null);
+        when(sysUserMapper.findById(1L)).thenReturn(testUser);
         when(sysUserMapper.updateUser(any(SysUser.class))).thenReturn(0);
 
         BusinessException exception = assertThrows(BusinessException.class,
@@ -176,18 +176,14 @@ public class UserServiceImplTest {
     }
 
     @Test
-    @DisplayName("更新用户失败 - 用户名已存在")
-    void testUpdateUserWithDuplicateUsername() {
-        SysUser existingUser = new SysUser();
-        existingUser.setUsername("zhangsan");
-
-        when(sysUserMapper.findUserByUserName("zhangsan")).thenReturn(existingUser);
-
+    @DisplayName("更新用户失败 - 用户不存在")
+    void testUpdateUserNotFound() {
+        testUser.setId(999L);
+        when(sysUserMapper.findById(999L)).thenReturn(null);
         BusinessException exception = assertThrows(BusinessException.class,
                 () -> userService.updateUser(testUser));
-        assertEquals("用户名已存在", exception.getMessage());
 
-        verify(sysUserMapper, never()).updateUser(any());
+        assertEquals("用户不存在", exception.getMessage());
     }
 
     // ==================== 分页查询测试 ====================

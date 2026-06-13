@@ -24,10 +24,8 @@ public class DeptServiceImpl implements DeptService {
     @Override
     public Result addDept(Dept dept) {
         if (dept.getName() == null) {
-            log.info("部门名称不能为空");
             throw new BusinessException("部门名称不能为空");
         } else if (deptMapper.findDeptByName(dept.getName()) != null) {
-            log.info("该部门已存在，部门名称：{}", dept.getName());
             throw new BusinessException("该部门已存在");
         }
 
@@ -58,12 +56,8 @@ public class DeptServiceImpl implements DeptService {
 
     @Override
     public Result updateDept(Dept dept) {
-        if (dept.getName() == null) {
-            log.info("部门名称不能为空");
-            throw new BusinessException("部门名称不能为空");
-        } else if (deptMapper.findDeptByName(dept.getName()) != null) {
-            log.info("该部门已存在，部门名称：{}", dept.getName());
-            throw new BusinessException("该部门已存在");
+        if (dept == null || dept.getName() == null) {
+            throw new BusinessException("部门不存在");
         }
 
         dept.setUpdateTime(LocalDateTime.now());

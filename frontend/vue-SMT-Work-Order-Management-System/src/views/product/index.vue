@@ -32,7 +32,8 @@
                             format="YYYY-MM-DD" value-format="YYYY-MM-DD" clearable style="width: 180px" />
                     </el-form-item>
                     <el-form-item>
-                        <el-button type="primary" @click="queryProduct" :icon="Search">查询</el-button>
+                        <el-button type="primary" @click="queryProduct" :loading="loadingBtn"
+                            :icon="Search">查询</el-button>
                         <el-button @click="clearQuery" :icon="Refresh">重置</el-button>
                     </el-form-item>
                 </el-form>
@@ -100,7 +101,7 @@
             <template #footer>
                 <div class="dialog-footer">
                     <el-button @click="dialogVisible = false" :icon="Close">取消</el-button>
-                    <el-button type="primary" @click="submit" :icon="Check">确定</el-button>
+                    <el-button type="primary" @click="submit" :loading="loadingBtn" :icon="Check">确定</el-button>
                 </div>
             </template>
         </el-dialog>
@@ -108,28 +109,28 @@
 </template>
 
 <script setup>
-import {onMounted, ref} from 'vue'
+import { onMounted, ref } from 'vue'
 import {
-  ElButton,
-  ElDatePicker,
-  ElDialog,
-  ElForm,
-  ElFormItem,
-  ElInput,
-  ElMessage,
-  ElMessageBox,
-  ElTag
+    ElButton,
+    ElDatePicker,
+    ElDialog,
+    ElForm,
+    ElFormItem,
+    ElInput,
+    ElMessage,
+    ElMessageBox,
+    ElTag
 } from 'element-plus';
 import {
-  addProductApi,
-  deleteProductApi,
-  deleteProductByIdApi,
-  editProductApi,
-  getProductByIdApi,
-  getProductListApi,
-  queryProductApi
+    addProductApi,
+    deleteProductApi,
+    deleteProductByIdApi,
+    editProductApi,
+    getProductByIdApi,
+    getProductListApi,
+    queryProductApi
 } from '@/api/product';
-import {Box, Check, Clock, Close, Delete, Edit, Plus, Refresh, Search} from '@element-plus/icons-vue'
+import { Box, Check, Clock, Close, Delete, Edit, Plus, Refresh, Search } from '@element-plus/icons-vue'
 
 defineOptions({
     name: 'ProductManagement'
@@ -154,11 +155,11 @@ const dialogVisible = ref(false)
 const isEdit = ref(false)
 const productFormRef = ref()
 
-// 控制按钮是否可用
-// const disabledBtn = ref(false)
-
 // 控制加载动画
 const tableLoading = ref(false)
+
+// 控制按钮加载状态
+const loadingBtn = ref(false)
 
 // 当前操作的产品
 const currentProduct = ref({
@@ -174,12 +175,6 @@ const selectedRows = ref([])
 const handleSelectionChange = (val) => {
     selectedRows.value = val.map(item => item.id)
 }
-
-// 上传图片相关配置
-// const uploadHeaders = ref({
-//     // 可以在这里添加认证token等头部信息
-//     // 'Authorization': 'Bearer ' + localStorage.getItem('token')
-// })
 
 // 表单验证规则
 const productFormRules = {
@@ -228,23 +223,30 @@ const getProductList = async () => {
             productDTO.value.pageSize = res.data.pageSize
             productDTO.value.total = res.data.total
         }
+    }).finally(() => {
+        tableLoading.value = false
     })
-    tableLoading.value = false
 }
 
 // 查询产品
 const queryProduct = async () => {
     // 查询产品列表
     tableLoading.value = true
-    const res = await queryProductApi(productDTO.value)
-    // 判断响应结果是否正确
-    if (res.code === 200) {
-        tableData.value = res.data.list
-        productDTO.value.pageNum = res.data.pageNum
-        productDTO.value.pageSize = res.data.pageSize
-        productDTO.value.total = res.data.total
-    }
-    tableLoading.value = false
+    loadingBtn.value = true
+
+    await queryProductApi(productDTO.value).then(res => {
+        // 判断响应结果是否正确
+        if (res.code === 200) {
+            tableData.value = res.data.list
+            productDTO.value.pageNum = res.data.pageNum
+            productDTO.value.pageSize = res.data.pageSize
+            productDTO.value.total = res.data.total
+        }
+    }).finally(() => {
+        tableLoading.value = false
+        loadingBtn.value = false
+    })
+
 }
 
 // 批量删除产品
@@ -288,7 +290,6 @@ const deleteProductConfirm = (id) => {
 const showAddDialog = () => {
     isEdit.value = false
     clearForm()
-    // disabledBtn.value = false
     currentProduct.value = {
         id: '',
         code: '',
@@ -303,7 +304,6 @@ const showAddDialog = () => {
 const showEditDialog = async (id) => {
     isEdit.value = true
     clearForm()
-    // disabledBtn.value = false
     currentProduct.value = {
         id: '',
         code: '',
@@ -321,22 +321,33 @@ const showEditDialog = async (id) => {
 
 // 添加产品
 const addProduct = async () => {
-    const res = await addProductApi(currentProduct.value)
-    if (res.code === 200) {
-        ElMessage.success('添加产品成功')
-        dialogVisible.value = false
-        queryProduct()
-    }
+    loadingBtn.value = true
+    await addProductApi(currentProduct.value).then(res => {
+        if (res.code === 200) {
+            ElMessage.success('添加产品成功')
+            dialogVisible.value = false
+            queryProduct()
+        }
+    }).finally(() => {
+        loadingBtn.value = true
+    })
+
 }
 
 // 修改产品
 const editProduct = async () => {
-    const res = await editProductApi(currentProduct.value)
-    if (res.code === 200) {
-        ElMessage.success('修改产品成功')
-        dialogVisible.value = false
-        queryProduct()
-    }
+    loadingBtn.value = true
+    await editProductApi(currentProduct.value).then(res => {
+        if (res.code === 200) {
+            ElMessage.success('修改产品成功')
+            dialogVisible.value = false
+        }
+    }).finally(() => {
+        loadingBtn.value = false
+    })
+
+
+    queryProduct()
 }
 
 // 提交修改或添加操作

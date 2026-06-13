@@ -126,7 +126,6 @@ public class DeptServiceImplTest {
     @Test
     @DisplayName("更新部门成功")
     void testUpdateDeptSuccess() {
-        when(deptMapper.findDeptByName("研发部")).thenReturn(null);
         when(deptMapper.updateDept(any(Dept.class))).thenReturn(1);
 
         Result result = deptService.updateDept(testDept);
@@ -139,7 +138,6 @@ public class DeptServiceImplTest {
     @Test
     @DisplayName("更新部门失败 - 数据库更新返回0")
     void testUpdateDeptFailure() {
-        when(deptMapper.findDeptByName("研发部")).thenReturn(null);
         when(deptMapper.updateDept(any(Dept.class))).thenReturn(0);
 
         BusinessException exception = assertThrows(BusinessException.class,
@@ -148,23 +146,21 @@ public class DeptServiceImplTest {
     }
 
     @Test
-    @DisplayName("更新部门失败 - 部门名称为空")
+    @DisplayName("更新部门失败 - 部门不存在（名称为空）")
     void testUpdateDeptWithNullName() {
         testDept.setName(null);
 
         BusinessException exception = assertThrows(BusinessException.class,
                 () -> deptService.updateDept(testDept));
-        assertEquals("部门名称不能为空", exception.getMessage());
+        assertEquals("部门不存在", exception.getMessage());
     }
 
     @Test
-    @DisplayName("更新部门失败 - 部门名称已存在")
-    void testUpdateDeptNameExists() {
-        when(deptMapper.findDeptByName("研发部")).thenReturn(testDept);
-
+    @DisplayName("更新部门失败 - 部门为null")
+    void testUpdateDeptNotFound() {
         BusinessException exception = assertThrows(BusinessException.class,
-                () -> deptService.updateDept(testDept));
-        assertEquals("该部门已存在", exception.getMessage());
+                () -> deptService.updateDept(null));
+        assertEquals("部门不存在", exception.getMessage());
 
         verify(deptMapper, never()).updateDept(any());
     }

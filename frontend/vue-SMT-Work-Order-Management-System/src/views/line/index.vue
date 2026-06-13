@@ -69,7 +69,7 @@
             <template #footer>
                 <div class="dialog-footer">
                     <el-button @click="dialogFormVisible = false" :icon="Close">取消</el-button>
-                    <el-button type="primary" @click="submit()" :icon="Check">确定</el-button>
+                    <el-button type="primary" @click="submit()" :loading="loadingBtn" :icon="Check">确定</el-button>
                 </div>
             </template>
         </el-dialog>
@@ -103,6 +103,9 @@ const isEdit = ref(false)
 
 // 控制加载动画
 const loading = ref(false)
+
+// 控制按钮加载状态
+const loadingBtn = ref(false)
 
 // 显示dialog表单
 const showDialog = async (id) => {
@@ -159,24 +162,27 @@ const deleteLine = async (id) => {
 
 // 添加产线
 const addLine = async () => {
-    const res = await addLineApi(line.value)
-    if (res.code === 200) {
-        ElMessage.success('添加产线成功')
-        dialogFormVisible.value = false
-        getLineList()
-        resetForm()
-    }
+    loadingBtn.value = true
+    await addLineApi(line.value).then(res => {
+        if (res.code === 200) {
+            ElMessage.success('添加产线成功')
+            dialogFormVisible.value = false
+            getLineList()
+            resetForm()
+        }
+    }).finally(() => loadingBtn.value = false)
 }
 
 // 修改产线
 const editLine = async () => {
-    const res = await editLineApi(line.value)
-    if (res.code === 200) {
-        ElMessage.success('修改产线成功')
-        dialogFormVisible.value = false
-        getLineList()
-        resetForm()
-    }
+    await editLineApi(line.value).then(res => {
+        if (res.code === 200) {
+            ElMessage.success('修改产线成功')
+            dialogFormVisible.value = false
+            getLineList()
+            resetForm()
+        }
+    }).finally(() => loadingBtn.value = false)
 }
 
 // 提交添加或修改请求
@@ -200,12 +206,13 @@ const submit = async () => {
 // 获取产线列表
 const getLineList = async () => {
     loading.value = true
-    const res = await getLineListApi()
-    // 响应结果判断
-    if (res.code === 200) {
-        tableData.value = res.data
-    }
-    loading.value = false
+    await getLineListApi().then(res => { 
+        if (res.code === 200) {
+            tableData.value = res.data
+        }
+    }).finally(() => {
+        loading.value = false
+    })
 }
 
 onMounted(async () => {

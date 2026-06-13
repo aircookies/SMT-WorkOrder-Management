@@ -208,6 +208,7 @@ public class WorkOrderServiceImplTest {
     @Test
     @DisplayName("更新工序报工成功")
     void testUpdateWorkProcessReportSuccess() {
+        when(workOrderMapper.findWorkProcessReport(1L)).thenReturn(testReport);
         when(workOrderMapper.updateWorkProcessReport(any(WorkProcessReport.class))).thenReturn(1);
 
         Result result = workOrderService.updateWorkProcessReport(testReport);
@@ -218,8 +219,21 @@ public class WorkOrderServiceImplTest {
     }
 
     @Test
+    @DisplayName("更新工序报工失败 - 工序报工表不存在")
+    void testUpdateWorkProcessReportNotFound() {
+        when(workOrderMapper.findWorkProcessReport(1L)).thenReturn(null);
+
+        BusinessException exception = assertThrows(BusinessException.class,
+                () -> workOrderService.updateWorkProcessReport(testReport));
+        assertEquals("工序报工表不存在", exception.getMessage());
+
+        verify(workOrderMapper, never()).updateWorkProcessReport(any());
+    }
+
+    @Test
     @DisplayName("更新工序报工失败 - 数据库更新返回0")
     void testUpdateWorkProcessReportFailure() {
+        when(workOrderMapper.findWorkProcessReport(1L)).thenReturn(testReport);
         when(workOrderMapper.updateWorkProcessReport(any(WorkProcessReport.class))).thenReturn(0);
 
         BusinessException exception = assertThrows(BusinessException.class,

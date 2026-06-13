@@ -1,5 +1,6 @@
 package com.aircookies.smtworkordermanagement.service;
 
+import com.aircookies.smtworkordermanagement.common.BusinessException;
 import com.aircookies.smtworkordermanagement.common.Result;
 import com.aircookies.smtworkordermanagement.entity.SysRole;
 import com.aircookies.smtworkordermanagement.mapper.SysRoleMapper;
@@ -72,6 +73,7 @@ public class SysRoleServiceImplTest {
     @Test
     @DisplayName("更新角色成功")
     void testUpdateRoleSuccess() {
+        when(sysRoleMapper.findById(1)).thenReturn(testRole);
         when(sysRoleMapper.updateRole(any(SysRole.class))).thenReturn(1);
 
         Result result = sysRoleService.updateRole(testRole);
@@ -83,8 +85,21 @@ public class SysRoleServiceImplTest {
     }
 
     @Test
+    @DisplayName("更新角色失败 - 角色不存在")
+    void testUpdateRoleNotFound() {
+        when(sysRoleMapper.findById(1)).thenReturn(null);
+
+        BusinessException exception = assertThrows(BusinessException.class,
+                () -> sysRoleService.updateRole(testRole));
+        assertEquals("该角色不存在", exception.getMessage());
+
+        verify(sysRoleMapper, never()).updateRole(any());
+    }
+
+    @Test
     @DisplayName("更新角色失败 - 数据库更新返回0")
     void testUpdateRoleFailure() {
+        when(sysRoleMapper.findById(1)).thenReturn(testRole);
         when(sysRoleMapper.updateRole(any(SysRole.class))).thenReturn(0);
 
         Result result = sysRoleService.updateRole(testRole);

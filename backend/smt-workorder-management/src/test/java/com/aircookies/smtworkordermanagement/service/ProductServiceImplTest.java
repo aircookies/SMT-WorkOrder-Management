@@ -134,6 +134,7 @@ public class ProductServiceImplTest {
     @Test
     @DisplayName("更新产品成功")
     void testUpdateProductSuccess() {
+        when(productMapper.findProductById(1L)).thenReturn(testProduct);
         when(productMapper.updateProduct(any(Product.class))).thenReturn(1);
 
         Result result = productService.updateProduct(testProduct);
@@ -144,8 +145,21 @@ public class ProductServiceImplTest {
     }
 
     @Test
+    @DisplayName("更新产品失败 - 产品不存在")
+    void testUpdateProductNotFound() {
+        when(productMapper.findProductById(1L)).thenReturn(null);
+
+        BusinessException exception = assertThrows(BusinessException.class,
+                () -> productService.updateProduct(testProduct));
+        assertEquals("该产品不存在", exception.getMessage());
+
+        verify(productMapper, never()).updateProduct(any());
+    }
+
+    @Test
     @DisplayName("更新产品失败 - 数据库更新返回0")
     void testUpdateProductFailure() {
+        when(productMapper.findProductById(1L)).thenReturn(testProduct);
         when(productMapper.updateProduct(any(Product.class))).thenReturn(0);
 
         BusinessException exception = assertThrows(BusinessException.class,

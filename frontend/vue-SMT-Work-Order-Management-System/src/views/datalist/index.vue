@@ -24,7 +24,7 @@
                     </el-col>
                     <el-col :span="16">
                         <el-form-item class="action-buttons">
-                            <el-button type="primary" @click="onQuery" :icon="Search" size="large">查询</el-button>
+                            <el-button type="primary" @click="onQuery" :loading="loadingBtn" :icon="Search" size="large">查询</el-button>
                             <el-button @click="onReset" :icon="Refresh" size="large">重置</el-button>
                         </el-form-item>
                     </el-col>
@@ -183,6 +183,7 @@ import {
 import {ElMessage} from 'element-plus'
 import BaseChart from '@/components/BaseChart.vue'
 import {lineProductionBarChart, passRateLineChart, pieChart, productTop5BarChart} from '@/utils/chartConfig'
+import {getDefaultDateRange} from '@/utils/date'
 
 defineOptions({
     name: 'DataList'
@@ -192,9 +193,9 @@ defineOptions({
 const form = ref({
     // 默认使用本月的数据
     dateRange: (() => {
-        // return getDefaultDateRange()
+        return getDefaultDateRange()
         // 为了便于调试 先使用固定日期
-        return ['2025-04-01', '2026-01-01']
+        // return ['2025-04-01', '2026-01-01']
     })(),
     lineId: '',
     productId: ''
@@ -274,6 +275,9 @@ const productProductionList = ref([]);
 // 控制加载动画
 const loading = ref(false);
 
+// 控制按钮加载状态
+const loadingBtn = ref(false);
+
 // 获取指定时间内工单详细信息
 const getWorkOrderDetail = async (startTime, endTime) => {
     const res = await getWorkOrderDetailApi(startTime, endTime)
@@ -336,14 +340,16 @@ const onQuery = async () => {
         ElMessage.error('请选择时间范围')
         return
     }
+
+    loadingBtn.value = true
+
     // 并行发送异步请求
     await Promise.allSettled([
         getWorkOrderDetail(form.value.dateRange[0], form.value.dateRange[1]),
         getstatisticsProductionQuality(form.value.dateRange[0], form.value.dateRange[1]),
         getstatisticsLineProduction(form.value.dateRange[0], form.value.dateRange[1]),
         getstatisticsProductProduction(form.value.dateRange[0], form.value.dateRange[1])
-    ])
-
+    ]).finally(() => loadingBtn.value = false)
 }
 
 // 重置按钮点击事件

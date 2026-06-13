@@ -51,12 +51,12 @@ request.interceptors.response.use(
           break
         case 401:
           message = error.response.data.message || '未授权，请重新登录'
-          // localStorage.clear()
-          // router.push('/login')
+          localStorage.clear()
+          router.push('/login')
           break
         case 403:
-          message = error.response.data.message || '请重新登录'
-          router.push('/login')
+          message = error.response.data.message || '拒绝访问'
+          // router.push('/login')
           break
         case 404:
           message = error.response.data.message || '请求资源不存在'

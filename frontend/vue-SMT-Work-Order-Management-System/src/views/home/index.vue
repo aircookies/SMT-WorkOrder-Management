@@ -249,6 +249,7 @@ import BaseChart from '@/components/BaseChart.vue'
 import {getstatisticsProductionQualityApi, getWorkOrderDetailApi} from '@/api/datalist'
 import {getWorkOrderListApi} from '@/api/workorder'
 import {passRateLineChart} from '@/utils/chartConfig'
+import {getDefaultDateRange} from '@/utils/date'
 
 defineOptions({
     name: 'HomePage'
@@ -291,9 +292,9 @@ let timeInterval = null
 
 // 获取当前时间
 const currentDate = (() => {
-    // return getDefaultDateRange()
+    return getDefaultDateRange()
     // 为了便于调试 先使用固定日期
-    return ['2025-04-01', '2026-01-01']
+    // return ['2025-04-01', '2026-01-01']
 })()
 
 // 获取本地存储的用户名

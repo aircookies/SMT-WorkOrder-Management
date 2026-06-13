@@ -26,7 +26,7 @@
     </insert>
 
     <!-- 根据ID查询用户 -->
-    <select id="findUser" resultType="com.aircookies.smtworkordermanagement.entity.SysUser">
+    <select id="findById" resultType="com.aircookies.smtworkordermanagement.entity.SysUser">
         SELECT id,
                username,
 #                password,
@@ -118,13 +118,13 @@
             <if test="gender != null and gender != ''">
                 gender = #{gender},
             </if>
-            <if test="roleId != null and roleId != ''">
+            <if test="roleId != null">
                 role_id = #{roleId},
             </if>
-            <if test="departmentId != null and departmentId != ''">
+            <if test="departmentId != null">
                 department_id = #{departmentId},
             </if>
-            <if test="status != null and status != ''">
+            <if test="status != null">
                 status = #{status},
             </if>
             <if test="updateTime != null">

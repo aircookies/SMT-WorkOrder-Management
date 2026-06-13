@@ -57,5 +57,14 @@
         FROM dept
         WHERE name = #{name}
     </select>
+    <!--    通过ID查询部门-->
+    <select id="findDeptById" resultType="com.aircookies.smtworkordermanagement.entity.Dept">
+        SELECT id,
+               name,
+               create_time,
+               update_time
+        FROM dept
+        WHERE id = #{id}
+    </select>
 
 </mapper>

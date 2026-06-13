@@ -1,5 +1,6 @@
 package com.aircookies.smtworkordermanagement.service.impl;
 
+import com.aircookies.smtworkordermanagement.common.BusinessException;
 import com.aircookies.smtworkordermanagement.common.Result;
 import com.aircookies.smtworkordermanagement.entity.SysRole;
 import com.aircookies.smtworkordermanagement.mapper.SysRoleMapper;
@@ -38,6 +39,12 @@ public class SysRoleServiceImpl implements SysRoleService {
     // 更新角色
     @Override
     public Result updateRole(SysRole sysRole) {
+        // 判断角色是否已存在
+        if (sysRole == null || sysRoleMapper.findById(sysRole.getId()) == null) {
+            log.info("尝试更新不存在存在的角色，失败");
+            throw new BusinessException("该角色不存在");
+        }
+
         sysRole.setUpdateTime(LocalDateTime.now());
         int res = sysRoleMapper.updateRole(sysRole);
         if (res <= 0) {

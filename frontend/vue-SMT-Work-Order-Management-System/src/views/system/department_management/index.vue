@@ -22,7 +22,7 @@
                             prefix-icon="Search" style="width: 240px" />
                     </el-form-item>
                     <el-form-item>
-                        <el-button type="primary" @click="queryDepartment" :icon="Search">查询</el-button>
+                        <el-button type="primary" @click="queryDepartment" :loading="btnLoading" :icon="Search">查询</el-button>
                         <el-button @click="clearQueryForm" :icon="Refresh">重置</el-button>
                     </el-form-item>
                 </el-form>
@@ -81,7 +81,7 @@
             <template #footer>
                 <div class="dialog-footer">
                     <el-button @click="handleCancel" :icon="Close">取消</el-button>
-                    <el-button type="primary" @click="handleSubmit" :icon="Check">提交</el-button>
+                    <el-button type="primary" @click="handleSubmit" :loading="btnLoading" :icon="Check">提交</el-button>
                 </div>
             </template>
         </el-dialog>
@@ -108,6 +108,9 @@ const tableData = ref([])
 
 // 控制加载动画
 const loading = ref(false)
+
+// 控制按钮加载状态
+const btnLoading = ref(false)
 
 // 显隐dialog对话框
 const dialogFormVisible = ref(false)
@@ -144,6 +147,8 @@ const clearQueryForm = () => {
     queryFormModel.value = {
         name: ''
     }
+
+    queryDepartment()
 }
 
 /**
@@ -181,6 +186,8 @@ const handleCancel = () => {
 const handleSubmit = async () => {
     if (!formRef.value) return
 
+    btnLoading.value = true
+
     await formRef.value.validate(async (valid) => {
         if (!valid) {
             ElMessage.error('请完善表单信息')
@@ -207,7 +214,7 @@ const handleSubmit = async () => {
                 queryDepartment()
             }
         }
-    })
+    }).finally(() => btnLoading.value = false)
 }
 
 /**
@@ -228,15 +235,21 @@ const handleEdit = (row) => {
  */
 const queryDepartment = async () => {
     loading.value = true
+    btnLoading.value = true
+
     const params = {}
     if (queryFormModel.value.name) {
         params.name = queryFormModel.value.name
     }
-    const res = await queryDepartmentApi(params)
-    if (res.code === 200) {
-        tableData.value = res.data
-    }
-    loading.value = false
+    
+    await queryDepartmentApi(params).then(res => { 
+        if (res.code === 200) {
+            tableData.value = res.data
+        }
+    }).finally(() => {
+        btnLoading.value = false
+        loading.value = false
+    })
 }
 
 /**

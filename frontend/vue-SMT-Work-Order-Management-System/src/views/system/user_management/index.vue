@@ -44,7 +44,7 @@
                         </el-select>
                     </el-form-item>
                     <el-form-item>
-                        <el-button type="primary" @click="queryUser" :icon="Search">查询</el-button>
+                        <el-button type="primary" @click="queryUser" :loading="btnLoading" :icon="Search">查询</el-button>
                         <el-button @click="clearQueryForm" :icon="Refresh">重置</el-button>
                     </el-form-item>
                 </el-form>
@@ -187,7 +187,7 @@
             <template #footer>
                 <div class="dialog-footer">
                     <el-button @click="handleCancel" :icon="Close">取消</el-button>
-                    <el-button type="primary" @click="handleSubmit" :icon="Check">提交</el-button>
+                    <el-button type="primary" @click="handleSubmit" :loading="btnLoading" :icon="Check">提交</el-button>
                 </div>
             </template>
         </el-dialog>
@@ -235,6 +235,9 @@ const total = ref(0)
 
 // 控制加载动画
 const loading = ref(false)
+
+// 控制按钮加载状态
+const btnLoading = ref(false)
 
 // 显隐dialog对话框
 const dialogFormVisible = ref(false)
@@ -309,6 +312,8 @@ const clearQueryForm = () => {
         roleId: '',
         departmentId: ''
     }
+
+    queryUser()
 }
 
 /**
@@ -372,6 +377,8 @@ const handleCancel = () => {
 const handleSubmit = async () => {
     if (!formRef.value) return
 
+    btnLoading.value = true
+
     await formRef.value.validate(async (valid) => {
         if (!valid) {
             ElMessage.error('请完善表单信息')
@@ -390,6 +397,7 @@ const handleSubmit = async () => {
             }
         } else {
             // 修改用户
+            console.log(userDTO.value)
             res = await updateUserApi(userDTO.value)
             if (res.code === 200) {
                 ElMessage.success('用户修改成功')
@@ -398,7 +406,7 @@ const handleSubmit = async () => {
                 queryUser()
             }
         }
-    })
+    }).finally(() => btnLoading.value = false)
 }
 
 /**
@@ -421,19 +429,24 @@ const handleEdit = async (id) => {
  */
 const queryUser = async () => {
     loading.value = true
-    const params = {
-        pageNum: pageNum.value,
-        pageSize: pageSize.value,
-        ...queryFormModel.value
-    }
-    const res = await queryUserApi(params)
-    if (res.code === 200) {
-        tableData.value = res.data.list
-        pageNum.value = res.data.pageNum
-        pageSize.value = res.data.pageSize
-        total.value = res.data.total
-    }
-    loading.value = false
+    btnLoading.value = true
+
+    const params = queryFormModel.value
+    params.pageNum = pageNum.value
+    params.pageSize = pageSize.value
+
+    await queryUserApi(params).then(res => { 
+        if (res.code === 200) {
+            tableData.value = res.data.list
+            pageNum.value = res.data.pageNum
+            pageSize.value = res.data.pageSize
+            total.value = res.data.total
+        }
+    }).finally(() => {
+        btnLoading.value = false
+        loading.value = false
+    })
+
 }
 
 /** 

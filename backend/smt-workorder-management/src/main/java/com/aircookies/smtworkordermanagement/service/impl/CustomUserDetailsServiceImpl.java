@@ -44,6 +44,10 @@ public class CustomUserDetailsServiceImpl implements UserDetailsService {
         return new User(
                 user.getUsername(),
                 user.getPassword(),
+                user.getStatus() == null || user.getStatus() == 1,
+                true,
+                true,
+                true,
                 authorities
         );
     }

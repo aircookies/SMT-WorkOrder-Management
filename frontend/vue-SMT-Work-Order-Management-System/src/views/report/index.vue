@@ -40,7 +40,7 @@
                             style="width: 240px" clearable />
                     </el-form-item>
                     <el-form-item>
-                        <el-button type="primary" @click="queryWorkOrder" :icon="Search">查询</el-button>
+                        <el-button type="primary" @click="queryWorkOrder" :loading="loadingBtn" :icon="Search">查询</el-button>
                         <el-button @click="clearWorkOrderAndForm" :icon="Refresh">清空</el-button>
                     </el-form-item>
                 </el-form>
@@ -188,7 +188,7 @@
                         </el-col>
                     </el-row>
                     <el-form-item class="form-actions">
-                        <el-button type="primary" @click="submitReport" :icon="Check" size="large">提交报工</el-button>
+                        <el-button type="primary" @click="submitReport" :loading="loadingBtn" :icon="Check" size="large">提交报工</el-button>
                         <el-button @click="resetForm" :icon="Refresh" size="large">重置</el-button>
                     </el-form-item>
                 </el-form>
@@ -393,6 +393,9 @@ const messageLoading = ref(false)
 // 控制表格的加载动画
 const tableLoading = ref(false)
 
+// 控制按钮加载状态
+const loadingBtn = ref(false)
+
 // 报工记录列表
 const reportList = ref([])
 
@@ -475,6 +478,7 @@ const submitReport = async () => {
     }
 
     messageLoading.value = true
+    loadingBtn.value = true
 
     // if (report.value.id) {
     //     // 更新报工记录
@@ -486,14 +490,16 @@ const submitReport = async () => {
     //     ElMessage.success('报工记录添加成功')
     // }
     // 添加新报工记录
-    const result = await addReportApi(report.value)
-    if (result.code === 200) {
-        ElMessage.success('报工记录添加成功')
-    }
-
-    resetForm()
-    fetchReportList()
-    messageLoading.value = false
+    await addReportApi(report.value).then(result => {
+        if (result.code === 200) {
+            ElMessage.success('报工记录添加成功')
+        }
+        resetForm()
+        fetchReportList()
+    }).finally(() => {
+        messageLoading.value = false
+        loadingBtn.value = false
+    })
 }
 
 // 重置表单
@@ -535,12 +541,14 @@ const deleteReport = async (id) => {
 // 获取报工记录列表
 const fetchReportList = async () => {
     tableLoading.value = true
-    const response = await getReportListApi(pagination.value.currentPage, pagination.value.pageSize)
-    if (response.code === 200) {
-        reportList.value = response.data.list
-        pagination.value.total = response.data.total
-    }
-    tableLoading.value = false
+    await getReportListApi(pagination.value.currentPage, pagination.value.pageSize).then(response => { 
+        if (response.code === 200) {
+            reportList.value = response.data.list
+            pagination.value.total = response.data.total
+        }
+    }).finally(() => {
+        tableLoading.value = false
+    })
 }
 
 // 分页大小改变

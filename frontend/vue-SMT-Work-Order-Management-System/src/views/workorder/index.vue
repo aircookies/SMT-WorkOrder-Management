@@ -42,7 +42,7 @@
                         </el-select>
                     </el-form-item>
                     <el-form-item>
-                        <el-button type="primary" @click="queryWorkOrder" :icon="Search">查询</el-button>
+                        <el-button type="primary" @click="queryWorkOrder" :loading="btnLoading" :icon="Search">查询</el-button>
                         <el-button @click="clearQueryForm" :icon="Refresh">重置</el-button>
                     </el-form-item>
                 </el-form>
@@ -244,6 +244,9 @@ const total = ref(0)
 // 控制加载动画
 const loading = ref(false)
 
+// 控制按钮加载状态
+const btnLoading = ref(false)
+
 // 显隐dialog对话框
 const dialogFormVisible = ref(false)
 
@@ -308,6 +311,7 @@ const formRef = ref(null)
 // 清空查询表单
 const clearQueryForm = () => {
     queryFormModel.value = {}
+    queryWorkOrder()
 }
 
 
@@ -409,6 +413,7 @@ const handleEdit = async (row) => {
 // 查询工单
 const queryWorkOrder = async () => {
     loading.value = true
+    btnLoading.value = true
     await queryWorkOrderApi(pageNum.value, pageSize.value, queryFormModel.value.id, queryFormModel.value.status, queryFormModel.value.priority).then(res => {
         if (res.code === 200) {
             tableData.value = res.data.list
@@ -416,8 +421,10 @@ const queryWorkOrder = async () => {
             pageSize.value = res.data.pageSize
             total.value = res.data.total
         }
+    }).finally(() => {
+        loading.value = false
+        btnLoading.value = false
     })
-    loading.value = false
 }
 
 // 删除工单

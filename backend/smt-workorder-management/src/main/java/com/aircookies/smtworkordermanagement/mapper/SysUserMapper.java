@@ -16,7 +16,7 @@ public interface SysUserMapper {
 
     int updateUser(SysUser user);
 
-    Object findUser(long id);
+    SysUser findById(long id);
 
     List<SysUser> findAll();
 

@@ -38,6 +38,12 @@ public class ProductServiceImpl implements ProductService {
      */
     @Override
     public Result addProduct(Product product) {
+        // 判断产品是否存在
+        if (productMapper.findProductById(product.getId()) != null) {
+            log.info("尝试添加已存在的产品，失败");
+            throw new BusinessException("该产品已存在");
+        }
+
         product.setCreateTime(LocalDateTime.now());
         product.setUpdateTime(LocalDateTime.now());
         int res = productMapper.addProduct(product);
@@ -84,6 +90,12 @@ public class ProductServiceImpl implements ProductService {
      */
     @Override
     public Result updateProduct(Product product) {
+        // 判断产品是否已存在
+        if (product == null || productMapper.findProductById(product.getId()) == null) {
+            log.info("尝试更新不存在存在的产品，失败");
+            throw new BusinessException("该产品不存在");
+        }
+
         product.setUpdateTime(LocalDateTime.now());
         int res = productMapper.updateProduct(product);
         if (res != 0) {

@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.aircookies.smtworkordermanagement.common.Result.success;
@@ -84,7 +85,7 @@ public class UserServiceImpl implements UserService {
     // 根据ID查询用户
     @Override
     public Result findUser(long id) {
-        return success(sysUserMapper.findUser(id));
+        return success(sysUserMapper.findById(id));
     }
 
 
@@ -110,12 +111,16 @@ public class UserServiceImpl implements UserService {
     // 修改用户
     @Override
     public Result updateUser(SysUser user) {
-        // 检查用户名是否已存在
-        if (sysUserMapper.findUserByUserName(user.getUsername()) != null) {
-            throw new BusinessException("用户名已存在");
+        // 检查用户是否存在
+        if (user == null || sysUserMapper.findById(user.getId()) == null) {
+            throw new BusinessException("用户不存在");
         }
 
-        user.setUpdateTime(null);
+        // 加密用户密码
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        // 更新修改时间
+        user.setUpdateTime(LocalDateTime.now());
+        log.info("修改用户, 新的用户信息：{}", user);
         int res = sysUserMapper.updateUser(user);
         if (res != 0) {
             log.info("修改用户成功，用户名：{}", user.getUsername());

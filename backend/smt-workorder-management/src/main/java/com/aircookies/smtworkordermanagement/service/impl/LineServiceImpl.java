@@ -70,7 +70,7 @@ public class LineServiceImpl implements LineService {
     @Override
     public Result updateLine(Line line) {
         // 判断产线是否已存在
-        if (lineMapper.findLineById(line.getId()) == null) {
+        if (line == null || lineMapper.findLineById(line.getId()) == null) {
             log.info("尝试更新不存在存在的产线 {}，失败", line.getName());
             throw new BusinessException("该产线不存在");
         }

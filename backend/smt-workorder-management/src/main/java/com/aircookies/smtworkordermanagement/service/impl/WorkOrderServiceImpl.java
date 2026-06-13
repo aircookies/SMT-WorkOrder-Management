@@ -160,6 +160,11 @@ public class WorkOrderServiceImpl implements WorkOrderService {
      */
     @Override
     public Result updateWorkProcessReport(WorkProcessReport workProcessReport) {
+        // 检查工序报工表是否存在
+        if (workProcessReport == null || workOrderMapper.findWorkProcessReport(workProcessReport.getId()) == null) {
+            throw new BusinessException("工序报工表不存在");
+        }
+
         workProcessReport.setUpdateTime(LocalDateTime.now());
         int res = workOrderMapper.updateWorkProcessReport(workProcessReport);
         if (res != 0) {
