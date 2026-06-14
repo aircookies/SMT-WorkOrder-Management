@@ -7,8 +7,6 @@ services:
       MYSQL_ROOT_PASSWORD: 88888888
       MYSQL_DATABASE: smt_workorder_management
       TZ: Asia/Shanghai
-#    ports: 最好不要将端口暴露在公网
-#      - "3306:3306"
     volumes:
       # 数据持久化到宿主机
       - /data/mysql:/var/lib/mysql
@@ -39,8 +37,6 @@ services:
     container_name: smt-redis
     environment:
       TZ: Asia/Shanghai
-#    ports: 最好不要将端口暴露在公网
-#      - "6379:6379"
     volumes:
       - /data/redis:/data
       - /usr/share/zoneinfo/Asia/Shanghai:/etc/localtime:ro

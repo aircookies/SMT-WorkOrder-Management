@@ -1,0 +1,1 @@
+import{$ as e}from"./index-qtzoOLUj.js";const c=(t,d)=>e.get("/product/findAll?pageNum="+t+"&pageSize="+d),p=t=>e.get("/product/find/"+t),r=t=>e.post("/product/query",t),u=t=>e.post("/product/add",t),s=t=>e.put("/product/update",t),a=t=>e.delete("/product/deleteBatch",{data:t}),i=t=>e.delete("/product/delete/"+t);export{p as a,a as b,u as c,i as d,s as e,c as g,r as q};

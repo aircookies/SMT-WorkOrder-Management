@@ -1,0 +1,1 @@
+import{$ as i}from"./index-qtzoOLUj.js";const n=()=>i.get("/line/findAll"),s=e=>i.get("/line/find/"+e),d=e=>i.delete("/line/delete/"+e),a=e=>i.post("/line/add",e),l=e=>i.put("/line/update",e);export{s as a,a as b,d,l as e,n as g};

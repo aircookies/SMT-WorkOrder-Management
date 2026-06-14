@@ -8,50 +8,51 @@
         </div>
 
         <!-- 登录卡片 -->
-        <el-card class="login-card" shadow="never">
-            <div class="login-header">
-                <div class="logo-icon">
-                    <el-icon :size="48">
-                        <Monitor />
-                    </el-icon>
+        <el-card class="login-background">
+            <el-card class="login-card" shadow="never">
+                <div class="login-header">
+                    <div class="logo-icon">
+                        <img src="@/assets/image/LOGO.png" alt="logo" class="logo-image" width="80px" height="80px">
+                    </div>
+                    <h2 class="title">SMT工单管理系统</h2>
+                    <p class="subtitle">Intelligent Manufacturing Terminal Work Order Management</p>
                 </div>
-                <h2 class="title">SMT工单管理系统</h2>
-                <p class="subtitle">智能制造终端工单管理解决方案</p>
-            </div>
 
-            <el-form ref="loginFormRef" :model="loginForm" :rules="loginRules" class="login-form" size="large">
-                <el-form-item prop="username">
-                    <el-input v-model="loginForm.username" placeholder="请输入用户名" clearable>
-                        <template #prefix>
-                            <el-icon>
-                                <User />
-                            </el-icon>
-                        </template>
-                    </el-input>
-                </el-form-item>
+                <el-form ref="loginFormRef" :model="loginForm" :rules="loginRules" class="login-form" size="large">
+                    <el-form-item prop="username">
+                        <el-input v-model="loginForm.username" placeholder="请输入用户名" clearable>
+                            <template #prefix>
+                                <el-icon>
+                                    <User />
+                                </el-icon>
+                            </template>
+                        </el-input>
+                    </el-form-item>
 
-                <el-form-item prop="password">
-                    <el-input v-model="loginForm.password" type="password" placeholder="请输入密码" show-password
-                        @keyup.enter="handleLogin">
-                        <template #prefix>
-                            <el-icon>
-                                <Lock />
-                            </el-icon>
-                        </template>
-                    </el-input>
-                </el-form-item>
+                    <el-form-item prop="password">
+                        <el-input v-model="loginForm.password" type="password" placeholder="请输入密码" show-password
+                            @keyup.enter="handleLogin">
+                            <template #prefix>
+                                <el-icon>
+                                    <Lock />
+                                </el-icon>
+                            </template>
+                        </el-input>
+                    </el-form-item>
 
-                <el-form-item>
-                    <el-button type="primary" size="large" class="login-btn" :loading="loading" @click="handleLogin">
-                        <span v-if="!loading">登 录</span>
-                        <span v-else>登录中...</span>
-                    </el-button>
-                </el-form-item>
-            </el-form>
+                    <el-form-item>
+                        <el-button type="primary" size="large" class="login-btn" :loading="loading"
+                            @click="handleLogin">
+                            <span v-if="!loading">登 录</span>
+                            <span v-else>登录中...</span>
+                        </el-button>
+                    </el-form-item>
+                </el-form>
 
-            <div class="login-footer">
-                <p>2026信息工程学院项目式教学作业: SMT工单管理系统</p>
-            </div>
+                <div class="login-footer">
+                    <p>2026信息工程学院项目式教学作业: SMT工单管理系统</p>
+                </div>
+            </el-card>
         </el-card>
     </div>
 </template>
@@ -60,7 +61,7 @@
 import {onMounted, reactive, ref} from 'vue'
 import {useRouter} from 'vue-router'
 import {ElMessage} from 'element-plus'
-import {Lock, Monitor, User} from '@element-plus/icons-vue'
+import {Lock, User} from '@element-plus/icons-vue'
 import {loginApi} from '@/api/login'
 import {getPublicKey} from '@/utils/RSAUtil'
 
@@ -157,7 +158,7 @@ onMounted(async () => {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #f2efff;
     overflow: hidden;
 }
 
@@ -217,11 +218,22 @@ onMounted(async () => {
     }
 }
 
+.login-background {
+    width: 95vw;
+    height: 95vh;
+    background-image: url('@/assets/image/login_background_image.png');
+    background-position: left;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-color: #f9faff;
+}
+
 /* 登录卡片 */
 .login-card {
     position: relative;
     z-index: 1;
-    left: 25%;
+    left: 60%;
+    top: 10%;
     width: 480px;
     padding: 50px 40px;
     background: rgba(255, 255, 255, 0.95);
@@ -253,14 +265,10 @@ onMounted(async () => {
     width: 80px;
     height: 80px;
     margin: 0 auto 20px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     border-radius: 4px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
-    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
-    animation: pulse 2s infinite;
 }
 
 @keyframes pulse {
@@ -291,7 +299,6 @@ onMounted(async () => {
     margin: 0;
     font-size: 13px;
     color: #909399;
-    letter-spacing: 1px;
 }
 
 /* 表单样式 */
