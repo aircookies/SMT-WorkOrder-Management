@@ -1,0 +1,12 @@
+# ==================== 本地开发覆盖配置 ====================
+# 仅在本地开发时使用，为 MySQL 和 Redis 暴露端口到宿主机
+# 使用方式：docker compose -f docker-compose.yml -f docker-compose.local.yml up -d mysql redis
+
+services:
+  mysql:
+    ports:
+      - "3306:3306"
+
+  redis:
+    ports:
+      - "6379:6379"

@@ -31,7 +31,5 @@ COPY keys ./keys
 # 创建日志目录
 RUN mkdir -p /app/logs
 
-EXPOSE 8080
-
 # -Duser.timezone 确保 JVM 内部也使用正确时区
 ENTRYPOINT ["java", "-Duser.timezone=Asia/Shanghai", "-jar", "app.jar"]

@@ -1,0 +1,41 @@
+# ==================== 项目构建产物 ====================
+backend/smt-workorder-management/target/
+backend/smt-workorder-management/.mvn/wrapper/maven-wrapper.jar
+backend/smt-workorder-management/!**/src/main/**/target/
+backend/smt-workorder-management/!**/src/test/**/target/
+
+# ==================== 敏感信息 ====================
+keys/
+
+# ==================== 日志 ====================
+logs/
+*.log
+
+# ==================== IDE ====================
+.idea/
+.trae/
+.vscode/
+
+### STS ###
+backend/smt-workorder-management/.apt_generated
+backend/smt-workorder-management/.classpath
+backend/smt-workorder-management/.factorypath
+backend/smt-workorder-management/.project
+backend/smt-workorder-management/.settings
+backend/smt-workorder-management/.springBeans
+backend/smt-workorder-management/.sts4-cache
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/.nb-gradle/
+
+### 系统文件 ###
+*.iml
+.DS_Store
+Thumbs.db
+
+# ==================== 临时文件 ====================
+backup.sql
+*.env
+!*.env.example
