@@ -314,6 +314,5 @@ docker compose up -d
 - [ ] 修改 `docker-compose.yml` 中的 `MYSQL_ROOT_PASSWORD` 和 `DB_PASSWORD`
 - [ ] 修改 `docker-compose.yml` 中的 `JWT_SECRET`（使用随机强密钥）
 - [ ] 生成新的 RSA 密钥对替换 `keys/` 目录
-- [ ] 不要将 MySQL / Redis 端口暴露到公网（已在配置中注释掉）
 - [ ] 配置云服务器防火墙规则
 - [ ] 生产环境不要将密钥和密码提交到 Git 仓库（已在 `.gitignore` 中排除 `keys/`）

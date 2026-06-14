@@ -4,9 +4,7 @@
         <el-header class="layout-header">
             <div class="header-left">
                 <div class="logo">
-                    <el-icon :size="28">
-                        <Platform />
-                    </el-icon>
+                    <img src="@/assets/image/LOGO.png" alt="logo" class="logo-image" width="32px" height="32px">
                     <span>SMT工单管理系统</span>
                 </div>
             </div>

@@ -1,25 +1,35 @@
 package com.aircookies.smtworkordermanagement.config;
 
+import com.aircookies.smtworkordermanagement.common.Result;
 import com.aircookies.smtworkordermanagement.service.impl.JwtTokenCacheService;
 import com.aircookies.smtworkordermanagement.util.JWTUtil;
+import com.alibaba.fastjson.JSON;
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -28,6 +38,7 @@ import java.util.Optional;
  * 负责从请求中提取JWT令牌并进行验证，验证通过后将用户认证信息设置到Security上下文
  */
 @Component
+@Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     // Spring Security的用户详情服务，用于加载用户信息
     private final UserDetailsService userDetailsService;
@@ -46,7 +57,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     /**
      * 核心过滤逻辑
      * 1. 从请求中提取JWT令牌
-     * 2. 验证令牌有效性（优先使用缓存校验，缓存未命中则使用JWT校验）
+     * 2. 验证令牌有效性（优先使用缓存校验，缓存未命中则解析JWT校验）
      * 3. 校验通过后加载用户信息并设置到Security上下文中
      *
      * @param request     HTTP请求对象
@@ -59,44 +70,55 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     @NonNull FilterChain filterChain)
             throws ServletException, IOException {
 
-        // 从请求中提取JWT令牌
         String token = extractToken(request);
 
-        // 如果没有令牌，直接放行（后续由Spring Security根据配置决定是否拦截）
         if (token == null || token.isEmpty()) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        // 优先使用缓存校验令牌，缓存未命中则使用JWT工具类进行校验
-        if (!jwtTokenCacheService.isTokenValid(token)) {
-            logger.info("缓存未命中，使用JWT工具类校验令牌");
-            // 缓存未命中，使用JWT工具类校验令牌
-            if (!jwtUtil.validateToken(token)) {
-                logger.info("JWT令牌校验失败");
-                // 令牌无效，返回401未授权状态码
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        boolean cached = jwtTokenCacheService.isTokenValid(token);
+        Claims claims;
+
+        if (cached) {
+            try {
+                claims = jwtUtil.parseToken(token);
+            } catch (Exception e) {
+                log.info("缓存命中但JWT令牌解析失败，可能密钥已变更");
+                jwtTokenCacheService.invalidateToken(token);
+                writeErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED, "登录已过期，请重新登录");
+                return;
+            }
+        } else {
+            try {
+                claims = jwtUtil.parseToken(token);
+            } catch (Exception e) {
+                log.info("JWT令牌解析失败");
+                writeErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED, "登录已过期，请重新登录");
+                return;
+            }
+            if (claims.getExpiration() != null && claims.getExpiration().before(new Date())) {
+                log.info("JWT令牌已过期");
+                writeErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED, "登录已过期，请重新登录");
                 return;
             }
         }
 
-        // 从令牌中解析出用户名
-        String username = jwtUtil.getUsernameFromToken(token);
+        String username = claims.getSubject();
 
-        // 根据用户名加载用户详情（包含密码、权限等信息）
-        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        UserDetails userDetails;
+        try {
+            userDetails = userDetailsService.loadUserByUsername(username);
+        } catch (UsernameNotFoundException e) {
+            log.info("用户不存在: {}", username);
+            writeErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED, "用户不存在");
+            return;
+        }
 
         if (!userDetails.isEnabled()) {
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            ResponseCookie cookie = ResponseCookie.from("JWT_TOKEN", "")
-                    .httpOnly(true)
-                    .secure(false)
-                    .path("/")
-                    .maxAge(0)
-                    .sameSite("Strict")
-                    .build();
-
-            response.addHeader("Set-Cookie", cookie.toString());
+            jwtTokenCacheService.invalidateToken(token);
+            clearTokenCookie(response);
+            writeErrorResponse(response, HttpServletResponse.SC_FORBIDDEN, "账户已被禁用");
             return;
         }
 
@@ -104,20 +126,42 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities()
                 );
-        // 设置认证的额外详情（如IP、Session等）
         authentication.setDetails(
                 new WebAuthenticationDetailsSource().buildDetails(request)
         );
-        // 将认证信息存入Security上下文，标记当前请求已认证
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        // 如果缓存中不存在该令牌，则将其缓存以便后续快速校验
-        if (!jwtTokenCacheService.isTokenValid(token)) {
-            jwtTokenCacheService.cacheToken(token, userDetails);
+        if (!cached) {
+            Map<String, Object> tokenInfo = new HashMap<>();
+            tokenInfo.put("username", username);
+            jwtTokenCacheService.cacheToken(token, tokenInfo);
         }
 
-        // 校验通过，继续执行过滤器链
         filterChain.doFilter(request, response);
+    }
+
+    /**
+     * 清除JWT_TOKEN Cookie
+     */
+    private void clearTokenCookie(HttpServletResponse response) {
+        ResponseCookie cookie = ResponseCookie.from("JWT_TOKEN", "")
+                .httpOnly(true)
+                .secure(false)
+                .path("/")
+                .maxAge(0)
+                .sameSite("Strict")
+                .build();
+        response.addHeader("Set-Cookie", cookie.toString());
+    }
+
+    /**
+     * 写入JSON格式的错误响应
+     */
+    private void writeErrorResponse(HttpServletResponse response, int status, String message) throws IOException {
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+        response.setStatus(status);
+        response.getWriter().write(JSON.toJSONString(Result.error(status, message)));
     }
 
     /**

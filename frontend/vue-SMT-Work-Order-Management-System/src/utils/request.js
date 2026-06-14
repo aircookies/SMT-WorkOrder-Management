@@ -1,6 +1,6 @@
 import axios from "axios";
 import router from "@/router";
-import {ElMessage} from "element-plus";
+import { ElMessage } from "element-plus";
 
 // 创建axios实例
 const request = axios.create({
@@ -52,11 +52,13 @@ request.interceptors.response.use(
         case 401:
           message = error.response.data.message || '未授权，请重新登录'
           localStorage.clear()
-          router.push('/login')
+          setTimeout(() => {
+            router.push('/login')
+          }, 1000)
           break
         case 403:
-          message = error.response.data.message || '拒绝访问'
-          // router.push('/login')
+          console.error('权限不足', error)
+          message = error.response.data.message || '权限不足，拒绝访问'
           break
         case 404:
           message = error.response.data.message || '请求资源不存在'
