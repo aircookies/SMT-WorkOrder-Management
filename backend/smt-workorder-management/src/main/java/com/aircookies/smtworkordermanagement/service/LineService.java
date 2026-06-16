@@ -7,6 +7,11 @@ import java.time.LocalDate;
 
 /**
  * 产线服务接口
+ * <p>
+ * 定义产线管理的核心业务操作，包括增删改查和产线产量统计。
+ * 查询结果使用 Redis 缓存，过期时间 24 小时。
+ * 统计功能用于分析各产线在指定日期范围内的计划产量和实际完成量。
+ * </p>
  */
 public interface LineService {
 

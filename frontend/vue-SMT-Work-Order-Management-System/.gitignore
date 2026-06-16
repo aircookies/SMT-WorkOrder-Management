@@ -38,3 +38,6 @@ __screenshots__/
 *.timestamp-*-*.mjs
 
 ApiDoc.docx
+
+*Performance-analysis.html
+stats.html

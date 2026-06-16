@@ -102,10 +102,12 @@ defineOptions({
     name: 'LineManagement'
 })
 
+// ==================== 数据模型 ====================
+
 // 表格数据
 const tableData = ref([])
 
-// 数据模型
+// 产线数据模型
 const line = ref({
     id: '',
     name: '',
@@ -123,7 +125,12 @@ const loading = ref(false)
 // 控制按钮加载状态
 const loadingBtn = ref(false)
 
-// 显示dialog表单
+// ==================== 对话框与表单 ====================
+
+/**
+ * 显示产线对话框（新增/编辑）
+ * @param {number} [id] - 产线 ID，传入则进入编辑模式
+ */
 const showDialog = async (id) => {
     resetForm()
     line.value.id = id
@@ -141,22 +148,31 @@ const showDialog = async (id) => {
     dialogFormVisible.value = true
 }
 
-// 表单校验
+// ==================== 表单与校验 ====================
+
+// 表单引用
 const ruleFormRef = ref()
+
+// 表单校验规则
 const rules = {
     name: [
         { required: true, message: '请输入产线名称', trigger: 'blur' }
     ]
 }
 
-// 重置表单
+/**
+ * 重置表单数据
+ */
 const resetForm = () => {
     line.value = {}
     if (!ruleFormRef.value) return
     ruleFormRef.value.resetFields()
 }
 
-// 删除产线
+/**
+ * 删除产线（带确认弹窗）
+ * @param {number} id - 产线 ID
+ */
 const deleteLine = async (id) => {
     // 显示确认框
     ElMessageBox.confirm(
@@ -176,7 +192,9 @@ const deleteLine = async (id) => {
     })
 }
 
-// 添加产线
+/**
+ * 新增产线
+ */
 const addLine = async () => {
     loadingBtn.value = true
     await addLineApi(line.value).then(res => {
@@ -189,7 +207,9 @@ const addLine = async () => {
     }).finally(() => loadingBtn.value = false)
 }
 
-// 修改产线
+/**
+ * 修改产线
+ */
 const editLine = async () => {
     await editLineApi(line.value).then(res => {
         if (res.code === 200) {
@@ -201,7 +221,9 @@ const editLine = async () => {
     }).finally(() => loadingBtn.value = false)
 }
 
-// 提交添加或修改请求
+/**
+ * 提交表单（根据 isEdit 状态判断新增或修改）
+ */
 const submit = async () => {
     // 校验表单
     try {
@@ -219,7 +241,9 @@ const submit = async () => {
     }
 }
 
-// 获取产线列表
+/**
+ * 获取全部产线列表
+ */
 const getLineList = async () => {
     loading.value = true
     await getLineListApi().then(res => {
@@ -231,8 +255,10 @@ const getLineList = async () => {
     })
 }
 
+/**
+ * 组件挂载时获取产线列表
+ */
 onBeforeMount(async () => {
-    // 获取产线列表
     getLineList()
 })
 </script>

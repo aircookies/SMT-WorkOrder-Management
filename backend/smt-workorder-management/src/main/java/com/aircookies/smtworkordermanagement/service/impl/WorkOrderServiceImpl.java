@@ -20,7 +20,18 @@ import java.util.List;
 import static com.aircookies.smtworkordermanagement.common.Result.success;
 
 /**
- * 工单服务实现类
+ * 工单服务实现类（核心业务服务实现）
+ * <p>
+ * 实现工单全生命周期管理的核心业务逻辑，包括：
+ * </p>
+ * <ul>
+ *   <li>工单 CRUD：添加、删除、修改、查询工单</li>
+ *   <li>工序报工：对各工序（印刷、贴片、回流焊）进行合格/不良数量上报（含重复报工检查）</li>
+ *   <li>数据统计：工单详情统计、良品/不良品生产质量统计</li>
+ * </ul>
+ * <p>
+ * 查询结果通过 Spring Cache 自动缓存（过期时间 10 分钟），保证工单状态变化能较快反映。
+ * </p>
  */
 @Service
 @Slf4j

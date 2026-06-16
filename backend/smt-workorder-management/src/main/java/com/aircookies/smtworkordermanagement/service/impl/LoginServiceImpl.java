@@ -20,6 +20,21 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+/**
+ * 登录服务实现类
+ * <p>
+ * 实现用户登录认证的完整流程：
+ * </p>
+ * <ol>
+ *   <li>校验登录参数非空</li>
+ *   <li>查询用户是否存在</li>
+ *   <li>检查用户状态是否正常</li>
+ *   <li>使用 RSA 私钥解密前端加密的密码</li>
+ *   <li>使用 BCrypt 验证密码匹配</li>
+ *   <li>生成 JWT 令牌（包含 userId、roleId 等声明）</li>
+ *   <li>将令牌缓存到 Redis</li>
+ * </ol>
+ */
 @Service
 @Slf4j
 public class LoginServiceImpl implements LoginService {

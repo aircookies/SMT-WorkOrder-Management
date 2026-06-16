@@ -8,7 +8,18 @@ import java.time.LocalDate;
 import java.util.List;
 
 /**
- * 工单服务接口
+ * 工单服务接口（核心业务服务）
+ * <p>
+ * 定义工单全生命周期管理的核心业务操作，包括：
+ * </p>
+ * <ul>
+ *   <li>工单 CRUD：添加、删除、修改、查询工单</li>
+ *   <li>工序报工：对各工序进行合格/不良数量上报</li>
+ *   <li>数据统计：工单详情统计、生产质量（良品/不良）统计</li>
+ * </ul>
+ * <p>
+ * 查询结果使用 Redis 缓存，过期时间 10 分钟。
+ * </p>
  */
 public interface WorkOrderService {
 

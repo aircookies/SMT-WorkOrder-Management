@@ -1,7 +1,12 @@
 import {createRouter, createWebHistory} from "vue-router";
 
-import layout from "@/views/layout/index.vue"; // 布局组件
+import layout from "@/views/layout/index.vue"; // 布局组件（静态导入，首屏必需）
 
+/**
+ * 创建路由实例
+ * 使用 HTML5 History 模式，需要后端配合配置回退路由
+ * 子路由均采用动态导入（懒加载），按需加载页面组件以优化首屏性能
+ */
 const router = createRouter({
   history: createWebHistory(),
   routes: [
@@ -9,7 +14,7 @@ const router = createRouter({
       path: "/",
       name: "layout",
       component: layout,
-      redirect: "/home",
+      redirect: "/home", // 根路径自动重定向到首页
       children: [
         {
             path: "/home",
@@ -41,6 +46,7 @@ const router = createRouter({
           name: "report",
           component: () => import("@/views/report/index.vue"),
         },
+        // 系统管理模块
         {
           path: "/system/user-management",
           name: "user-management",
@@ -58,6 +64,7 @@ const router = createRouter({
         }
       ],
     },
+    // 登录页面独立于布局之外，不使用 layout 壳
     {
       path: "/login",
       name: "login",

@@ -12,6 +12,13 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * 角色服务实现类
+ * <p>
+ * 实现系统角色管理（RBAC）的核心业务逻辑，包括增删改查。
+ * 角色用于控制用户的功能访问权限，查询结果通过 Spring Cache 自动缓存。
+ * </p>
+ */
 @Service
 @Slf4j
 public class SysRoleServiceImpl implements SysRoleService {

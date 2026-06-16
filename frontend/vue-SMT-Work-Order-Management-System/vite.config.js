@@ -20,6 +20,7 @@ export default defineConfig({
       resolvers: [
         ElementPlusResolver({ importStyle: 'sass' }),
       ],
+      dirs: ['src/components'],
     }),
     visualizer({
       filename: 'stats.html',

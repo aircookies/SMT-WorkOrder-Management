@@ -116,13 +116,22 @@ defineOptions({
     name: 'LayoutView'
 })
 
-// 获取当前用户姓名
+/**
+ * 获取当前登录用户的姓名，未登录时显示"访客"
+ * @returns {string} 用户姓名
+ */
 const currentUserName = () => localStorage.getItem('name') ? localStorage.getItem('name') : '访客'
 
-// 获取当前角色名
+/**
+ * 获取当前登录用户的角色名称
+ * @returns {string} 角色名称
+ */
 const currentRoleName = () => localStorage.getItem('roleName') ? localStorage.getItem('roleName') : ''
 
-// 退出登录
+/**
+ * 执行退出登录操作
+ * 调用登出接口，清除本地存储，跳转到登录页
+ */
 const logout = async () => {
     ElMessage.info('正在登出...')
     const result = await logoutApi()
@@ -137,7 +146,9 @@ const logout = async () => {
     }
 }
 
-// 登出确认
+/**
+ * 退出登录确认弹窗
+ */
 const logoutConfirm = () => {
     ElMessageBox.confirm(
         '确定要退出登录吗？',

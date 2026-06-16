@@ -15,7 +15,7 @@
                         <img src="@/assets/image/LOGO.webp" alt="logo" class="logo-image" width="80px" height="80px">
                     </div>
                     <h2 class="title">SMT工单管理系统</h2>
-                    <p class="subtitle">Intelligent Manufacturing Terminal Work Order Management</p>
+                    <p class="subtitle">智能制造终端工单管理一站式解决方案</p>
                 </div>
 
                 <el-form ref="loginFormRef" :model="loginForm" :rules="loginRules" class="login-form" size="large">
@@ -200,22 +200,6 @@ onBeforeMount(async () => {
     animation-delay: 10s;
 }
 
-@keyframes float {
-
-    0%,
-    100% {
-        transform: translate(0, 0) scale(1);
-    }
-
-    33% {
-        transform: translate(30px, -30px) scale(1.1);
-    }
-
-    66% {
-        transform: translate(-20px, 20px) scale(0.9);
-    }
-}
-
 .login-background {
     width: 95vw;
     height: 95vh;
@@ -241,18 +225,6 @@ onBeforeMount(async () => {
     animation: slideUp 0.6s ease-out;
 }
 
-@keyframes slideUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
 /* 头部区域 */
 .login-header {
     text-align: center;
@@ -267,20 +239,6 @@ onBeforeMount(async () => {
     display: flex;
     align-items: center;
     justify-content: center;
-}
-
-@keyframes pulse {
-
-    0%,
-    100% {
-        transform: scale(1);
-        box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
-    }
-
-    50% {
-        transform: scale(1.05);
-        box-shadow: 0 12px 32px rgba(102, 126, 234, 0.6);
-    }
 }
 
 .title {
