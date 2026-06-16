@@ -25,9 +25,6 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 # 从构建阶段复制 jar 包
 COPY --from=build /build/target/*.jar app.jar
 
-# 复制 RSA 密钥文件
-COPY keys ./keys
-
 # 创建日志目录
 RUN mkdir -p /app/logs
 
