@@ -4,6 +4,7 @@ import com.aircookies.smtworkordermanagement.common.Result;
 import com.aircookies.smtworkordermanagement.dto.LoginDTO;
 import com.aircookies.smtworkordermanagement.dto.LoginResponseDTO;
 import com.aircookies.smtworkordermanagement.service.LoginService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,16 +33,18 @@ public class LoginController {
 
     // 实现登录功能
     @PostMapping("/login")
-    public Result login(@RequestBody LoginDTO loginDTO, HttpServletResponse response) {
+    public Result login(@RequestBody LoginDTO loginDTO, HttpServletRequest request, HttpServletResponse response) {
         Result result = loginService.login(loginDTO);
 
         if (result.getCode() == 200 && result.getData() != null) {
             LoginResponseDTO loginResponseDTO = (LoginResponseDTO) result.getData();
             String token = loginResponseDTO.getToken();
 
+            boolean isSecure = "https".equalsIgnoreCase(request.getScheme());
+
             ResponseCookie cookie = ResponseCookie.from("JWT_TOKEN", token)
                     .httpOnly(true)
-                    .secure(false)
+                    .secure(isSecure)
                     .path("/")
                     .maxAge(Duration.ofMillis(jwtExpiration))
                     .sameSite("Strict")

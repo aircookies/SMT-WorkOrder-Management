@@ -1,5 +1,6 @@
 server:
   port: 8080
+  forward-headers-strategy: native # 让 Spring Boot 解析 X-Forwarded-Proto 头
 
 spring:
   application:

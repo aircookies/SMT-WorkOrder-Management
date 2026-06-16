@@ -30,15 +30,16 @@ public class LogoutController {
 
         if (cookie != null) {
             jwtTokenCacheService.invalidateToken(cookie.getValue());
-            clearCookie(response);
+            clearCookie(request, response);
         }
         return Result.success("退出登录成功");
     }
 
-    private void clearCookie(HttpServletResponse response) {
+    private void clearCookie(HttpServletRequest request, HttpServletResponse response) {
+        boolean isSecure = "https".equalsIgnoreCase(request.getScheme());
         ResponseCookie cookie = ResponseCookie.from("JWT_TOKEN", "")
                 .httpOnly(true)
-                .secure(false)
+                .secure(isSecure)
                 .path("/")
                 .maxAge(0)
                 .sameSite("Strict")
