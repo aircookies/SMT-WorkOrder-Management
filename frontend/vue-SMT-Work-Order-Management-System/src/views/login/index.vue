@@ -12,7 +12,7 @@
             <el-card class="login-card" shadow="never">
                 <div class="login-header">
                     <div class="logo-icon">
-                        <img src="@/assets/image/LOGO.png" alt="logo" class="logo-image" width="80px" height="80px">
+                        <img src="@/assets/image/LOGO.webp" alt="logo" class="logo-image" width="80px" height="80px">
                     </div>
                     <h2 class="title">SMT工单管理系统</h2>
                     <p class="subtitle">Intelligent Manufacturing Terminal Work Order Management</p>
@@ -58,10 +58,9 @@
 </template>
 
 <script setup>
-import {onMounted, reactive, ref} from 'vue'
+import {onBeforeMount, reactive, ref} from 'vue'
 import {useRouter} from 'vue-router'
 import {ElMessage} from 'element-plus'
-import {Lock, User} from '@element-plus/icons-vue'
 import {loginApi} from '@/api/login'
 import {getPublicKey} from '@/utils/RSAUtil'
 
@@ -137,7 +136,6 @@ const handleLogin = async () => {
         // 跳转到首页
         setTimeout(() => {
             router.push('/home')
-            loading.value = false
         }, 1000)
     } else {
         ElMessage.error(res.message || '登录失败')
@@ -145,8 +143,8 @@ const handleLogin = async () => {
 
 }
 
-// 组件挂载时预获取公钥
-onMounted(async () => {
+// 组件创建时预获取公钥
+onBeforeMount(async () => {
     await getPublicKey()
 })
 </script>
@@ -221,7 +219,7 @@ onMounted(async () => {
 .login-background {
     width: 95vw;
     height: 95vh;
-    background-image: url('@/assets/image/login_background_image.png');
+    background-image: url('@/assets/image/login_background_image.webp');
     background-position: left;
     background-size: contain;
     background-repeat: no-repeat;

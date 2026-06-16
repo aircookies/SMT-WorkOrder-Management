@@ -39,7 +39,7 @@ export const encryptPassword = async (password) => {
         throw new Error('密码不能为空')
     }
 
-    const encrypted = encryptor.encrypt(password)
+    const encrypted = await encryptor.encrypt(password)
 
     if (!encrypted) {
         throw new Error('密码加密失败')

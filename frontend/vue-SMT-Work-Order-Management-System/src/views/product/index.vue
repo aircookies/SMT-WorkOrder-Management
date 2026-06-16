@@ -15,8 +15,16 @@
         <el-card class="toolbar-card" shadow="hover">
             <div class="toolbar">
                 <div class="toolbar-actions">
-                    <el-button type="primary" @click="showAddDialog" :icon="Plus" plain>添加产品</el-button>
-                    <el-button type="danger" @click="deleteProductConfirm()" :icon="Delete" plain>批量删除</el-button>
+                    <el-button type="primary" @click="showAddDialog" plain>
+                        <el-icon class="icon">
+                            <Plus />
+                        </el-icon>
+                        添加产品</el-button>
+                    <el-button type="danger" @click="deleteProductConfirm()" plain>
+                        <el-icon class="icon">
+                            <Delete />
+                        </el-icon>
+                        批量删除</el-button>
                 </div>
                 <el-form :inline="true" :model="productDTO" class="query-form">
                     <el-form-item label="产品名称">
@@ -32,9 +40,16 @@
                             format="YYYY-MM-DD" value-format="YYYY-MM-DD" clearable style="width: 180px" />
                     </el-form-item>
                     <el-form-item>
-                        <el-button type="primary" @click="queryProduct" :loading="loadingBtn"
-                            :icon="Search">查询</el-button>
-                        <el-button @click="clearQuery" :icon="Refresh">重置</el-button>
+                        <el-button type="primary" @click="queryProduct" :loading="loadingBtn" plain>
+                            <el-icon class="icon">
+                                <Search />
+                            </el-icon>
+                            查询</el-button>
+                        <el-button @click="clearQuery" plain>
+                            <el-icon class="icon">
+                                <Refresh />
+                            </el-icon>
+                            重置</el-button>
                     </el-form-item>
                 </el-form>
             </div>
@@ -64,10 +79,14 @@
                     </el-table-column>
                     <el-table-column label="操作" width="150" align="center" fixed="right">
                         <template #default="scope">
-                            <el-button type="primary" :icon="Edit" size="small" @click="showEditDialog(scope.row.id)"
-                                link>编辑</el-button>
-                            <el-button type="danger" :icon="Delete" size="small"
-                                @click="deleteProductConfirm(scope.row.id)" link>删除</el-button>
+                            <el-button type="primary" size="small" @click="showEditDialog(scope.row.id)" link><el-icon
+                                    class="icon">
+                                    <Edit />
+                                </el-icon>编辑</el-button>
+                            <el-button type="danger" size="small" @click="deleteProductConfirm(scope.row.id)"
+                                link><el-icon class="icon">
+                                    <Delete />
+                                </el-icon>删除</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -100,8 +119,12 @@
             </el-form>
             <template #footer>
                 <div class="dialog-footer">
-                    <el-button @click="dialogVisible = false" :icon="Close">取消</el-button>
-                    <el-button type="primary" @click="submit" :loading="loadingBtn" :icon="Check">确定</el-button>
+                    <el-button @click="dialogVisible = false" plain><el-icon class="icon">
+                            <Close />
+                        </el-icon>取消</el-button>
+                    <el-button type="primary" @click="submit" :loading="loadingBtn" plain><el-icon class="icon">
+                            <Check />
+                        </el-icon>确定</el-button>
                 </div>
             </template>
         </el-dialog>
@@ -109,18 +132,8 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
-import {
-    ElButton,
-    ElDatePicker,
-    ElDialog,
-    ElForm,
-    ElFormItem,
-    ElInput,
-    ElMessage,
-    ElMessageBox,
-    ElTag
-} from 'element-plus';
+import { onBeforeMount, ref } from 'vue'
+import { ElMessage, ElMessageBox } from 'element-plus';
 import {
     addProductApi,
     deleteProductApi,
@@ -130,7 +143,6 @@ import {
     getProductListApi,
     queryProductApi
 } from '@/api/product';
-import { Box, Check, Clock, Close, Delete, Edit, Plus, Refresh, Search } from '@element-plus/icons-vue'
 
 defineOptions({
     name: 'ProductManagement'
@@ -380,7 +392,7 @@ const clearQuery = () => {
     queryProduct()
 }
 
-onMounted(async () => {
+onBeforeMount(async () => {
     // 获取产品列表
     await getProductList()
 })

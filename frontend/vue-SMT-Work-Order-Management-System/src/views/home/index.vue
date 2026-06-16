@@ -227,24 +227,8 @@
 </template>
 
 <script setup>
-import {computed, onBeforeUnmount, onMounted, ref} from 'vue'
+import {computed, onBeforeUnmount, onBeforeMount, ref} from 'vue'
 import {useRouter} from 'vue-router'
-import {
-  ArrowRight,
-  Box,
-  CircleCheck,
-  Clock,
-  DataAnalysis,
-  Document,
-  EditPen,
-  HomeFilled,
-  List,
-  Loading,
-  Plus,
-  TrendCharts,
-  User,
-  Van
-} from '@element-plus/icons-vue'
 import BaseChart from '@/components/BaseChart.vue'
 import {getstatisticsProductionQualityApi, getWorkOrderDetailApi} from '@/api/datalist'
 import {getWorkOrderListApi} from '@/api/workorder'
@@ -419,9 +403,9 @@ const goToUserManagement = () => {
 }
 
 /**
- * 组件挂载时初始化数据
+ * 初始化数据
  */
-onMounted(async () => {
+onBeforeMount(async () => {
     loading.value = true
 
     // 启动时间更新
@@ -559,7 +543,7 @@ onBeforeUnmount(() => {
 .stat-title {
     margin: 0 0 8px 0;
     font-size: 14px;
-    color: #909399;
+    color: rgb(115, 118, 122);
     font-weight: 500;
 }
 

@@ -4,7 +4,7 @@
         <el-header class="layout-header">
             <div class="header-left">
                 <div class="logo">
-                    <img src="@/assets/image/LOGO.png" alt="logo" class="logo-image" width="32px" height="32px">
+                    <img src="@/assets/image/LOGO.webp" alt="logo" class="logo-image" width="32px" height="32px">
                     <span>SMT工单管理系统</span>
                 </div>
             </div>
@@ -47,7 +47,7 @@
 
                         <el-menu-item index="/line" class="menu-item">
                             <el-icon>
-                                <Connection />
+                                <Printer />
                             </el-icon>
                             <span>产线管理</span>
                         </el-menu-item>
@@ -106,23 +106,9 @@
 </template>
 
 <script setup>
-import {RouterView, useRouter} from 'vue-router'
-import {
-  Box,
-  Connection,
-  DataAnalysis,
-  EditPen,
-  House,
-  OfficeBuilding,
-  Platform,
-  Setting,
-  SwitchButton,
-  Tickets,
-  User,
-  UserFilled
-} from '@element-plus/icons-vue'
-import {logoutApi} from '@/api/login'
-import {ElMessage, ElMessageBox} from 'element-plus'
+import { RouterView, useRouter } from 'vue-router'
+import { logoutApi } from '@/api/login'
+import { ElMessage, ElMessageBox } from 'element-plus'
 
 const router = useRouter()
 
@@ -144,10 +130,8 @@ const logout = async () => {
     if (result.code === 200) {
         ElMessage.success(result.message || '登出成功')
         // 登出成功后，重定向到登录页面
-        setTimeout(() => {
-            localStorage.clear()
-            router.push('/login')
-        }, 1000)
+        localStorage.clear()
+        router.push('/login')
     } else {
         ElMessage.error(result.message || '登出失败')
     }
@@ -167,6 +151,7 @@ const logoutConfirm = () => {
         .then(() => {
             logout()
         })
+        .catch(() => {})
 }
 </script>
 

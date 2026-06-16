@@ -15,8 +15,18 @@
         <el-card class="toolbar-card" shadow="hover">
             <div class="toolbar">
                 <div class="toolbar-actions">
-                    <el-button type="primary" @click="handleAdd" :icon="Plus" plain>新建用户</el-button>
-                    <el-button type="danger" @click="handleDelete(selectedRows)" :icon="Delete" plain>批量删除</el-button>
+                    <el-button type="primary" @click="handleAdd" plain>
+                        <el-icon>
+                            <Plus />
+                        </el-icon>
+                        新建用户
+                    </el-button>
+                    <el-button type="danger" @click="handleDelete(selectedRows)" plain>
+                        <el-icon>
+                            <Delete />
+                        </el-icon>
+                        批量删除
+                    </el-button>
                 </div>
                 <!-- 搜索栏 -->
                 <el-form :inline="true" :model="queryFormModel" class="search-form">
@@ -44,8 +54,18 @@
                         </el-select>
                     </el-form-item>
                     <el-form-item>
-                        <el-button type="primary" @click="queryUser" :loading="btnLoading" :icon="Search">查询</el-button>
-                        <el-button @click="clearQueryForm" :icon="Refresh">重置</el-button>
+                        <el-button type="primary" @click="queryUser" :loading="btnLoading">
+                            <el-icon>
+                                <Search />
+                            </el-icon>
+                            查询
+                        </el-button>
+                        <el-button @click="clearQueryForm" plain>
+                            <el-icon>
+                                <Refresh />
+                            </el-icon>
+                            重置
+                        </el-button>
                     </el-form-item>
                 </el-form>
             </div>
@@ -111,10 +131,18 @@
                     </el-table-column>
                     <el-table-column label="操作" width="150" align="center" fixed="right">
                         <template #default="scope">
-                            <el-button size="small" type="primary" :icon="Edit" @click="handleEdit(scope.row.id)"
-                                link>编辑</el-button>
-                            <el-button size="small" type="danger" :icon="Delete" @click="handleDelete(scope.row.id)"
-                                link>删除</el-button>
+                            <el-button size="small" type="primary" @click="handleEdit(scope.row.id)" link>
+                                <el-icon>
+                                    <Edit />
+                                </el-icon>
+                                编辑
+                            </el-button>
+                            <el-button size="small" type="danger" @click="handleDelete(scope.row.id)" link>
+                                <el-icon>
+                                    <Delete />
+                                </el-icon>
+                                删除
+                            </el-button>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -186,8 +214,18 @@
             </el-form>
             <template #footer>
                 <div class="dialog-footer">
-                    <el-button @click="handleCancel" :icon="Close">取消</el-button>
-                    <el-button type="primary" @click="handleSubmit" :loading="btnLoading" :icon="Check">提交</el-button>
+                    <el-button @click="handleCancel" plain>
+                        <el-icon>
+                            <Close />
+                        </el-icon>
+                        取消
+                    </el-button>
+                    <el-button type="primary" @click="handleSubmit" :loading="btnLoading">
+                        <el-icon>
+                            <Check />
+                        </el-icon>
+                        提交
+                    </el-button>
                 </div>
             </template>
         </el-dialog>
@@ -195,25 +233,12 @@
 </template>
 
 <script setup>
-import {onMounted, ref} from 'vue'
-import {ElMessage, ElMessageBox, ElTag} from 'element-plus';
-import {addUserApi, deleteUserApi, getUserByIdApi, queryUserApi, updateUserApi} from '@/api/userManagement';
-import {queryDepartmentApi} from '@/api/departmentManagement';
-import {getSystemRoleListApi} from '@/api/role';
-import {
-  Avatar,
-  Check,
-  Clock,
-  Close,
-  Delete,
-  Edit,
-  OfficeBuilding,
-  Plus,
-  Refresh,
-  Search,
-  User
-} from '@element-plus/icons-vue';
-import {isEmpty} from 'element-plus/es/utils/types.mjs';
+import { onBeforeMount, ref } from 'vue'
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { addUserApi, deleteUserApi, getUserByIdApi, queryUserApi, updateUserApi } from '@/api/userManagement';
+import { queryDepartmentApi } from '@/api/departmentManagement';
+import { getSystemRoleListApi } from '@/api/role';
+import { isEmpty } from 'element-plus/es/utils/types.mjs';
 
 defineOptions({
     name: 'UserManagement'
@@ -435,7 +460,7 @@ const queryUser = async () => {
     params.pageNum = pageNum.value
     params.pageSize = pageSize.value
 
-    await queryUserApi(params).then(res => { 
+    await queryUserApi(params).then(res => {
         if (res.code === 200) {
             tableData.value = res.data.list
             pageNum.value = res.data.pageNum
@@ -530,9 +555,9 @@ const handleCurrentChange = (val) => {
 }
 
 /**
- * 组件挂载时初始化数据
+ * 初始化数据
  */
-onMounted(async () => {
+onBeforeMount(async () => {
     loading.value = true
     // 发送异步请求
     Promise.allSettled([

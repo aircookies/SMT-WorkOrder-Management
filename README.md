@@ -60,7 +60,6 @@ smt-workorder-management/
 │               └── application.yml  # 应用配置
 ├── frontend/                        # 前端 Vue 3 项目
 │   └── vue-SMT-Work-Order-Management-System/
-│       ├── nginx.conf               # Nginx 反向代理配置
 │       ├── package.json
 │       └── dist/                    # 构建产物（部署用）
 ├── mysql/
@@ -68,7 +67,10 @@ smt-workorder-management/
 │   └── init/
 │       ├── 01-schema.sql            # 建表脚本
 │       └── 02-data.sql              # 初始数据
-└── docker-compose.yml               # 容器编排配置文件
+├── nginx/
+│   └── conf.d/default.conf          # Nginx HTTPS 完整配置（含 gzip、缓存、安全头）
+├── docker-compose.yml               # 容器编排配置文件
+├── docker-compose.local.yml         # 本地开发覆盖配置（暴露 MySQL/Redis 端口）
 ```
 
 ## 快速开始
@@ -117,7 +119,7 @@ sudo mkdir -p /data/mysql /data/redis /data/nginx/{html,conf,logs}
 
 # 2. 复制前端文件到 Nginx 目录
 sudo cp -r frontend/vue-SMT-Work-Order-Management-System/dist/* /data/nginx/html/
-sudo cp frontend/vue-SMT-Work-Order-Management-System/nginx.conf /data/nginx/conf/default.conf
+sudo cp nginx/conf.d/default.conf /data/nginx/conf/default.conf
 
 # 3. 构建并启动所有容器
 docker compose up -d
@@ -134,20 +136,48 @@ docker compose logs -f backend
 - **前端页面**：`http://localhost`
 - **后端 API**：通过 Nginx 代理 `http://localhost/api/*`
 
+### HTTPS 配置（生产环境）
+
+已内置 HTTPS 完整支持和自动证书续期：
+
+```bash
+# 1. 首次申请 Let's Encrypt 证书
+sudo certbot certonly --webroot -w /data/nginx/certbot -d your-domain.com
+# 证书会生成到 /data/nginx/certs/live/your-domain.com/
+# 复制到 nginx 容器挂载目录：
+sudo cp /etc/letsencrypt/live/your-domain.com/fullchain.pem /data/nginx/certs/
+sudo cp /etc/letsencrypt/live/your-domain.com/privkey.pem /data/nginx/certs/
+
+# 2. 重启 Nginx
+docker compose restart nginx
+```
+
+配置特点：
+- **HTTP → HTTPS 自动重定向**
+- **SSL 安全配置**：TLS 1.2+，现代密码套件
+- **HSTS 安全头**：强制浏览器使用 HTTPS
+- **gzip 压缩**：减少传输体积
+- **静态资源缓存**：7 天缓存加速访问
+- **Certbot 容器**：自动续期证书（每 12 小时检查一次）
+
 ### 容器架构
 
 ```
-浏览器 :80
+浏览器 :80 / :443
     │
     ▼
 ┌─────────┐    /api/*     ┌──────────┐    ┌─────────┐
 │  Nginx  │ ────────────► │ Backend  │───►│  MySQL  │
-│ :80     │               │ :8080    │    │ :3306   │
+│ 80/443  │               │ :8080    │    │ :3306   │
 └─────────┘               └──────────┘    └─────────┘
                                     │
                                     └───► ┌─────────┐
-                                          │  Redis  │
-                                          │ :6379   │
+                                    |      │  Redis  │
+                                    |      │ :6379   │
+                                    |      └─────────┘
+                                    └───► ┌─────────┐
+                                          │ Certbot │
+                                          │ 自动续期  │
                                           └─────────┘
 ```
 
@@ -303,7 +333,7 @@ openssl rsa -pubout -in keys/private.key -out keys/public.key
 # 3. 创建数据目录并启动
 sudo mkdir -p /data/mysql /data/redis /data/nginx/{html,conf,logs}
 sudo cp -r frontend/vue-SMT-Work-Order-Management-System/dist/* /data/nginx/html/
-sudo cp frontend/vue-SMT-Work-Order-Management-System/nginx.conf /data/nginx/conf/default.conf
+sudo cp nginx/conf.d/default.conf /data/nginx/conf/default.conf
 docker compose up -d
 ```
 

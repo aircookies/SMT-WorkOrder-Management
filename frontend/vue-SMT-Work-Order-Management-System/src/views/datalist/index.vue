@@ -24,8 +24,14 @@
                     </el-col>
                     <el-col :span="16">
                         <el-form-item class="action-buttons">
-                            <el-button type="primary" @click="onQuery" :loading="loadingBtn" :icon="Search" size="large">查询</el-button>
-                            <el-button @click="onReset" :icon="Refresh" size="large">重置</el-button>
+                            <el-button type="primary" @click="onQuery" :loading="loadingBtn" size="large">
+                                <el-icon>
+                                    <Search />
+                                </el-icon>查询</el-button>
+                            <el-button @click="onReset" size="large">
+                                <el-icon>
+                                    <Refresh />
+                                </el-icon>重置</el-button>
                         </el-form-item>
                     </el-col>
                 </el-row>
@@ -160,30 +166,17 @@
 </template>
 
 <script setup>
-import {computed, onMounted, ref} from 'vue'
+import { computed, onBeforeMount, ref } from 'vue'
 import {
-  getStatisticsLineProductionApi,
-  getstatisticsProductionQualityApi,
-  getStatisticsProductProductionApi,
-  getWorkOrderDetailApi
+    getStatisticsLineProductionApi,
+    getstatisticsProductionQualityApi,
+    getStatisticsProductProductionApi,
+    getWorkOrderDetailApi
 } from '@/api/datalist'
-import {
-  CircleCheck,
-  DataAnalysis,
-  DataLine,
-  Histogram,
-  PieChart,
-  Refresh,
-  Search,
-  Tickets,
-  TrendCharts,
-  Trophy,
-  Warning
-} from '@element-plus/icons-vue'
-import {ElMessage} from 'element-plus'
+import { ElMessage } from 'element-plus'
 import BaseChart from '@/components/BaseChart.vue'
-import {lineProductionBarChart, passRateLineChart, pieChart, productTop5BarChart} from '@/utils/chartConfig'
-import {getDefaultDateRange} from '@/utils/date'
+import { lineProductionBarChart, passRateLineChart, pieChart, productTop5BarChart } from '@/utils/chartConfig'
+import { getDefaultDateRange } from '@/utils/date'
 
 defineOptions({
     name: 'DataList'
@@ -362,7 +355,7 @@ const onReset = () => {
 }
 
 // 初始化数据
-onMounted(async () => {
+onBeforeMount(async () => {
     loading.value = true
     // 并行发送异步请求
     await Promise.allSettled([

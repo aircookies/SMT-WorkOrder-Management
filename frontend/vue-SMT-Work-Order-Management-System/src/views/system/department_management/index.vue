@@ -3,32 +3,49 @@
         <!-- 页面标题 -->
         <div class="page-header">
             <h1 class="page-title">
-                <el-icon class="title-icon"><OfficeBuilding /></el-icon>
+                <el-icon class="title-icon">
+                    <OfficeBuilding />
+                </el-icon>
                 部门管理
             </h1>
             <p class="page-subtitle">管理和维护组织架构信息</p>
         </div>
-        
+
         <!-- 工具栏 -->
         <el-card class="toolbar-card" shadow="hover">
             <div class="toolbar">
                 <div class="toolbar-actions">
-                    <el-button type="primary" @click="handleAdd" :icon="Plus" plain>新建部门</el-button>
+                    <el-button type="primary" @click="handleAdd" plain>
+                        <el-icon>
+                            <Plus />
+                        </el-icon>
+                        新建部门
+                    </el-button>
                 </div>
                 <!-- 搜索栏 -->
                 <el-form :inline="true" :model="queryFormModel" class="search-form">
                     <el-form-item label="部门名称">
-                        <el-input v-model="queryFormModel.name" placeholder="请输入部门名称" clearable 
-                            prefix-icon="Search" style="width: 240px" />
+                        <el-input v-model="queryFormModel.name" placeholder="请输入部门名称" clearable prefix-icon="Search"
+                            style="width: 240px" />
                     </el-form-item>
                     <el-form-item>
-                        <el-button type="primary" @click="queryDepartment" :loading="btnLoading" :icon="Search">查询</el-button>
-                        <el-button @click="clearQueryForm" :icon="Refresh">重置</el-button>
+                        <el-button type="primary" @click="queryDepartment" :loading="btnLoading">
+                            <el-icon>
+                                <Search />
+                            </el-icon>
+                            查询
+                        </el-button>
+                        <el-button @click="clearQueryForm">
+                            <el-icon>
+                                <Refresh />
+                            </el-icon>
+                            重置
+                        </el-button>
                     </el-form-item>
                 </el-form>
             </div>
         </el-card>
-        
+
         <!-- 数据表格 -->
         <el-card class="table-card" shadow="hover">
             <div class="table-wrapper">
@@ -40,48 +57,72 @@
                     </el-table-column>
                     <el-table-column property="name" label="部门名称" min-width="200" show-overflow-tooltip align="center">
                         <template #default="{ row }">
-                            <el-icon><OfficeBuilding /></el-icon>
+                            <el-icon>
+                                <OfficeBuilding />
+                            </el-icon>
                             {{ row.name }}
                         </template>
                     </el-table-column>
                     <el-table-column property="createTime" label="创建时间" min-width="180" align="center">
                         <template #default="{ row }">
-                            <el-icon><Clock /></el-icon>
+                            <el-icon>
+                                <Clock />
+                            </el-icon>
                             {{ row.createTime }}
                         </template>
                     </el-table-column>
                     <el-table-column property="updateTime" label="更新时间" min-width="180" align="center">
                         <template #default="{ row }">
-                            <el-icon><Refresh /></el-icon>
+                            <el-icon>
+                                <Refresh />
+                            </el-icon>
                             {{ row.updateTime }}
                         </template>
                     </el-table-column>
                     <el-table-column label="操作" width="150" align="center" fixed="right">
                         <template #default="scope">
-                            <el-button size="small" type="primary" :icon="Edit" 
-                                @click="handleEdit(scope.row)" link>编辑</el-button>
-                            <el-button size="small" type="danger" :icon="Delete" 
-                                @click="handleDelete(scope.row.id)" link>删除</el-button>
+                            <el-button size="small" type="primary" @click="handleEdit(scope.row)" link>
+                                <el-icon>
+                                    <Edit />
+                                </el-icon>
+                                编辑
+                            </el-button>
+                            <el-button size="small" type="danger" @click="handleDelete(scope.row.id)" link>
+                                <el-icon>
+                                    <Delete />
+                                </el-icon>
+                                删除
+                            </el-button>
                         </template>
                     </el-table-column>
                 </el-table>
             </div>
         </el-card>
-        
+
         <!-- 添加/编辑部门对话框 -->
-        <el-dialog v-if="dialogFormVisible" v-model="dialogFormVisible" :title="isEdit ? '编辑部门' : '新建部门'" 
-            width="600px" center destroy-on-close class="department-dialog">
-            <el-form :model="departmentDTO" :rules="formRules" ref="formRef" label-width="100px" 
-                label-position="right" class="department-form">
+        <el-dialog v-if="dialogFormVisible" v-model="dialogFormVisible" :title="isEdit ? '编辑部门' : '新建部门'" width="600px"
+            center destroy-on-close class="department-dialog">
+            <el-form :model="departmentDTO" :rules="formRules" ref="formRef" label-width="100px" label-position="right"
+                class="department-form">
                 <el-form-item label="部门名称" prop="name">
-                    <el-input v-model="departmentDTO.name" placeholder="请输入部门名称" 
-                        prefix-icon="OfficeBuilding" clearable />
+                    <el-input v-model="departmentDTO.name" placeholder="请输入部门名称" prefix-icon="OfficeBuilding"
+                        clearable />
                 </el-form-item>
             </el-form>
             <template #footer>
                 <div class="dialog-footer">
-                    <el-button @click="handleCancel" :icon="Close">取消</el-button>
-                    <el-button type="primary" @click="handleSubmit" :loading="btnLoading" :icon="Check">提交</el-button>
+                    <el-button @click="handleCancel">
+                        <el-icon>
+                            <Close />
+                        </el-icon>
+                        取消
+                    </el-button>
+                    <el-button type="primary" @click="handleSubmit" :loading="btnLoading">
+                        <el-icon>
+                            <Check />
+                        </el-icon>
+                        提交
+                    </el-button>
                 </div>
             </template>
         </el-dialog>
@@ -89,15 +130,14 @@
 </template>
 
 <script setup>
-import {onMounted, ref} from 'vue'
-import {ElMessage, ElMessageBox} from 'element-plus';
+import { onBeforeMount, ref } from 'vue'
+import { ElMessage, ElMessageBox } from 'element-plus';
 import {
-  addDepartmentApi,
-  deleteDepartmentApi,
-  queryDepartmentApi,
-  updateDepartmentApi
+    addDepartmentApi,
+    deleteDepartmentApi,
+    queryDepartmentApi,
+    updateDepartmentApi
 } from '@/api/departmentManagement';
-import {Check, Clock, Close, Delete, Edit, OfficeBuilding, Plus, Refresh, Search} from '@element-plus/icons-vue';
 
 defineOptions({
     name: 'DepartmentManagement'
@@ -241,8 +281,8 @@ const queryDepartment = async () => {
     if (queryFormModel.value.name) {
         params.name = queryFormModel.value.name
     }
-    
-    await queryDepartmentApi(params).then(res => { 
+
+    await queryDepartmentApi(params).then(res => {
         if (res.code === 200) {
             tableData.value = res.data
         }
@@ -273,7 +313,7 @@ const handleDelete = async (id) => {
 /**
  * 组件挂载时初始化数据
  */
-onMounted(async () => {
+onBeforeMount(async () => {
     loading.value = true
     // 获取部门列表
     await queryDepartment()
@@ -444,33 +484,33 @@ onMounted(async () => {
     .container {
         padding: 12px;
     }
-    
+
     .page-header {
         padding: 16px;
     }
-    
+
     .page-title {
         font-size: 22px;
     }
-    
+
     .toolbar {
         flex-direction: column;
         align-items: stretch;
     }
-    
+
     .toolbar-actions {
         justify-content: center;
     }
-    
+
     .search-form {
         flex-direction: column;
         align-items: stretch;
     }
-    
+
     .search-form :deep(.el-form-item) {
         width: 100%;
     }
-    
+
     .search-form :deep(.el-input) {
         width: 100% !important;
     }
@@ -482,6 +522,7 @@ onMounted(async () => {
         opacity: 0;
         transform: translateY(20px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
