@@ -34,14 +34,23 @@
                 </template>
 
                 <el-form :model="workOrderInfo" :rules="workOrderRules" ref="workOrderFormRef" label-width="auto"
-                    size="default" label-position="left" inline="true" class="query-form">
+                    size="default" label-position="left" inline class="query-form">
                     <el-form-item label="工单编号" prop="id">
                         <el-input v-model="workOrderInfo.id" placeholder="请输入工单编号" prefix-icon="Search"
                             style="width: 240px" clearable />
                     </el-form-item>
                     <el-form-item>
-                        <el-button type="primary" @click="queryWorkOrder" :loading="loadingBtn" :icon="Search">查询</el-button>
-                        <el-button @click="clearWorkOrderAndForm" :icon="Refresh">清空</el-button>
+                        <el-button type="primary" @click="queryWorkOrder" :loading="loadingBtn">
+                            <el-icon>
+                                <Search />
+                            </el-icon>
+                            查询
+                        </el-button>
+                        <el-button @click="clearWorkOrderAndForm">
+                            <el-icon>
+                                <Refresh />
+                            </el-icon>
+                            清空</el-button>
                     </el-form-item>
                 </el-form>
 
@@ -188,8 +197,15 @@
                         </el-col>
                     </el-row>
                     <el-form-item class="form-actions">
-                        <el-button type="primary" @click="submitReport" :loading="loadingBtn" :icon="Check" size="large">提交报工</el-button>
-                        <el-button @click="resetForm" :icon="Refresh" size="large">重置</el-button>
+                        <el-button type="primary" @click="submitReport" :loading="loadingBtn"
+                            size="large">
+                            <el-icon>
+                                <Check />
+                            </el-icon>提交报工</el-button>
+                        <el-button @click="resetForm" size="large">
+                            <el-icon>
+                                <Refresh />
+                            </el-icon>重置</el-button>
                     </el-form-item>
                 </el-form>
             </el-card>
@@ -261,8 +277,10 @@
                     <el-table-column prop="remarks" label="备注" min-width="200" show-overflow-tooltip align="center" />
                     <el-table-column label="操作" min-width="80" align="center">
                         <template #default="scope">
-                            <el-button type="danger" :icon="Delete" size="small" @click="deleteReport(scope.row.id)"
-                                link>删除</el-button>
+                            <el-button type="danger" size="small" @click="deleteReport(scope.row.id)" link>
+                                <el-icon>
+                                    <Delete />
+                                </el-icon> 删除</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -280,35 +298,16 @@
 </template>
 
 <script setup>
-import {onMounted, ref} from "vue"
-import {ElDescriptions, ElMessage, ElMessageBox, ElTag} from 'element-plus'
-import {addReportApi, deleteReportApi, getReportListApi} from "@/api/report";
-import {getWorkOrderByIdApi} from "@/api/workorder";
-import {
-  Box,
-  Calendar,
-  Check,
-  CircleCheck,
-  CircleClose,
-  Clock,
-  Connection,
-  Delete,
-  Document,
-  DocumentChecked,
-  EditPen,
-  Flag,
-  Goods,
-  List,
-  Refresh,
-  Search,
-  Ticket,
-  TrendCharts,
-  User
-} from '@element-plus/icons-vue'
+import { onBeforeMount, ref } from "vue"
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { addReportApi, deleteReportApi, getReportListApi } from "@/api/report";
+import { getWorkOrderByIdApi } from "@/api/workorder";
 
 defineOptions({
     name: 'ProductionReport'
 })
+
+// ==================== 数据模型 ====================
 
 // 工单信息数据模型
 const workOrderInfo = ref({
@@ -399,6 +398,8 @@ const loadingBtn = ref(false)
 // 报工记录列表
 const reportList = ref([])
 
+// ==================== 分页信息 ====================
+
 // 分页信息
 const pagination = ref({
     currentPage: 1,
@@ -420,19 +421,25 @@ const clearWorkOrder = () => {
     currentOrderId.value = ''
 }
 
-// 清空工单信息表单
+/**
+ * 清空工单信息表单的校验状态
+ */
 const clearWorkOrderFormRule = () => {
     if (!workOrderFormRef.value) return
     workOrderFormRef.value.resetFields()
 }
 
-// 清空工单信息和表单
+/**
+ * 同时清空工单信息和表单校验
+ */
 const clearWorkOrderAndForm = () => {
     clearWorkOrder()
     clearWorkOrderFormRule()
 }
 
-// 查询工单信息
+/**
+ * 根据工单编号查询工单信息
+ */
 const queryWorkOrder = async () => {
     // 校验表单
     try {
@@ -459,7 +466,11 @@ const queryWorkOrder = async () => {
     messageLoading.value = false
 }
 
-// 提交报工
+// ==================== 报工操作 ====================
+
+/**
+ * 提交报工记录
+ */
 const submitReport = async () => {
     // 确认工单信息是否存在
     if (!currentOrderId.value) {
@@ -502,7 +513,9 @@ const submitReport = async () => {
     })
 }
 
-// 重置表单
+/**
+ * 重置报工表单
+ */
 const resetForm = () => {
     if (reportFormRef.value) {
         reportFormRef.value.resetFields();
@@ -525,7 +538,10 @@ const resetForm = () => {
 //     Object.assign(report, { ...row })
 // }
 
-// 删除报工记录
+/**
+ * 删除报工记录（带确认弹窗）
+ * @param {number} id - 报工记录 ID
+ */
 const deleteReport = async (id) => {
     await ElMessageBox.confirm('确定要删除这条报工记录吗？', '警告', {
         confirmButtonText: '确定',
@@ -538,10 +554,12 @@ const deleteReport = async (id) => {
     fetchReportList()
 }
 
-// 获取报工记录列表
+/**
+ * 获取报工记录分页列表
+ */
 const fetchReportList = async () => {
     tableLoading.value = true
-    await getReportListApi(pagination.value.currentPage, pagination.value.pageSize).then(response => { 
+    await getReportListApi(pagination.value.currentPage, pagination.value.pageSize).then(response => {
         if (response.code === 200) {
             reportList.value = response.data.list
             pagination.value.total = response.data.total
@@ -551,20 +569,28 @@ const fetchReportList = async () => {
     })
 }
 
-// 分页大小改变
+/**
+ * 分页大小改变时的回调
+ * @param {number} val - 新的每页条数
+ */
 const handleSizeChange = (val) => {
     pagination.value.pageSize = val
     fetchReportList()
 }
 
-// 当前页改变
+/**
+ * 当前页码改变时的回调
+ * @param {number} val - 新的页码
+ */
 const handleCurrentChange = (val) => {
     pagination.value.currentPage = val
     fetchReportList()
 }
 
-// 页面加载时获取报工记录
-onMounted(async () => {
+/**
+ * 页面加载时获取报工记录列表
+ */
+onBeforeMount(async () => {
     await fetchReportList()
 })
 </script>

@@ -4,10 +4,19 @@ import request from "@/utils/request"
 let publicKey = ''
 let encryptor = null
 
+/**
+ * 手动设置公钥（用于外部注入公钥的场景）
+ * @param {string} key - RSA 公钥字符串
+ */
 export const setPublicKey = (key) => {
   publicKey = key
 }
 
+/**
+ * 从服务端获取 RSA 公钥并初始化加密器
+ * 公钥会被缓存，多次调用不会重复请求
+ * @returns {Promise<string>} 公钥字符串
+ */
 export const getPublicKey = async () => {
     if (!publicKey) {
         const result = await request.get("/publickey")
@@ -39,7 +48,7 @@ export const encryptPassword = async (password) => {
         throw new Error('密码不能为空')
     }
 
-    const encrypted = encryptor.encrypt(password)
+    const encrypted = await encryptor.encrypt(password)
 
     if (!encrypted) {
         throw new Error('密码加密失败')

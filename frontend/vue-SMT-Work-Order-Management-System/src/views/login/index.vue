@@ -12,10 +12,10 @@
             <el-card class="login-card" shadow="never">
                 <div class="login-header">
                     <div class="logo-icon">
-                        <img src="@/assets/image/LOGO.png" alt="logo" class="logo-image" width="80px" height="80px">
+                        <img src="@/assets/image/LOGO.webp" alt="logo" class="logo-image" width="80px" height="80px">
                     </div>
                     <h2 class="title">SMT工单管理系统</h2>
-                    <p class="subtitle">Intelligent Manufacturing Terminal Work Order Management</p>
+                    <p class="subtitle">智能制造终端工单管理一站式解决方案</p>
                 </div>
 
                 <el-form ref="loginFormRef" :model="loginForm" :rules="loginRules" class="login-form" size="large">
@@ -58,10 +58,9 @@
 </template>
 
 <script setup>
-import {onMounted, reactive, ref} from 'vue'
+import {onBeforeMount, reactive, ref} from 'vue'
 import {useRouter} from 'vue-router'
 import {ElMessage} from 'element-plus'
-import {Lock, User} from '@element-plus/icons-vue'
 import {loginApi} from '@/api/login'
 import {getPublicKey} from '@/utils/RSAUtil'
 
@@ -137,7 +136,6 @@ const handleLogin = async () => {
         // 跳转到首页
         setTimeout(() => {
             router.push('/home')
-            loading.value = false
         }, 1000)
     } else {
         ElMessage.error(res.message || '登录失败')
@@ -145,8 +143,8 @@ const handleLogin = async () => {
 
 }
 
-// 组件挂载时预获取公钥
-onMounted(async () => {
+// 组件创建时预获取公钥
+onBeforeMount(async () => {
     await getPublicKey()
 })
 </script>
@@ -202,26 +200,10 @@ onMounted(async () => {
     animation-delay: 10s;
 }
 
-@keyframes float {
-
-    0%,
-    100% {
-        transform: translate(0, 0) scale(1);
-    }
-
-    33% {
-        transform: translate(30px, -30px) scale(1.1);
-    }
-
-    66% {
-        transform: translate(-20px, 20px) scale(0.9);
-    }
-}
-
 .login-background {
     width: 95vw;
     height: 95vh;
-    background-image: url('@/assets/image/login_background_image.png');
+    background-image: url('@/assets/image/login_background_image.webp');
     background-position: left;
     background-size: contain;
     background-repeat: no-repeat;
@@ -243,18 +225,6 @@ onMounted(async () => {
     animation: slideUp 0.6s ease-out;
 }
 
-@keyframes slideUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
 /* 头部区域 */
 .login-header {
     text-align: center;
@@ -269,20 +239,6 @@ onMounted(async () => {
     display: flex;
     align-items: center;
     justify-content: center;
-}
-
-@keyframes pulse {
-
-    0%,
-    100% {
-        transform: scale(1);
-        box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
-    }
-
-    50% {
-        transform: scale(1.05);
-        box-shadow: 0 12px 32px rgba(102, 126, 234, 0.6);
-    }
 }
 
 .title {

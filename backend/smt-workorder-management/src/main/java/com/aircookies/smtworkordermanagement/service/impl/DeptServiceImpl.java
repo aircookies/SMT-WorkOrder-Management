@@ -11,6 +11,14 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 
+/**
+ * 部门服务实现类
+ * <p>
+ * 实现部门管理的核心业务逻辑，包括增删改查。
+ * 添加和修改时自动设置创建/更新时间。
+ * 查询结果通过 Spring Cache 注解自动缓存（过期时间 24 小时）。
+ * </p>
+ */
 @Service
 @Slf4j
 public class DeptServiceImpl implements DeptService {

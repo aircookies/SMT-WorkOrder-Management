@@ -16,6 +16,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Spring Security 自定义用户详情服务实现
+ * <p>
+ * 实现 UserDetailsService 接口，从数据库加载用户信息供 Spring Security 进行认证。
+ * 将用户角色 ID 映射为 Spring Security 的 GrantedAuthority（格式：ROLE_{roleId}），
+ * 并通过 @PreAuthorize("hasAnyRole('1')") 等方式在控制器层进行权限控制。
+ * 同时根据用户的状态（status）控制账户的启用/禁用状态。
+ * </p>
+ */
 @Slf4j
 @Service
 public class CustomUserDetailsServiceImpl implements UserDetailsService {

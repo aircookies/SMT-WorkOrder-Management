@@ -21,6 +21,11 @@ import static com.aircookies.smtworkordermanagement.common.Result.success;
 
 /**
  * 产品服务实现类
+ * <p>
+ * 实现产品管理的核心业务逻辑，包括增删改查、批量删除和产量统计。
+ * 删除产品前会检查是否有工单正在生产该产品，防止数据不一致。
+ * 查询结果通过 Spring Cache 自动缓存（过期时间 12 小时）。
+ * </p>
  */
 @Service
 @Slf4j

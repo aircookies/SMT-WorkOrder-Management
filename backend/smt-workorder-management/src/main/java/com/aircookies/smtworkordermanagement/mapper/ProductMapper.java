@@ -9,7 +9,10 @@ import java.time.LocalDate;
 import java.util.List;
 
 /**
- * 产品数据访问层
+ * 产品数据访问层（MyBatis Mapper）
+ * <p>
+ * 对应 XML 映射文件，提供产品表的 CRUD 操作、批量删除和产量统计。
+ * </p>
  */
 @Mapper
 public interface ProductMapper {

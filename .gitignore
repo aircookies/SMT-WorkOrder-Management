@@ -6,7 +6,7 @@ backend/smt-workorder-management/!**/src/test/**/target/
 
 # ==================== 敏感信息 ====================
 keys/
-
+*.key
 # ==================== 日志 ====================
 logs/
 *.log
@@ -39,3 +39,4 @@ Thumbs.db
 backup.sql
 *.env
 !*.env.example
+.marscode/

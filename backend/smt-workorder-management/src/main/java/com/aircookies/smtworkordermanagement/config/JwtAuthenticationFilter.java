@@ -117,7 +117,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (!userDetails.isEnabled()) {
             jwtTokenCacheService.invalidateToken(token);
-            clearTokenCookie(response);
+            clearTokenCookie(request, response);
             writeErrorResponse(response, HttpServletResponse.SC_FORBIDDEN, "账户已被禁用");
             return;
         }
@@ -143,10 +143,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     /**
      * 清除JWT_TOKEN Cookie
      */
-    private void clearTokenCookie(HttpServletResponse response) {
+    private void clearTokenCookie(HttpServletRequest request, HttpServletResponse response) {
+        boolean isSecure = "https".equalsIgnoreCase(request.getScheme());
         ResponseCookie cookie = ResponseCookie.from("JWT_TOKEN", "")
                 .httpOnly(true)
-                .secure(false)
+                .secure(isSecure)
                 .path("/")
                 .maxAge(0)
                 .sameSite("Strict")

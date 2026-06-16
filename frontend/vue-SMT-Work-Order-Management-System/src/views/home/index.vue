@@ -227,24 +227,8 @@
 </template>
 
 <script setup>
-import {computed, onBeforeUnmount, onMounted, ref} from 'vue'
+import {computed, onBeforeUnmount, onBeforeMount, ref} from 'vue'
 import {useRouter} from 'vue-router'
-import {
-  ArrowRight,
-  Box,
-  CircleCheck,
-  Clock,
-  DataAnalysis,
-  Document,
-  EditPen,
-  HomeFilled,
-  List,
-  Loading,
-  Plus,
-  TrendCharts,
-  User,
-  Van
-} from '@element-plus/icons-vue'
 import BaseChart from '@/components/BaseChart.vue'
 import {getstatisticsProductionQualityApi, getWorkOrderDetailApi} from '@/api/datalist'
 import {getWorkOrderListApi} from '@/api/workorder'
@@ -317,7 +301,11 @@ const updateTime = () => {
     currentTime.value = `${year}年${month}月${day}日 ${hours}:${minutes}:${seconds} ${weekDay}`
 }
 
-// 获取工单列表
+/**
+ * 获取工单分页列表
+ * @param {number} pageNum - 当前页码
+ * @param {number} pageSize - 每页条数
+ */
 const getWorkOrderList = async (pageNum, pageSize) => {
     const result = await getWorkOrderListApi(pageNum, pageSize)
     if (result.code === 200) {
@@ -325,7 +313,11 @@ const getWorkOrderList = async (pageNum, pageSize) => {
     }
 }
 
-// 获取指定时间内工单详细信息
+/**
+ * 获取指定时间范围内的工单详细信息
+ * @param {string} startTime - 开始日期
+ * @param {string} endTime - 结束日期
+ */
 const getWorkOrderDetail = async (startTime, endTime) => {
     const res = await getWorkOrderDetailApi(startTime, endTime)
     if (res.code === 200) {
@@ -419,9 +411,9 @@ const goToUserManagement = () => {
 }
 
 /**
- * 组件挂载时初始化数据
+ * 初始化数据
  */
-onMounted(async () => {
+onBeforeMount(async () => {
     loading.value = true
 
     // 启动时间更新
@@ -559,7 +551,7 @@ onBeforeUnmount(() => {
 .stat-title {
     margin: 0 0 8px 0;
     font-size: 14px;
-    color: #909399;
+    color: rgb(115, 118, 122);
     font-weight: 500;
 }
 

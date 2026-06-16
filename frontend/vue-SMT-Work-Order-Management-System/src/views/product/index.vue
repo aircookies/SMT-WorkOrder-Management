@@ -15,8 +15,16 @@
         <el-card class="toolbar-card" shadow="hover">
             <div class="toolbar">
                 <div class="toolbar-actions">
-                    <el-button type="primary" @click="showAddDialog" :icon="Plus" plain>添加产品</el-button>
-                    <el-button type="danger" @click="deleteProductConfirm()" :icon="Delete" plain>批量删除</el-button>
+                    <el-button type="primary" @click="showAddDialog" plain>
+                        <el-icon class="icon">
+                            <Plus />
+                        </el-icon>
+                        添加产品</el-button>
+                    <el-button type="danger" @click="deleteProductConfirm()" plain>
+                        <el-icon class="icon">
+                            <Delete />
+                        </el-icon>
+                        批量删除</el-button>
                 </div>
                 <el-form :inline="true" :model="productDTO" class="query-form">
                     <el-form-item label="产品名称">
@@ -32,9 +40,16 @@
                             format="YYYY-MM-DD" value-format="YYYY-MM-DD" clearable style="width: 180px" />
                     </el-form-item>
                     <el-form-item>
-                        <el-button type="primary" @click="queryProduct" :loading="loadingBtn"
-                            :icon="Search">查询</el-button>
-                        <el-button @click="clearQuery" :icon="Refresh">重置</el-button>
+                        <el-button type="primary" @click="queryProduct" :loading="loadingBtn" plain>
+                            <el-icon class="icon">
+                                <Search />
+                            </el-icon>
+                            查询</el-button>
+                        <el-button @click="clearQuery" plain>
+                            <el-icon class="icon">
+                                <Refresh />
+                            </el-icon>
+                            重置</el-button>
                     </el-form-item>
                 </el-form>
             </div>
@@ -64,10 +79,14 @@
                     </el-table-column>
                     <el-table-column label="操作" width="150" align="center" fixed="right">
                         <template #default="scope">
-                            <el-button type="primary" :icon="Edit" size="small" @click="showEditDialog(scope.row.id)"
-                                link>编辑</el-button>
-                            <el-button type="danger" :icon="Delete" size="small"
-                                @click="deleteProductConfirm(scope.row.id)" link>删除</el-button>
+                            <el-button type="primary" size="small" @click="showEditDialog(scope.row.id)" link><el-icon
+                                    class="icon">
+                                    <Edit />
+                                </el-icon>编辑</el-button>
+                            <el-button type="danger" size="small" @click="deleteProductConfirm(scope.row.id)"
+                                link><el-icon class="icon">
+                                    <Delete />
+                                </el-icon>删除</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -100,8 +119,12 @@
             </el-form>
             <template #footer>
                 <div class="dialog-footer">
-                    <el-button @click="dialogVisible = false" :icon="Close">取消</el-button>
-                    <el-button type="primary" @click="submit" :loading="loadingBtn" :icon="Check">确定</el-button>
+                    <el-button @click="dialogVisible = false" plain><el-icon class="icon">
+                            <Close />
+                        </el-icon>取消</el-button>
+                    <el-button type="primary" @click="submit" :loading="loadingBtn" plain><el-icon class="icon">
+                            <Check />
+                        </el-icon>确定</el-button>
                 </div>
             </template>
         </el-dialog>
@@ -109,18 +132,8 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
-import {
-    ElButton,
-    ElDatePicker,
-    ElDialog,
-    ElForm,
-    ElFormItem,
-    ElInput,
-    ElMessage,
-    ElMessageBox,
-    ElTag
-} from 'element-plus';
+import { onBeforeMount, ref } from 'vue'
+import { ElMessage, ElMessageBox } from 'element-plus';
 import {
     addProductApi,
     deleteProductApi,
@@ -130,13 +143,14 @@ import {
     getProductListApi,
     queryProductApi
 } from '@/api/product';
-import { Box, Check, Clock, Close, Delete, Edit, Plus, Refresh, Search } from '@element-plus/icons-vue'
 
 defineOptions({
     name: 'ProductManagement'
 })
 
-// 产品数据传输对象
+// ==================== 数据模型 ====================
+
+// 产品数据传输对象（查询条件 + 分页）
 const productDTO = ref({
     pageNum: 1,
     pageSize: 10,
@@ -170,13 +184,13 @@ const currentProduct = ref({
     image: ''  // 图片字段
 })
 
-// 选择的行
+// 选择的行（存储选中行的 ID 数组）
 const selectedRows = ref([])
 const handleSelectionChange = (val) => {
     selectedRows.value = val.map(item => item.id)
 }
 
-// 表单验证规则
+// ==================== 表单验证规则 ====================
 const productFormRules = {
     code: [
         { required: true, message: '请输入产品编号', trigger: 'blur' },
@@ -201,19 +215,29 @@ const clearForm = () => {
     productFormRef.value.resetFields()
 }
 
-// 分页大小改变
+/**
+ * 分页大小改变时的回调
+ * @param {number} val - 新的每页条数
+ */
 const handleSizeChange = (val) => {
     productDTO.value.pageSize = val
     queryProduct()
 }
 
-// 分页页码改变
+/**
+ * 当前页码改变时的回调
+ * @param {number} val - 新的页码
+ */
 const handleCurrentChange = (val) => {
     productDTO.value.pageNum = val
     queryProduct()
 }
 
-// 获取产品列表
+// ==================== CRUD 操作 ====================
+
+/**
+ * 获取产品分页列表
+ */
 const getProductList = async () => {
     tableLoading.value = true
     await getProductListApi(productDTO.value.pageNum, productDTO.value.pageSize).then(res => {
@@ -228,7 +252,9 @@ const getProductList = async () => {
     })
 }
 
-// 查询产品
+/**
+ * 条件查询产品
+ */
 const queryProduct = async () => {
     // 查询产品列表
     tableLoading.value = true
@@ -249,7 +275,9 @@ const queryProduct = async () => {
 
 }
 
-// 批量删除产品
+/**
+ * 批量删除产品
+ */
 const deleteProduct = async () => {
     if (selectedRows.value.length === 0) {
         ElMessage.warning('请选择要删除的产品')
@@ -262,7 +290,10 @@ const deleteProduct = async () => {
     }
 }
 
-// 根据ID删除产品
+/**
+ * 根据 ID 删除单个产品
+ * @param {number} id - 产品 ID
+ */
 const deleteProductById = async (id) => {
     const res = await deleteProductByIdApi(id)
     if (res.code === 200) {
@@ -271,7 +302,10 @@ const deleteProductById = async (id) => {
     }
 }
 
-// 删除产品确认框
+/**
+ * 删除确认弹窗
+ * @param {number} [id] - 可选的产品 ID，不传则执行批量删除
+ */
 const deleteProductConfirm = (id) => {
     ElMessageBox.confirm('确定要删除所选产品吗？', '提示', {
         confirmButtonText: '确定',
@@ -286,7 +320,9 @@ const deleteProductConfirm = (id) => {
     })
 }
 
-// 显示添加产品对话框
+/**
+ * 显示添加产品对话框
+ */
 const showAddDialog = () => {
     isEdit.value = false
     clearForm()
@@ -300,7 +336,10 @@ const showAddDialog = () => {
     dialogVisible.value = true
 }
 
-// 显示修改产品对话框并实现查询回显
+/**
+ * 显示编辑产品对话框，并回显产品数据
+ * @param {number} id - 产品 ID
+ */
 const showEditDialog = async (id) => {
     isEdit.value = true
     clearForm()
@@ -319,7 +358,9 @@ const showEditDialog = async (id) => {
     dialogVisible.value = true
 }
 
-// 添加产品
+/**
+ * 新增产品
+ */
 const addProduct = async () => {
     loadingBtn.value = true
     await addProductApi(currentProduct.value).then(res => {
@@ -334,7 +375,9 @@ const addProduct = async () => {
 
 }
 
-// 修改产品
+/**
+ * 修改产品
+ */
 const editProduct = async () => {
     loadingBtn.value = true
     await editProductApi(currentProduct.value).then(res => {
@@ -350,7 +393,9 @@ const editProduct = async () => {
     queryProduct()
 }
 
-// 提交修改或添加操作
+/**
+ * 提交表单（根据 isEdit 状态判断新增或修改）
+ */
 const submit = async () => {
     try {
         // 表单验证
@@ -366,7 +411,9 @@ const submit = async () => {
     }
 }
 
-// 清空表单
+/**
+ * 重置查询条件并重新查询
+ */
 const clearQuery = () => {
     productDTO.value = {
         pageNum: productDTO.value.pageNum,
@@ -380,8 +427,10 @@ const clearQuery = () => {
     queryProduct()
 }
 
-onMounted(async () => {
-    // 获取产品列表
+/**
+ * 组件挂载时获取产品列表
+ */
+onBeforeMount(async () => {
     await getProductList()
 })
 </script>

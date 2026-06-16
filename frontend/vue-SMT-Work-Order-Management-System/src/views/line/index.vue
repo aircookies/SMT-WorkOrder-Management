@@ -4,7 +4,7 @@
         <div class="page-header">
             <h1 class="page-title">
                 <el-icon class="title-icon">
-                    <Connection />
+                    <Printer />
                 </el-icon>
                 产线管理
             </h1>
@@ -15,7 +15,12 @@
         <el-card class="toolbar-card" shadow="hover">
             <div class="toolbar">
                 <div class="toolbar-actions">
-                    <el-button type="success" @click="showDialog()" :icon="Plus" plain>新增产线</el-button>
+                    <el-button type="success" @click="showDialog()" plain>
+                        <el-icon class="icon">
+                            <Plus />
+                        </el-icon>
+                        新增产线
+                    </el-button>
                 </div>
             </div>
         </el-card>
@@ -42,10 +47,18 @@
                     </el-table-column>
                     <el-table-column label="操作" width="150" align="center" fixed="right">
                         <template #default="scope">
-                            <el-button type="primary" :icon="Edit" size="small" @click="showDialog(scope.row.id)"
-                                link>编辑</el-button>
-                            <el-button type="danger" :icon="Delete" size="small" @click="deleteLine(scope.row.id)"
-                                link>删除</el-button>
+                            <el-button type="primary" size="small" @click="showDialog(scope.row.id)" link>
+                                <el-icon class="icon">
+                                    <Edit />
+                                </el-icon>
+                                编辑
+                            </el-button>
+                            <el-button type="danger" size="small" @click="deleteLine(scope.row.id)" link>
+                                <el-icon class="icon">
+                                    <Delete />
+                                </el-icon>
+                                删除
+                            </el-button>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -58,7 +71,7 @@
             <el-form :model="line" :rules="rules" ref="ruleFormRef" label-width="100px" label-position="right"
                 class="line-form">
                 <el-form-item label="产线名称" prop="name">
-                    <el-input v-model="line.name" placeholder="请输入产线名称" prefix-icon="Connection" clearable
+                    <el-input v-model="line.name" placeholder="请输入产线名称" prefix-icon="Tickets" clearable
                         autocomplete="off" />
                 </el-form-item>
                 <el-form-item label="产线描述">
@@ -68,8 +81,12 @@
             </el-form>
             <template #footer>
                 <div class="dialog-footer">
-                    <el-button @click="dialogFormVisible = false" :icon="Close">取消</el-button>
-                    <el-button type="primary" @click="submit()" :loading="loadingBtn" :icon="Check">确定</el-button>
+                    <el-button @click="dialogFormVisible = false" plain><el-icon class="icon">
+                            <Close />
+                        </el-icon>取消</el-button>
+                    <el-button type="primary" @click="submit()" :loading="loadingBtn" plain><el-icon class="icon">
+                            <Check />
+                        </el-icon>确定</el-button>
                 </div>
             </template>
         </el-dialog>
@@ -77,19 +94,20 @@
 </template>
 
 <script setup>
-import {onMounted, ref} from 'vue'
-import {Check, Clock, Close, Connection, Delete, Edit, Plus} from '@element-plus/icons-vue'
-import {addLineApi, deleteLineApi, editLineApi, getLineByIdApi, getLineListApi} from '@/api/line';
-import {ElDialog, ElForm, ElFormItem, ElMessage, ElMessageBox, ElTag} from 'element-plus'
+import { onBeforeMount, ref } from 'vue'
+import { addLineApi, deleteLineApi, editLineApi, getLineByIdApi, getLineListApi } from '@/api/line';
+import { ElMessage, ElMessageBox } from 'element-plus';
 
 defineOptions({
     name: 'LineManagement'
 })
 
+// ==================== 数据模型 ====================
+
 // 表格数据
 const tableData = ref([])
 
-// 数据模型
+// 产线数据模型
 const line = ref({
     id: '',
     name: '',
@@ -107,7 +125,12 @@ const loading = ref(false)
 // 控制按钮加载状态
 const loadingBtn = ref(false)
 
-// 显示dialog表单
+// ==================== 对话框与表单 ====================
+
+/**
+ * 显示产线对话框（新增/编辑）
+ * @param {number} [id] - 产线 ID，传入则进入编辑模式
+ */
 const showDialog = async (id) => {
     resetForm()
     line.value.id = id
@@ -125,22 +148,31 @@ const showDialog = async (id) => {
     dialogFormVisible.value = true
 }
 
-// 表单校验
+// ==================== 表单与校验 ====================
+
+// 表单引用
 const ruleFormRef = ref()
+
+// 表单校验规则
 const rules = {
     name: [
         { required: true, message: '请输入产线名称', trigger: 'blur' }
     ]
 }
 
-// 重置表单
+/**
+ * 重置表单数据
+ */
 const resetForm = () => {
     line.value = {}
     if (!ruleFormRef.value) return
     ruleFormRef.value.resetFields()
 }
 
-// 删除产线
+/**
+ * 删除产线（带确认弹窗）
+ * @param {number} id - 产线 ID
+ */
 const deleteLine = async (id) => {
     // 显示确认框
     ElMessageBox.confirm(
@@ -160,7 +192,9 @@ const deleteLine = async (id) => {
     })
 }
 
-// 添加产线
+/**
+ * 新增产线
+ */
 const addLine = async () => {
     loadingBtn.value = true
     await addLineApi(line.value).then(res => {
@@ -173,7 +207,9 @@ const addLine = async () => {
     }).finally(() => loadingBtn.value = false)
 }
 
-// 修改产线
+/**
+ * 修改产线
+ */
 const editLine = async () => {
     await editLineApi(line.value).then(res => {
         if (res.code === 200) {
@@ -185,7 +221,9 @@ const editLine = async () => {
     }).finally(() => loadingBtn.value = false)
 }
 
-// 提交添加或修改请求
+/**
+ * 提交表单（根据 isEdit 状态判断新增或修改）
+ */
 const submit = async () => {
     // 校验表单
     try {
@@ -203,10 +241,12 @@ const submit = async () => {
     }
 }
 
-// 获取产线列表
+/**
+ * 获取全部产线列表
+ */
 const getLineList = async () => {
     loading.value = true
-    await getLineListApi().then(res => { 
+    await getLineListApi().then(res => {
         if (res.code === 200) {
             tableData.value = res.data
         }
@@ -215,8 +255,10 @@ const getLineList = async () => {
     })
 }
 
-onMounted(async () => {
-    // 获取产线列表
+/**
+ * 组件挂载时获取产线列表
+ */
+onBeforeMount(async () => {
     getLineList()
 })
 </script>

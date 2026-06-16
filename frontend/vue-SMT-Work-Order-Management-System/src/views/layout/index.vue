@@ -4,7 +4,7 @@
         <el-header class="layout-header">
             <div class="header-left">
                 <div class="logo">
-                    <img src="@/assets/image/LOGO.png" alt="logo" class="logo-image" width="32px" height="32px">
+                    <img src="@/assets/image/LOGO.webp" alt="logo" class="logo-image" width="32px" height="32px">
                     <span>SMT工单管理系统</span>
                 </div>
             </div>
@@ -47,7 +47,7 @@
 
                         <el-menu-item index="/line" class="menu-item">
                             <el-icon>
-                                <Connection />
+                                <Printer />
                             </el-icon>
                             <span>产线管理</span>
                         </el-menu-item>
@@ -106,23 +106,9 @@
 </template>
 
 <script setup>
-import {RouterView, useRouter} from 'vue-router'
-import {
-  Box,
-  Connection,
-  DataAnalysis,
-  EditPen,
-  House,
-  OfficeBuilding,
-  Platform,
-  Setting,
-  SwitchButton,
-  Tickets,
-  User,
-  UserFilled
-} from '@element-plus/icons-vue'
-import {logoutApi} from '@/api/login'
-import {ElMessage, ElMessageBox} from 'element-plus'
+import { RouterView, useRouter } from 'vue-router'
+import { logoutApi } from '@/api/login'
+import { ElMessage, ElMessageBox } from 'element-plus'
 
 const router = useRouter()
 
@@ -130,13 +116,22 @@ defineOptions({
     name: 'LayoutView'
 })
 
-// 获取当前用户姓名
+/**
+ * 获取当前登录用户的姓名，未登录时显示"访客"
+ * @returns {string} 用户姓名
+ */
 const currentUserName = () => localStorage.getItem('name') ? localStorage.getItem('name') : '访客'
 
-// 获取当前角色名
+/**
+ * 获取当前登录用户的角色名称
+ * @returns {string} 角色名称
+ */
 const currentRoleName = () => localStorage.getItem('roleName') ? localStorage.getItem('roleName') : ''
 
-// 退出登录
+/**
+ * 执行退出登录操作
+ * 调用登出接口，清除本地存储，跳转到登录页
+ */
 const logout = async () => {
     ElMessage.info('正在登出...')
     const result = await logoutApi()
@@ -144,16 +139,16 @@ const logout = async () => {
     if (result.code === 200) {
         ElMessage.success(result.message || '登出成功')
         // 登出成功后，重定向到登录页面
-        setTimeout(() => {
-            localStorage.clear()
-            router.push('/login')
-        }, 1000)
+        localStorage.clear()
+        router.push('/login')
     } else {
         ElMessage.error(result.message || '登出失败')
     }
 }
 
-// 登出确认
+/**
+ * 退出登录确认弹窗
+ */
 const logoutConfirm = () => {
     ElMessageBox.confirm(
         '确定要退出登录吗？',
@@ -167,6 +162,7 @@ const logoutConfirm = () => {
         .then(() => {
             logout()
         })
+        .catch(() => {})
 }
 </script>
 

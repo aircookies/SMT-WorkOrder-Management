@@ -57,6 +57,18 @@ services:
     container_name: smt-backend
     environment:
       TZ: Asia/Shanghai
+      JAVA_OPTS: >
+        -XX:+UseContainerSupport
+        -XX:MaxRAMPercentage=75.0
+        -XX:InitialRAMPercentage=40.0
+        -XX:+HeapDumpOnOutOfMemoryError
+        -XX:HeapDumpPath=/tmp/heapdump.hprof
+        -XX:+ExitOnOutOfMemoryError
+        -XX:+UseG1GC
+        -XX:MaxGCPauseMillis=200
+        -XX:+PrintGCDetails
+        -XX:+PrintGCTimeStamps
+        -Xlog:gc*:file=/tmp/gc.log:time,level,tags
       DB_URL: jdbc:mysql://mysql:3306/smt_workorder_management?useUnicode=true&characterEncoding=UTF-8&connectionCollation=utf8mb4_unicode_ci&useSSL=false&allowPublicKeyRetrieval=true&zeroDateTimeBehavior=convertToNull&transformedBitIsBoolean=true&allowMultiQueries=true&tinyInt1isBit=false&serverTimezone=Asia/Shanghai
       DB_USERNAME: root
       DB_PASSWORD: 88888888
@@ -86,13 +98,28 @@ services:
       TZ: Asia/Shanghai
     ports:
       - "80:80"
+      - "443:443"
     volumes:
       - /data/nginx/html:/usr/share/nginx/html
       - /data/nginx/conf:/etc/nginx/conf.d
       - /data/nginx/logs:/var/log/nginx
+      - /data/nginx/certs:/etc/nginx/certs:ro
+      - /data/nginx/certbot:/var/www/certbot
       - /usr/share/zoneinfo/Asia/Shanghai:/etc/localtime:ro
     depends_on:
       - backend
+    restart: unless-stopped
+    networks:
+      - smt-network
+
+  # ==================== Certbot SSL 证书自动续期 ====================
+  certbot:
+    image: certbot/certbot
+    container_name: smt-certbot
+    volumes:
+      - /data/nginx/certs:/etc/letsencrypt
+      - /data/nginx/certbot:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew --webroot -w /var/www/certbot --quiet; sleep 12h; done'"
     restart: unless-stopped
     networks:
       - smt-network

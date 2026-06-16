@@ -60,7 +60,6 @@ smt-workorder-management/
 │               └── application.yml  # 应用配置
 ├── frontend/                        # 前端 Vue 3 项目
 │   └── vue-SMT-Work-Order-Management-System/
-│       ├── nginx.conf               # Nginx 反向代理配置
 │       ├── package.json
 │       └── dist/                    # 构建产物（部署用）
 ├── mysql/
@@ -68,7 +67,10 @@ smt-workorder-management/
 │   └── init/
 │       ├── 01-schema.sql            # 建表脚本
 │       └── 02-data.sql              # 初始数据
-└── docker-compose.yml               # 容器编排配置文件
+├── nginx/
+│   └── conf.d/default.conf          # Nginx HTTPS 完整配置（含 gzip、缓存、安全头）
+├── docker-compose.yml               # 容器编排配置文件
+├── docker-compose.local.yml         # 本地开发覆盖配置（暴露 MySQL/Redis 端口）
 ```
 
 ## 快速开始
@@ -117,7 +119,7 @@ sudo mkdir -p /data/mysql /data/redis /data/nginx/{html,conf,logs}
 
 # 2. 复制前端文件到 Nginx 目录
 sudo cp -r frontend/vue-SMT-Work-Order-Management-System/dist/* /data/nginx/html/
-sudo cp frontend/vue-SMT-Work-Order-Management-System/nginx.conf /data/nginx/conf/default.conf
+sudo cp nginx/conf.d/default.conf /data/nginx/conf/default.conf
 
 # 3. 构建并启动所有容器
 docker compose up -d
@@ -134,20 +136,136 @@ docker compose logs -f backend
 - **前端页面**：`http://localhost`
 - **后端 API**：通过 Nginx 代理 `http://localhost/api/*`
 
+### HTTPS 配置（生产环境）
+
+项目已内置 HTTPS 完整支持，使用 Let's Encrypt 免费证书 + Certbot 自动续期。
+
+> **重要提示**：证书签发过程中有几个常见坑点，请严格按照以下步骤操作，不要跳步。
+
+#### 第一步：创建证书存储目录
+
+```bash
+sudo mkdir -p /data/nginx/certs /data/nginx/certbot
+```
+
+#### 第二步：停止 Nginx（关键！）
+
+Certbot standalone 模式需要占用 80 端口启动临时验证服务器，Nginx 必须先停掉：
+
+```bash
+docker compose stop nginx
+```
+
+> **常见错误**：不停止 Nginx 会导致 Let's Encrypt 的验证请求被 Nginx 拦截，返回 Vue 首页 HTML 而非验证令牌，报错 `Invalid response`。
+
+#### 第三步：签发证书
+
+```bash
+sudo docker run --rm \
+  -v /data/nginx/certs:/etc/letsencrypt \
+  -p 80:80 \
+  certbot/certbot certonly --standalone \
+  -d your-domain.com \
+  -d www.your-domain.com \
+  --email your-email@example.com \
+  --agree-tos --non-interactive
+```
+
+#### 第四步：修复证书目录权限（关键！）
+
+Let's Encrypt 生成的证书目录默认权限为 `700`（仅 root 可访问），Nginx 容器内的 `nginx` 用户无法读取，必须手动修复：
+
+```bash
+sudo chmod 755 /data/nginx/certs
+sudo chmod 755 /data/nginx/certs/live
+sudo chmod 755 /data/nginx/certs/live/your-domain.com
+sudo chmod 755 /data/nginx/certs/archive
+sudo chmod 755 /data/nginx/certs/archive/your-domain.com
+sudo chmod 644 /data/nginx/certs/archive/your-domain.com/*
+```
+
+> **常见错误**：不修复权限会导致 Nginx 报 `cannot load certificate ... No such file or directory`，即使文件确实存在。这是因为 `nginx` 用户没有权限穿越 `live` 和 `archive` 目录。
+
+#### 第五步：启动 Nginx
+
+```bash
+# 复制 HTTPS 配置到 Nginx 配置目录
+sudo cp nginx/conf.d/default.conf /data/nginx/conf/default.conf
+
+# 启动服务
+docker compose up -d
+```
+
+#### 验证 HTTPS
+
+```bash
+# 测试 HTTPS 是否正常
+curl -Ik --noproxy '*' https://your-domain.com
+
+# 测试 HTTP → HTTPS 重定向
+curl -I --noproxy '*' http://your-domain.com
+# 应返回 301 Moved Permanently
+```
+
+#### 证书自动续期
+
+Certbot 容器每 12 小时自动检查并续期即将过期的证书，无需手动干预。续期通过 webroot 模式完成（利用 Nginx 的 `/.well-known/acme-challenge/` 路径），不会中断服务。
+
+手动触发续期测试：
+
+```bash
+docker exec smt-certbot certbot renew --webroot -w /var/www/certbot --dry-run
+```
+
+#### 故障排查速查表
+
+| 错误信息 | 原因 | 解决方案 |
+|---------|------|---------|
+| `Invalid response ... "<!DOCTYPE html>"` | Nginx 占用了 80 端口 | 先执行 `docker compose stop nginx` |
+| `cannot load certificate ... No such file or directory` | 证书目录权限为 700 | 执行第四步的 `chmod` 命令 |
+| `Failed to connect to ... port 443` | 云安全组未开放 443 端口 | 在云控制台添加入方向规则 |
+| `http2 directive is deprecated` | Nginx 新版语法变更 | 已修复：使用 `http2 on;` 替代 `listen ... http2` |
+
+#### 架构说明
+
+Nginx 配置直接引用 Let's Encrypt 的 live 目录：
+
+```
+/etc/nginx/certs/
+├── live/
+│   └── your-domain.com/
+│       ├── fullchain.pem  → ../../archive/.../fullchain1.pem  （证书链）
+│       └── privkey.pem    → ../../archive/.../privkey1.pem    （私钥）
+└── archive/
+    └── your-domain.com/
+        ├── fullchain1.pem   （真实证书文件）
+        └── privkey1.pem     （真实私钥文件）
+```
+
+Certbot 续期时更新 archive 目录下的真实文件，live 目录下的符号链接自动指向新证书，Nginx 无需重启即可读取新证书。
+
+> 为什么不使用手动符号链接（如 `/etc/nginx/certs/fullchain.pem → live/.../`）？
+> 
+> 每增加一层符号链接就增加一层权限检查，容易因目录权限问题导致解析失败。直接引用 live 路径更可靠。
+
 ### 容器架构
 
 ```
-浏览器 :80
+浏览器 :80 / :443
     │
     ▼
 ┌─────────┐    /api/*     ┌──────────┐    ┌─────────┐
 │  Nginx  │ ────────────► │ Backend  │───►│  MySQL  │
-│ :80     │               │ :8080    │    │ :3306   │
+│ 80/443  │               │ :8080    │    │ :3306   │
 └─────────┘               └──────────┘    └─────────┘
                                     │
                                     └───► ┌─────────┐
-                                          │  Redis  │
-                                          │ :6379   │
+                                    |      │  Redis  │
+                                    |      │ :6379   │
+                                    |      └─────────┘
+                                    └───► ┌─────────┐
+                                          │ Certbot │
+                                          │ 自动续期  │
                                           └─────────┘
 ```
 
@@ -303,7 +421,7 @@ openssl rsa -pubout -in keys/private.key -out keys/public.key
 # 3. 创建数据目录并启动
 sudo mkdir -p /data/mysql /data/redis /data/nginx/{html,conf,logs}
 sudo cp -r frontend/vue-SMT-Work-Order-Management-System/dist/* /data/nginx/html/
-sudo cp frontend/vue-SMT-Work-Order-Management-System/nginx.conf /data/nginx/conf/default.conf
+sudo cp nginx/conf.d/default.conf /data/nginx/conf/default.conf
 docker compose up -d
 ```
 

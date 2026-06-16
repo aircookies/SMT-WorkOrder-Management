@@ -11,6 +11,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +20,18 @@ import java.util.List;
 
 import static com.aircookies.smtworkordermanagement.common.Result.success;
 
+/**
+ * 用户服务实现类
+ * <p>
+ * 实现用户管理的核心业务逻辑，包括：
+ * </p>
+ * <ul>
+ *   <li>添加用户（自动加密密码，冲突检测用户名）</li>
+ *   <li>批量删除用户</li>
+ *   <li>条件查询/分页查询用户</li>
+ *   <li>修改用户信息（自动更新密码加密和修改时间）</li>
+ * </ul>
+ */
 @Service
 @Slf4j
 public class UserServiceImpl implements UserService {

@@ -9,6 +9,10 @@ import java.util.List;
 
 /**
  * 产品服务接口
+ * <p>
+ * 定义产品管理的核心业务操作，包括增删改查和产品产量统计。
+ * 查询结果使用 Redis 缓存，过期时间 12 小时。
+ * </p>
  */
 public interface ProductService {
     

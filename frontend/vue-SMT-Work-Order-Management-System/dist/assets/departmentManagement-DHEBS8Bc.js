@@ -1,1 +1,0 @@
-import{$ as t}from"./index-qtzoOLUj.js";const a=e=>t.post("/department/find",e),d=e=>t.post("/department/add",e),n=e=>t.put("/department/update",e),r=e=>t.delete("/department/delete/"+e);export{d as a,r as d,a as q,n as u};

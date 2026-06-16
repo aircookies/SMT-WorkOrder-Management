@@ -3,8 +3,14 @@
 </template>
 
 <script setup>
-import {nextTick, onBeforeUnmount, onMounted, ref, watch} from 'vue'
-import * as echarts from 'echarts'
+import {onBeforeUnmount, onMounted, ref, watch} from 'vue'
+// 按需引入代替全量导入
+import * as echarts from 'echarts/core'
+import { BarChart, LineChart, PieChart } from 'echarts/charts'
+import { TitleComponent, TooltipComponent, GridComponent, LegendComponent, ToolboxComponent, DataZoomComponent } from 'echarts/components'
+import { CanvasRenderer } from 'echarts/renderers'
+
+echarts.use([BarChart, LineChart, PieChart, TitleComponent, TooltipComponent, GridComponent, LegendComponent, ToolboxComponent, DataZoomComponent, CanvasRenderer])
 
 /**
  * ECharts 图表基础组件
@@ -42,8 +48,6 @@ let chartInstance = null
 const initChart = async () => {
     if (!chartRef.value) return
 
-    await nextTick()
-
     if (chartInstance) {
         chartInstance.dispose()
     }
@@ -64,19 +68,14 @@ const resizeHandler = () => {
 // 监听配置项变化，动态更新图表
 watch(() => props.options, (newOptions) => {
     if (!chartInstance) return
-
-    nextTick(() => {
-        chartInstance.setOption(newOptions, true)
-    })
+    chartInstance.setOption(newOptions, true)
 }, { deep: true })
 
 // 手动刷新图表
 // const flushChart = () => {
 //     if (!chartInstance) return
 
-//     nextTick(() => {
 //         chartInstance.setOption(props.options, true)
-//     })
 // }
 
 // 组件挂载时初始化图表并注册窗口大小变化监听器

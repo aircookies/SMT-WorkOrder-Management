@@ -1,3 +1,8 @@
+/**
+ * 良品率趋势折线图配置
+ * @param {Array} data - 数据数组，格式: [{ date: '2025-04-01', value: 98.5 }, ...]
+ * @returns {Object} ECharts 配置对象
+ */
 export const passRateLineChart = (data = []) => {
     // data 格式: [{ date: '2025-04-01', value: 10 }, ...]
     const dates = data.map(item => item.date)
@@ -101,6 +106,15 @@ export const passRateLineChart = (data = []) => {
     }
 }
 
+/**
+ * 通用柱状图配置
+ * @param {Object} data - 图表数据
+ * @param {string[]} data.xAxisData - X 轴类目数据
+ * @param {Array} data.seriesData - 系列数据数组
+ * @param {string} data.title - 图表标题
+ * @param {string[]} data.legend - 图例数据
+ * @returns {Object} ECharts 配置对象
+ */
 export const barChart = (data = {}) => {
     const { xAxisData = [], seriesData = [], title = '', legend = [] } = data
 
@@ -145,6 +159,12 @@ export const barChart = (data = {}) => {
     }
 }
 
+/**
+ * 通用饼图配置
+ * @param {string} title - 图表标题
+ * @param {Array} data - 数据数组，格式: [{ name: '分类名', value: 数值 }, ...]
+ * @returns {Object} ECharts 配置对象
+ */
 export const pieChart = (title = '', data = []) => {
     const seriesData = data.map(item => ({
         name: item.name,
@@ -202,6 +222,11 @@ export const pieChart = (title = '', data = []) => {
     }
 }
 
+/**
+ * 产线产量对比柱状图配置
+ * @param {Array} data - 数据数组，格式: [{ lineName: '产线1', totalPlanQuantity: 100, completedQuantity: 80 }, ...]
+ * @returns {Object} ECharts 配置对象
+ */
 export const lineProductionBarChart = (data = []) => {
     const lineNames = data.map(item => item.lineName)
     const planQuantities = data.map(item => item.totalPlanQuantity)
@@ -291,6 +316,11 @@ export const lineProductionBarChart = (data = []) => {
     }
 }
 
+/**
+ * 产品产量 TOP5 横向柱状图配置
+ * @param {Array} data - 数据数组，格式: [{ productName: '产品A', totalPlanQuantity: 100, completedQuantity: 90 }, ...]
+ * @returns {Object} ECharts 配置对象
+ */
 export const productTop5BarChart = (data = []) => {
     const sortedData = [...data]
         .sort((a, b) => b.completedQuantity - a.completedQuantity)

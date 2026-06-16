@@ -15,8 +15,12 @@
         <el-card class="toolbar-card" shadow="hover">
             <div class="toolbar">
                 <div class="toolbar-actions">
-                    <el-button type="primary" @click="handleAdd" :icon="Plus" plain>新建工单</el-button>
-                    <el-button type="danger" @click="handleDelete(selectedRows)" :icon="Delete" plain>批量删除</el-button>
+                    <el-button type="primary" @click="handleAdd" plain><el-icon class="icon-plus">
+                            <Plus />
+                        </el-icon>新建工单</el-button>
+                    <el-button type="danger" @click="handleDelete(selectedRows)" plain><el-icon class="icon-delete">
+                            <Delete />
+                        </el-icon>批量删除</el-button>
                 </div>
                 <!-- 搜索栏 -->
                 <el-form :inline="true" :model="queryFormModel" class="search-form">
@@ -42,8 +46,13 @@
                         </el-select>
                     </el-form-item>
                     <el-form-item>
-                        <el-button type="primary" @click="queryWorkOrder" :loading="btnLoading" :icon="Search">查询</el-button>
-                        <el-button @click="clearQueryForm" :icon="Refresh">重置</el-button>
+                        <el-button type="primary" @click="queryWorkOrder" :loading="btnLoading"><el-icon
+                                class="icon-search">
+                                <Search />
+                            </el-icon>查询</el-button>
+                        <el-button @click="clearQueryForm" plain><el-icon class="icon-refresh">
+                                <Refresh />
+                            </el-icon>重置</el-button>
                     </el-form-item>
                 </el-form>
             </div>
@@ -106,10 +115,12 @@
                     </el-table-column>
                     <el-table-column label="操作" width="150" align="center" fixed="right">
                         <template #default="scope">
-                            <el-button size="small" type="primary" :icon="Edit" @click="handleEdit(scope.row.id)"
-                                link>编辑</el-button>
-                            <el-button size="small" type="danger" :icon="Delete" @click="handleDelete(scope.row.id)"
-                                link>删除</el-button>
+                            <el-button size="small" type="primary" @click="handleEdit(scope.row.id)" link><el-icon>
+                                    <Edit />
+                                </el-icon>编辑</el-button>
+                            <el-button size="small" type="danger" @click="handleDelete(scope.row.id)" link><el-icon>
+                                    <Delete />
+                                </el-icon>删除</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -187,8 +198,14 @@
             </el-form>
             <template #footer>
                 <div class="dialog-footer">
-                    <el-button @click="handleCancel" :icon="Close">取消</el-button>
-                    <el-button type="primary" @click="handleSubmit" :icon="Check">提交</el-button>
+                    <el-button @click="handleCancel">
+                        <el-icon>
+                            <Close />
+                        </el-icon>取消</el-button>
+                    <el-button type="primary" @click="handleSubmit">
+                        <el-icon>
+                            <Check />
+                        </el-icon>提交</el-button>
                 </div>
             </template>
         </el-dialog>
@@ -196,32 +213,19 @@
 </template>
 
 <script setup>
-import {onMounted, ref} from 'vue'
-import {ElButton, ElDialog, ElForm, ElFormItem, ElInput, ElMessage, ElMessageBox, ElSelect, ElTag} from 'element-plus';
+import { onBeforeMount, ref } from 'vue'
+import { ElMessage, ElMessageBox } from 'element-plus';
 import {
-  addWorkOrderApi,
-  deleteWorkOrderApi,
-  editWorkOrderApi,
-  getWorkOrderByIdApi,
-  getWorkOrderListApi,
-  queryWorkOrderApi
+    addWorkOrderApi,
+    deleteWorkOrderApi,
+    editWorkOrderApi,
+    getWorkOrderByIdApi,
+    getWorkOrderListApi,
+    queryWorkOrderApi
 } from '@/api/workorder';
-import {getLineListApi} from '@/api/line';
-import {getProductListApi} from '@/api/product';
-import {
-  Box,
-  Calendar,
-  Check,
-  Close,
-  Delete,
-  Document,
-  Edit,
-  Plus,
-  Refresh,
-  Search,
-  User
-} from '@element-plus/icons-vue';
-import {isEmpty} from 'element-plus/es/utils/types.mjs';
+import { getLineListApi } from '@/api/line';
+import { getProductListApi } from '@/api/product';
+import { isEmpty } from 'element-plus/es/utils/types.mjs';
 
 defineOptions({
     name: 'WorkOrderManagement'
@@ -487,7 +491,7 @@ const handleCurrentChange = (val) => {
     queryWorkOrder()
 }
 
-onMounted(async () => {
+onBeforeMount(async () => {
     loading.value = true
 
     // 并行发送网络请求
