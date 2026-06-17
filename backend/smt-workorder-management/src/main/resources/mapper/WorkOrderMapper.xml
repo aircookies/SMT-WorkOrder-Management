@@ -105,6 +105,9 @@
             <if test="priority != null">
                 AND work_order.priority = #{priority}
             </if>
+            <if test="createTime != null">
+                AND DATE_FORMAT(work_order.create_time, '%Y-%m-%d') = DATE_FORMAT(#{createTime}, '%Y-%m-%d')
+            </if>
         </where>
         ORDER BY create_time DESC
     </select>

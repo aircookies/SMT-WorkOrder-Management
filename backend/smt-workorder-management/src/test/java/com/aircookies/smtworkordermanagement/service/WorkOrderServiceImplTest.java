@@ -294,9 +294,12 @@ public class WorkOrderServiceImplTest {
     @DisplayName("条件查询工单成功")
     void testQueryWorkOrder() {
         List<WorkOrder> workOrders = Collections.singletonList(testWorkOrder);
-        when(workOrderMapper.queryWorkOrder(any(WorkOrder.class))).thenReturn(workOrders);
+        when(workOrderMapper.queryWorkOrder(any(WorkOrderDetailedDTO.class))).thenReturn(workOrders);
 
-        Result result = workOrderService.queryWorkOrder(1, 10, testWorkOrder);
+        WorkOrderDetailedDTO testDTO = new WorkOrderDetailedDTO();
+        testDTO.setPageNum(1);
+        testDTO.setPageSize(10);
+        Result result = workOrderService.queryWorkOrder(testDTO);
 
         assertEquals(200, result.getCode());
         assertNotNull(result.getData());

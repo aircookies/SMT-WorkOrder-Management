@@ -3,6 +3,7 @@ package com.aircookies.smtworkordermanagement.service.impl;
 import com.aircookies.smtworkordermanagement.common.BusinessException;
 import com.aircookies.smtworkordermanagement.common.Result;
 import com.aircookies.smtworkordermanagement.dto.PagesDTO;
+import com.aircookies.smtworkordermanagement.dto.WorkOrderDetailedDTO;
 import com.aircookies.smtworkordermanagement.entity.WorkOrder;
 import com.aircookies.smtworkordermanagement.entity.WorkProcessReport;
 import com.aircookies.smtworkordermanagement.mapper.WorkOrderMapper;
@@ -12,6 +13,7 @@ import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -113,10 +115,10 @@ public class WorkOrderServiceImpl implements WorkOrderService {
      * 条件查询工单
      */
     @Override
-    public Result queryWorkOrder(int pageNum, int pageSize, WorkOrder workOrder) {
+    public Result queryWorkOrder(WorkOrderDetailedDTO workOrderDetailedDTO) {
         // 开启分页
-        PageHelper.startPage(pageNum, pageSize);
-        List<WorkOrder> workOrders = workOrderMapper.queryWorkOrder(workOrder);
+        PageHelper.startPage(workOrderDetailedDTO.getPageNum(), workOrderDetailedDTO.getPageSize());
+        List<WorkOrder> workOrders = workOrderMapper.queryWorkOrder(workOrderDetailedDTO);
         // 获取分页结果
         PageInfo<WorkOrder> pageInfo = new PageInfo<>(workOrders);
         // 封装结果并返回
@@ -134,15 +136,32 @@ public class WorkOrderServiceImpl implements WorkOrderService {
      * 添加工序报工表
      */
     @Override
+    @Transactional
     public Result addWorkProcessReport(WorkProcessReport workProcessReport) {
         // 先检查是否该工单是否存在该工序报工记录
         int existRecord = workOrderMapper.findByIdAndSeq(workProcessReport.getOrderId(), workProcessReport.getProcessSeq());
         if (existRecord != 0) {
             throw new BusinessException("请勿重复报工");
         }
+
         workProcessReport.setCreateTime(LocalDateTime.now());
         workProcessReport.setUpdateTime(LocalDateTime.now());
         workProcessReport.setStartTime(LocalDateTime.now());
+
+        // 如果是最后一个工序，则判断工单完成
+        if (workProcessReport.getProcessSeq().equals(3)) {
+            long orderId = workProcessReport.getOrderId();
+            WorkOrder workOrder = workOrderMapper.findWorkOrderById(orderId);
+            if (workOrder == null) {
+                throw new BusinessException("工单不存在");
+            }
+
+            // 将工单状态设置为已完成
+            workOrder.setStatus(2);
+            workOrderMapper.updateWorkOrder(workOrder);
+        }
+
+        // 添加工序报工表
         int res = workOrderMapper.addWorkProcessReport(workProcessReport);
         if (res != 0) {
             return Result.success("报工成功");

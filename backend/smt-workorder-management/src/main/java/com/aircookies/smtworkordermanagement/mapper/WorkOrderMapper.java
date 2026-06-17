@@ -43,7 +43,7 @@ public interface WorkOrderMapper {
     /**
      * 条件查询工单
      */
-    List<WorkOrder> queryWorkOrder(WorkOrder workOrder);
+    List<WorkOrder> queryWorkOrder(WorkOrderDetailedDTO workOrderDetailedDTO);
 
 
     // ==================== 工序报工相关方法 ====================

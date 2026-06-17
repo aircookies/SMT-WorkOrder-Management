@@ -21,11 +21,8 @@ export const getWorkOrderByIdApi = (id) => request.get("/workorder/find/" + id);
  * @param {number|string} status - 工单状态（可选）：0:待生产, 1:生产中, 2:生产完成, 3:已关闭
  * @param {number|string} priority - 优先级（可选）：0:低, 1:中, 2:高, 3:紧急
  */
-export const queryWorkOrderApi = (pageNum, pageSize, id, status, priority) => {
-    return request.get("/workorder/query?pageNum=" + pageNum
-        + "&pageSize=" + pageSize + "&id=" + (id != null ? id : '')
-        + "&status=" + (status != null ? status : '')
-        + "&priority=" + (priority != null ? priority : ''));
+export const queryWorkOrderApi = (dataModel) => {
+    return request.post("/workorder/query", dataModel);
 }
 
 /**

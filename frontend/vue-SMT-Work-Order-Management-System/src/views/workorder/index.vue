@@ -45,6 +45,9 @@
                             <el-option label="紧急" value="3" />
                         </el-select>
                     </el-form-item>
+                    <el-form-item label="创建日期">
+                        <el-date-picker v-model="queryFormModel.createTime" type="date" placeholder="请选择日期" />
+                    </el-form-item>
                     <el-form-item>
                         <el-button type="primary" @click="queryWorkOrder" :loading="btnLoading"><el-icon
                                 class="icon-search">
@@ -64,7 +67,7 @@
                 <el-table v-loading="loading" :data="tableData" @selection-change="handleSelectionChange"
                     style="width: 100%" stripe border class="custom-table">
                     <el-table-column type="selection" width="55" align="center" />
-                    <el-table-column property="id" label="工单号" min-width="150" align="center">
+                    <el-table-column property="id" label="工单号" min-width="80" align="center">
                         <template #default="{ row }">
                             <el-tag type="info" effect="plain">{{ row.id }}</el-tag>
                         </template>
@@ -128,7 +131,7 @@
 
             <!-- 分页 -->
             <div class="pagination-wrapper">
-                <el-pagination :current-page="pageNum" :page-size="pageSize" :page-sizes="[10, 25, 50, 100, 500]"
+                <el-pagination :current-page="queryFormModel.pageNum" :page-size="queryFormModel.pageSize" :page-sizes="[10, 25, 50, 100, 500]"
                     layout="total, sizes, prev, pager, next, jumper" :total="total" @size-change="handleSizeChange"
                     @current-change="handleCurrentChange" background />
             </div>
@@ -241,8 +244,8 @@ const productList = ref([])
 const tableData = ref([])
 
 // 分页相关
-const pageNum = ref(1)
-const pageSize = ref(10)
+// const pageNum = ref(1)
+// const pageSize = ref(10)
 const total = ref(0)
 
 // 控制加载动画
@@ -285,6 +288,7 @@ const queryFormModel = ref({
     id: '', // 工单ID/工单号
     status: '', // 工单状态(0:待生产, 1:生产中, 2:生产完成, 3:已关闭)
     priority: '',   // 优先级(0:低, 1:中, 2:高, 3:紧急)
+    createTime: '', // 工单创建时间
 })
 
 // 表单验证规则
@@ -314,7 +318,14 @@ const formRef = ref(null)
 
 // 清空查询表单
 const clearQueryForm = () => {
-    queryFormModel.value = {}
+    queryFormModel.value = {
+        pageNum: 1, // 当前页码
+        pageSize: 10, // 每页显示的记录数
+        id: '', // 工单ID/工单号
+        status: '', // 工单状态(0:待生产, 1:生产中, 2:生产完成, 3:已关闭)
+        priority: '',   // 优先级(0:低, 1:中, 2:高, 3:紧急)
+        createTime: '', // 工单创建时间
+    }
     queryWorkOrder()
 }
 
@@ -418,17 +429,18 @@ const handleEdit = async (row) => {
 const queryWorkOrder = async () => {
     loading.value = true
     btnLoading.value = true
-    await queryWorkOrderApi(pageNum.value, pageSize.value, queryFormModel.value.id, queryFormModel.value.status, queryFormModel.value.priority).then(res => {
-        if (res.code === 200) {
-            tableData.value = res.data.list
-            pageNum.value = res.data.pageNum
-            pageSize.value = res.data.pageSize
-            total.value = res.data.total
-        }
-    }).finally(() => {
-        loading.value = false
-        btnLoading.value = false
-    })
+    await queryWorkOrderApi(queryFormModel.value).then(res => {
+            if (res.code === 200) {
+                tableData.value = res.data.list
+                queryFormModel.value.pageNum = res.data.pageNum
+                queryFormModel.value.pageSize = res.data.pageSize
+                total.value = res.data.total
+                console.log(res.data)
+            }
+        }).finally(() => {
+            loading.value = false
+            btnLoading.value = false
+        })
 }
 
 // 删除工单
@@ -454,11 +466,11 @@ const handleDelete = async (row) => {
 
 // 获取工单列表
 const getWorkOrderList = async () => {
-    const res = await getWorkOrderListApi(pageNum.value, pageSize.value)
+    const res = await getWorkOrderListApi(queryFormModel.value.pageNum, queryFormModel.value.pageSize)
     if (res.code === 200) {
         tableData.value = res.data.list
-        pageNum.value = res.data.pageNum
-        pageSize.value = res.data.pageSize
+        queryFormModel.value.pageNum = res.data.pageNum
+        queryFormModel.value.pageSize = res.data.pageSize
         total.value = res.data.total
     }
 }
@@ -481,13 +493,13 @@ const getProductList = async () => {
 
 // 分页大小改变
 const handleSizeChange = (val) => {
-    pageSize.value = val
+    queryFormModel.value.pageSize = val
     queryWorkOrder()
 }
 
 // 分页页码改变
 const handleCurrentChange = (val) => {
-    pageNum.value = val
+    queryFormModel.value.pageNum = val
     queryWorkOrder()
 }
 

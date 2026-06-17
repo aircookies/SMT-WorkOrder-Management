@@ -1,6 +1,7 @@
 package com.aircookies.smtworkordermanagement.service;
 
 import com.aircookies.smtworkordermanagement.common.Result;
+import com.aircookies.smtworkordermanagement.dto.WorkOrderDetailedDTO;
 import com.aircookies.smtworkordermanagement.entity.WorkOrder;
 import com.aircookies.smtworkordermanagement.entity.WorkProcessReport;
 
@@ -51,7 +52,7 @@ public interface WorkOrderService {
     /**
      * 条件查询工单
      */
-    Result queryWorkOrder(int pageNum, int pageSize, WorkOrder workOrder);
+    Result queryWorkOrder(WorkOrderDetailedDTO workOrderDetailedDTO);
 
     /**
      * 添加工序报工表
