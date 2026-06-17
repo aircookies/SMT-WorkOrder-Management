@@ -1,7 +1,7 @@
 {
-    "name" : "uniapp-smt-workorder-management",
+    "name" : "SMT工单管理",
     "appid" : "__UNI__8220020",
-    "description" : "",
+    "description" : "SMT表面贴装工单管理系统 - 车间报工端小程序",
     "versionName" : "1.0.0",
     "versionCode" : "100",
     "transformPx" : false,

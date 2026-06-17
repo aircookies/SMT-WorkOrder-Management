@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.aircookies</groupId>
     <artifactId>smt-workorder-management</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.9-SNAPSHOT</version>
     <name>smt-workorder-management</name>
     <description>smt-workorder-management</description>
     <url/>

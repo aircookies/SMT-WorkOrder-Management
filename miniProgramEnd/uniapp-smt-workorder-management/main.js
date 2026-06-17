@@ -13,8 +13,14 @@ app.$mount()
 
 // #ifdef VUE3
 import { createSSRApp } from 'vue'
+import store from './store/index'
+
 export function createApp() {
   const app = createSSRApp(App)
+
+  // 注入全局 store，组件中可通过 inject('store') 访问
+  app.provide('store', store)
+
   return {
     app
   }

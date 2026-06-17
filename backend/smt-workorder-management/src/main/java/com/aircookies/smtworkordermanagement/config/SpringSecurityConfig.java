@@ -68,7 +68,8 @@ public class SpringSecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
                                 .requestMatchers("/publickey").permitAll()  // 获取公钥接口，无需认证
-                                .requestMatchers("/login").permitAll()      // 登录接口，无需认证
+                                .requestMatchers("/login").permitAll()      // Web端登录接口，无需认证
+                                .requestMatchers("/miniprogram/login").permitAll() // 小程序登录接口，无需认证
                                 .requestMatchers("/logout").permitAll()     // 注销接口，无需认证
                                 .anyRequest().authenticated()               // 其他请求需要认证
 
