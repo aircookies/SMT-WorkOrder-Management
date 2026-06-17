@@ -103,6 +103,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { addProcess } from '../../api/process'
+import store from '../../store/index'
 
 const orderId = ref('')
 const submitting = ref(false)
@@ -174,15 +175,16 @@ const handleSubmit = async () => {
       processSeq: form.value.processSeq,
       qualifiedQuantity: qualified,
       badQuantity: bad,
+      operatorId: store.state.user?.userId,
       remarks: form.value.remarks
     }
 
-    // 拼接时间字符串（如果用户选择了日期）
+    // 拼接时间字符串，使用 ISO-8601 格式（T 分隔日期和时间）以匹配后端 LocalDateTime
     if (form.value.startDate) {
-      reportData.startTime = `${form.value.startDate} 00:00:00`
+      reportData.startTime = `${form.value.startDate}T00:00:00`
     }
     if (form.value.endDate) {
-      reportData.finishTime = `${form.value.endDate} 00:00:00`
+      reportData.finishTime = `${form.value.endDate}T00:00:00`
     }
 
     await addProcess(reportData)

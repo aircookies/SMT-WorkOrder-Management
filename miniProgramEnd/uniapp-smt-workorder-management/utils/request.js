@@ -4,9 +4,7 @@
  */
 
 import { getToken, clearAuth } from './auth'
-
-// 后端服务地址 - 通过 Nginx 反向代理，HTTPS + /api 前缀
-const BASE_URL = 'https://154.37.222.20/api'
+import { BASE_URL } from './config'
 
 /**
  * 通用请求方法

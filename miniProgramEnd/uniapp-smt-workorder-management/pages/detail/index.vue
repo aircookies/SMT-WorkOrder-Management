@@ -122,6 +122,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { onShow } from '@dcloudio/uni-app'
 import { getWorkOrderById } from '../../api/workorder'
 import { getProcessByOrderId } from '../../api/process'
 import store from '../../store/index'
@@ -247,6 +248,18 @@ onMounted(() => {
   } else {
     uni.showToast({ title: '工单ID缺失', icon: 'none' })
     setTimeout(() => uni.navigateBack(), 1500)
+  }
+})
+
+// 页面每次显示时刷新数据（从报工页返回时自动更新工序报告列表）
+let isFirstShow = true
+onShow(() => {
+  if (isFirstShow) {
+    isFirstShow = false
+    return
+  }
+  if (orderId.value) {
+    loadData()
   }
 })
 </script>

@@ -1,5 +1,25 @@
 <template>
   <view class="home-page">
+    <!-- 搜索栏 -->
+    <view class="search-bar">
+      <view class="search-input-wrapper">
+        <text class="search-icon">&#x1F50D;</text>
+        <input
+          class="search-input"
+          type="number"
+          v-model="searchId"
+          placeholder="输入工单号搜索"
+          placeholder-class="placeholder"
+          confirm-type="search"
+          @confirm="onSearch"
+        />
+        <view v-if="searchId" class="search-clear" @click="clearSearch">
+          <text>&#x2715;</text>
+        </view>
+      </view>
+      <button v-if="searchId" class="search-btn" @click="onSearch">搜索</button>
+    </view>
+
     <!-- 顶部状态筛选 Tab -->
     <view class="filter-bar">
       <scroll-view scroll-x class="filter-scroll">
@@ -100,6 +120,7 @@ const tabs = [
 ]
 
 const currentTab = ref(-1)
+const searchId = ref('')
 const orderList = ref([])
 const loading = ref(false)
 const refreshing = ref(false)
@@ -129,6 +150,10 @@ const fetchOrders = async (isRefresh = false) => {
     if (currentTab.value !== -1) {
       conditions.status = currentTab.value
     }
+    // 按工单号搜索
+    if (searchId.value.trim()) {
+      conditions.id = Number(searchId.value.trim())
+    }
 
     const res = await queryWorkOrders(conditions)
     const pageData = res.data
@@ -156,6 +181,17 @@ const fetchOrders = async (isRefresh = false) => {
 const switchTab = (value) => {
   if (currentTab.value === value) return
   currentTab.value = value
+  orderList.value = []
+  fetchOrders(true)
+}
+
+const onSearch = () => {
+  orderList.value = []
+  fetchOrders(true)
+}
+
+const clearSearch = () => {
+  searchId.value = ''
   orderList.value = []
   fetchOrders(true)
 }
@@ -218,6 +254,58 @@ onMounted(() => {
   flex-direction: column;
   height: 100vh;
   background-color: $bg-page;
+}
+
+/* 搜索栏 */
+.search-bar {
+  display: flex;
+  align-items: center;
+  padding: 16rpx 24rpx;
+  background-color: $bg-card;
+}
+
+.search-input-wrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  background-color: $bg-grey;
+  border-radius: $radius-round;
+  padding: 12rpx 24rpx;
+}
+
+.search-icon {
+  font-size: 28rpx;
+  margin-right: 12rpx;
+}
+
+.search-input {
+  flex: 1;
+  font-size: $font-md;
+  color: $text-primary;
+  height: 48rpx;
+}
+
+.search-clear {
+  padding: 8rpx;
+  font-size: $font-sm;
+  color: $text-secondary;
+}
+
+.search-btn {
+  margin-left: 16rpx;
+  padding: 0 28rpx;
+  height: 64rpx;
+  line-height: 64rpx;
+  font-size: $font-md;
+  color: #FFFFFF;
+  background-color: $primary-color;
+  border-radius: $radius-round;
+  border: none;
+  flex-shrink: 0;
+}
+
+.search-btn::after {
+  border: none;
 }
 
 /* 筛选栏 */
