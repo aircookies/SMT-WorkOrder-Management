@@ -66,8 +66,6 @@ services:
         -XX:+ExitOnOutOfMemoryError
         -XX:+UseG1GC
         -XX:MaxGCPauseMillis=200
-        -XX:+PrintGCDetails
-        -XX:+PrintGCTimeStamps
         -Xlog:gc*:file=/tmp/gc.log:time,level,tags
       DB_URL: jdbc:mysql://mysql:3306/smt_workorder_management?useUnicode=true&characterEncoding=UTF-8&connectionCollation=utf8mb4_unicode_ci&useSSL=false&allowPublicKeyRetrieval=true&zeroDateTimeBehavior=convertToNull&transformedBitIsBoolean=true&allowMultiQueries=true&tinyInt1isBit=false&serverTimezone=Asia/Shanghai
       DB_USERNAME: root
