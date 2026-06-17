@@ -80,8 +80,9 @@ services:
     expose:
       - 8080 # 暴露端口，用于反向代理，仅内部访问，不映射到宿主机
     # 覆盖 Dockerfile 的 ENTRYPOINT，使 JAVA_OPTS 环境变量生效
+    # 注意：$$ 是 Docker Compose 的转义，避免 Compose 把 ${JAVA_OPTS} 当成自身变量解析
     entrypoint: >
-      sh -c "java ${JAVA_OPTS} -Duser.timezone=Asia/Shanghai -jar app.jar"
+      sh -c "java $${JAVA_OPTS} -Duser.timezone=Asia/Shanghai -jar app.jar"
     volumes:
       - /usr/share/zoneinfo/Asia/Shanghai:/etc/localtime:ro
       # 挂载 RSA 密钥目录：将宿主机上的 keys 目录映射到容器内 /app/keys/
