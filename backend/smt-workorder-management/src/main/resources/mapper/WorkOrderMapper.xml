@@ -215,7 +215,8 @@
 
     <!-- 根据工单ID查询工序报工表 -->
     <select id="findWorkProcessReport" resultType="com.aircookies.smtworkordermanagement.entity.WorkProcessReport">
-        SELECT order_id,
+        SELECT id,
+               order_id,
                process_seq,
                qualified_quantity,
                bad_quantity,
@@ -227,6 +228,7 @@
                update_time
         FROM work_process
         WHERE order_id = #{orderId}
+        ORDER BY process_seq
     </select>
 
     <!--根据工单ID和工序序号查询工序报工表-->

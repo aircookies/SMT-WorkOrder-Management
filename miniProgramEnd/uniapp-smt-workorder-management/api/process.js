@@ -6,10 +6,11 @@ import { get, post, put, del } from '../utils/request'
 
 /**
  * 根据工单 ID 获取工序报告列表
+ * 注意：当工单无报工记录时后端可能返回错误，使用 silent 模式避免误导提示
  * @param {number|string} orderId - 工单 ID
  */
 export const getProcessByOrderId = (orderId) => {
-  return get(`/workorder/process/find/${orderId}`)
+  return get(`/workorder/process/find/${orderId}`, null, { silent: true })
 }
 
 /**

@@ -153,13 +153,36 @@ const isProcessDone = (seq) => doneProcessSet.value.has(seq)
 const loadData = async () => {
   pageLoading.value = true
   try {
-    // 并行加载工单详情和工序报告
-    const [orderRes, processRes] = await Promise.all([
+    // 使用 allSettled 确保两个请求独立处理，一个失败不影响另一个
+    const [orderResult, processResult] = await Promise.allSettled([
       getWorkOrderById(orderId.value),
       getProcessByOrderId(orderId.value)
     ])
-    order.value = orderRes.data
-    processList.value = processRes.data || []
+
+    // 工单详情
+    if (orderResult.status === 'fulfilled') {
+      order.value = orderResult.value.data
+    } else {
+      console.error('加载工单详情失败:', orderResult.reason)
+      uni.showToast({ title: '加载工单信息失败', icon: 'none' })
+    }
+
+    // 工序报告列表（加载失败时视为空列表，不影响页面渲染）
+    if (processResult.status === 'fulfilled') {
+      const data = processResult.value.data
+      // 兼容后端返回单个对象或数组两种格式
+      if (Array.isArray(data)) {
+        processList.value = data
+      } else if (data && typeof data === 'object') {
+        processList.value = [data]
+      } else {
+        processList.value = []
+      }
+    } else {
+      // 工序报告加载失败（可能是该工单暂无报工记录），不阻断页面
+      console.warn('工序报告加载失败（可能暂无报工记录）:', processResult.reason)
+      processList.value = []
+    }
   } catch (err) {
     console.error('加载工单详情失败:', err)
     uni.showToast({ title: '加载失败', icon: 'none' })

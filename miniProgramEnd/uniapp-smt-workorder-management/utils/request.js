@@ -18,7 +18,7 @@ const BASE_URL = 'https://154.37.222.20/api'
  * @returns {Promise<Object>} 响应数据（已解包 Result 对象）
  */
 const request = (options) => {
-  const { url, method = 'GET', data, loading = true } = options
+  const { url, method = 'GET', data, loading = true, silent = false } = options
 
   // 显示加载提示
   if (loading) {
@@ -53,7 +53,7 @@ const request = (options) => {
             handleUnauthorized()
           }
           const errMsg = resData?.message || `请求失败 (${statusCode})`
-          uni.showToast({ title: errMsg, icon: 'none', duration: 2000 })
+          if (!silent) uni.showToast({ title: errMsg, icon: 'none', duration: 2000 })
           reject(new Error(errMsg))
           return
         }
@@ -66,7 +66,7 @@ const request = (options) => {
             reject(new Error('登录已过期，请重新登录'))
             return
           }
-          uni.showToast({ title: resData.message || '操作失败', icon: 'none', duration: 2000 })
+          if (!silent) uni.showToast({ title: resData.message || '操作失败', icon: 'none', duration: 2000 })
           reject(new Error(resData.message || '操作失败'))
           return
         }

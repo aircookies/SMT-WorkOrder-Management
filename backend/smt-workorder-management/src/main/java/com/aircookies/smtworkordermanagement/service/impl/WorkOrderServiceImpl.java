@@ -172,7 +172,7 @@ public class WorkOrderServiceImpl implements WorkOrderService {
     @Override
     public Result updateWorkProcessReport(WorkProcessReport workProcessReport) {
         // 检查工序报工表是否存在
-        if (workProcessReport == null || workOrderMapper.findWorkProcessReport(workProcessReport.getId()) == null) {
+        if (workProcessReport == null || workOrderMapper.findWorkProcessReport(workProcessReport.getId()).isEmpty()) {
             throw new BusinessException("工序报工表不存在");
         }
 
@@ -191,12 +191,9 @@ public class WorkOrderServiceImpl implements WorkOrderService {
      */
     @Override
     public Result findWorkProcessReport(Long orderId) {
-        WorkProcessReport workProcessReport = workOrderMapper.findWorkProcessReport(orderId);
-        if (workProcessReport == null) {
-            log.warn("查询工序报工表失败，工单ID：{}", orderId);
-            throw new BusinessException("查询数据失败");
-        }
-        return Result.success(workProcessReport);
+        List<WorkProcessReport> reports = workOrderMapper.findWorkProcessReport(orderId);
+        // 空列表表示该工单暂无报工记录，属于正常业务状态
+        return Result.success(reports);
     }
 
     @Override

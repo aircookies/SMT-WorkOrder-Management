@@ -208,7 +208,7 @@ public class WorkOrderServiceImplTest {
     @Test
     @DisplayName("更新工序报工成功")
     void testUpdateWorkProcessReportSuccess() {
-        when(workOrderMapper.findWorkProcessReport(1L)).thenReturn(testReport);
+        when(workOrderMapper.findWorkProcessReport(1L)).thenReturn(Collections.singletonList(testReport));
         when(workOrderMapper.updateWorkProcessReport(any(WorkProcessReport.class))).thenReturn(1);
 
         Result result = workOrderService.updateWorkProcessReport(testReport);
@@ -221,7 +221,7 @@ public class WorkOrderServiceImplTest {
     @Test
     @DisplayName("更新工序报工失败 - 工序报工表不存在")
     void testUpdateWorkProcessReportNotFound() {
-        when(workOrderMapper.findWorkProcessReport(1L)).thenReturn(null);
+        when(workOrderMapper.findWorkProcessReport(1L)).thenReturn(Collections.emptyList());
 
         BusinessException exception = assertThrows(BusinessException.class,
                 () -> workOrderService.updateWorkProcessReport(testReport));
@@ -233,7 +233,7 @@ public class WorkOrderServiceImplTest {
     @Test
     @DisplayName("更新工序报工失败 - 数据库更新返回0")
     void testUpdateWorkProcessReportFailure() {
-        when(workOrderMapper.findWorkProcessReport(1L)).thenReturn(testReport);
+        when(workOrderMapper.findWorkProcessReport(1L)).thenReturn(Collections.singletonList(testReport));
         when(workOrderMapper.updateWorkProcessReport(any(WorkProcessReport.class))).thenReturn(0);
 
         BusinessException exception = assertThrows(BusinessException.class,
@@ -308,22 +308,26 @@ public class WorkOrderServiceImplTest {
     @Test
     @DisplayName("根据工单ID查询工序报工成功")
     void testFindWorkProcessReportSuccess() {
-        when(workOrderMapper.findWorkProcessReport(1L)).thenReturn(testReport);
+        List<WorkProcessReport> expectedList = Collections.singletonList(testReport);
+        when(workOrderMapper.findWorkProcessReport(1L)).thenReturn(expectedList);
 
         Result result = workOrderService.findWorkProcessReport(1L);
 
         assertEquals(200, result.getCode());
-        assertEquals(testReport, result.getData());
+        assertEquals(expectedList, result.getData());
     }
 
     @Test
-    @DisplayName("根据工单ID查询工序报工失败 - 记录不存在")
+    @DisplayName("根据工单ID查询工序报工 - 无记录时返回空列表")
     void testFindWorkProcessReportNotFound() {
-        when(workOrderMapper.findWorkProcessReport(999L)).thenReturn(null);
+        when(workOrderMapper.findWorkProcessReport(999L)).thenReturn(Collections.emptyList());
 
-        BusinessException exception = assertThrows(BusinessException.class,
-                () -> workOrderService.findWorkProcessReport(999L));
-        assertEquals("查询数据失败", exception.getMessage());
+        Result result = workOrderService.findWorkProcessReport(999L);
+
+        assertEquals(200, result.getCode());
+        assertNotNull(result.getData());
+        assertInstanceOf(List.class, result.getData());
+        assertTrue(((List<?>) result.getData()).isEmpty(), "无报工记录时应返回空列表");
     }
 
     @Test
