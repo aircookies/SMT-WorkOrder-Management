@@ -85,7 +85,8 @@ services:
       - /usr/share/zoneinfo/Asia/Shanghai:/etc/localtime:ro
       # 挂载 RSA 密钥目录：将宿主机上的 keys 目录映射到容器内 /app/keys/
       # RSAUtil 默认从 ./keys/ 读取，WORKDIR 为 /app，所以路径为 /app/keys/
-      - ./keys:/app/keys:ro
+      # 首次启动如果目录为空，允许应用自动生成并写入密钥
+      - ./keys:/app/keys
     depends_on:
       mysql:
         condition: service_healthy
