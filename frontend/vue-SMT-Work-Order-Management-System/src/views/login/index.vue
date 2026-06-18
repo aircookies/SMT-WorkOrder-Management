@@ -39,7 +39,8 @@
                             </template>
                         </el-input>
                     </el-form-item>
-
+                    <!-- 为了方便演示 -->
+                    <p>账号:guest 密码:123456</p>
                     <el-form-item>
                         <el-button type="primary" size="large" class="login-btn" :loading="loading"
                             @click="handleLogin">

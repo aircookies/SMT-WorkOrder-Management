@@ -43,10 +43,10 @@ public class ProductServiceImpl implements ProductService {
      */
     @Override
     public Result addProduct(Product product) {
-        // 判断产品是否存在
-        if (productMapper.findProductById(product.getId()) != null) {
-            log.info("尝试添加已存在的产品，失败");
-            throw new BusinessException("该产品已存在");
+        // 判断产品编号是否重复
+        if (productMapper.findProductByCode(product.getCode()) != null) {
+            log.info("尝试添加产品编号{}已存在的产品，失败", product.getCode());
+            throw new BusinessException("产品编号已存在，请使用其他编号");
         }
 
         product.setCreateTime(LocalDateTime.now());
@@ -101,6 +101,12 @@ public class ProductServiceImpl implements ProductService {
             throw new BusinessException("该产品不存在");
         }
 
+        // 判断产品编号是否重复
+        if (productMapper.findProductByCode(product.getCode()) != null) {
+            log.info("尝试更新产品编号{}已存在的产品，失败", product.getCode());
+            throw new BusinessException("产品编号已存在，请使用其他编号");
+        }
+
         product.setUpdateTime(LocalDateTime.now());
         int res = productMapper.updateProduct(product);
         if (res != 0) {
@@ -125,11 +131,11 @@ public class ProductServiceImpl implements ProductService {
      * 条件查询产品（分页）
      */
     @Override
-    public Result productList(QueryProductDTO queryProductDTO) {
+    public Result queryProduct(QueryProductDTO queryProductDTO) {
         // 开启分页
         PageHelper.startPage(queryProductDTO.getPageNum(), queryProductDTO.getPageSize());
         // 查询产品列表
-        List<Product> products = productMapper.productList(queryProductDTO);
+        List<Product> products = productMapper.queryProduct(queryProductDTO);
         // 获取分页结果
         PageInfo<Product> pageInfo = new PageInfo<>(products);
         return success(

@@ -247,9 +247,9 @@ public class ProductServiceImplTest {
         queryDTO.setPageSize(10);
 
         List<Product> products = Collections.singletonList(testProduct);
-        when(productMapper.productList(queryDTO)).thenReturn(products);
+        when(productMapper.queryProduct(queryDTO)).thenReturn(products);
 
-        Result result = productService.productList(queryDTO);
+        Result result = productService.queryProduct(queryDTO);
 
         assertEquals(200, result.getCode());
         assertNotNull(result.getData());

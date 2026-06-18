@@ -39,11 +39,6 @@ public class ProductController {
     @PostMapping("/add")
     @PreAuthorize("hasAnyRole('1')") // 角色为1的用户可以访问(1:管理员)
     public Result addProduct(@RequestBody Product product) {
-        // 判断产品是否存在
-        if (productService.findProductById(product.getId()) != null) {
-            throw new BusinessException("该产品已存在");
-        }
-
         log.debug("添加产品: {}", product);
         return productService.addProduct(product);
     }
@@ -93,7 +88,7 @@ public class ProductController {
     @PostMapping("/query")
     public Result productList(@RequestBody QueryProductDTO queryProductDTO) {
         log.debug("条件查询产品: {}", queryProductDTO);
-        return productService.productList(queryProductDTO);
+        return productService.queryProduct(queryProductDTO);
     }
 
     /**

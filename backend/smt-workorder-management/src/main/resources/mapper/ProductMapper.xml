@@ -8,13 +8,13 @@
         INSERT INTO product (code,
                              name,
                              spec,
-                             image,
+#                              image,
                              create_time,
                              update_time)
         VALUES (#{code},
                 #{name},
                 #{spec},
-                #{image},
+#                 {image},
                 #{createTime},
                 #{updateTime})
     </insert>
@@ -25,7 +25,7 @@
                code,
                name,
                spec,
-               image,
+#                image,
                create_time,
                update_time
         FROM product
@@ -38,7 +38,7 @@
                code,
                name,
                spec,
-               image,
+#                image,
                create_time,
                update_time
         FROM product
@@ -46,12 +46,12 @@
     </select>
 
     <!-- 条件查询产品 -->
-    <select id="productList" resultType="com.aircookies.smtworkordermanagement.entity.Product">
+    <select id="queryProduct" resultType="com.aircookies.smtworkordermanagement.entity.Product">
         SELECT id,
         code,
         name,
         spec,
-        image,
+#         image,
         create_time,
         update_time
         FROM product
@@ -132,6 +132,18 @@
         SELECT COUNT(*)
         FROM work_order
         WHERE product_id = #{productId} AND (status = 0 OR status = 1)
+    </select>
+    <!-- 根据产品编号查询产品 -->
+    <select id="findProductByCode" resultType="com.aircookies.smtworkordermanagement.entity.Product">
+        SELECT id,
+               code,
+               name,
+               spec,
+#                image,
+               create_time,
+               update_time
+            FROM product
+            WHERE code = #{code}
     </select>
 
 </mapper>

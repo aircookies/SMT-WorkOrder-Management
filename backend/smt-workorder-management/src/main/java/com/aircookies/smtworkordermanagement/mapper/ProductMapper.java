@@ -25,7 +25,9 @@ public interface ProductMapper {
 
     Product findProductById(Long id);
 
-    List<Product> productList(QueryProductDTO queryProductDTO);
+    Product findProductByCode(String code);
+
+    List<Product> queryProduct(QueryProductDTO queryProductDTO);
 
     List<Product> findAll();
 

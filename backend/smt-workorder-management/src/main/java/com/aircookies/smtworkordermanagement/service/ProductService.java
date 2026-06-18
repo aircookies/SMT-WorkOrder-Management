@@ -39,7 +39,7 @@ public interface ProductService {
     /**
      * 条件查询产品（分页）
      */
-    Result productList(QueryProductDTO queryProductDTO);
+    Result queryProduct(QueryProductDTO queryProductDTO);
     
     /**
      * 查询所有产品（分页）

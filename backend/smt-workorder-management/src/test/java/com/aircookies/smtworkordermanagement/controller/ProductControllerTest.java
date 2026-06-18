@@ -136,7 +136,7 @@ class ProductControllerTest {
         queryDTO.setPageSize(10);
 
         Result expectedResult = Result.success(Collections.singletonList(testProduct));
-        when(productService.productList(any(QueryProductDTO.class))).thenReturn(expectedResult);
+        when(productService.queryProduct(any(QueryProductDTO.class))).thenReturn(expectedResult);
 
         mockMvc.perform(post("/product/query")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -144,7 +144,7 @@ class ProductControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200));
 
-        verify(productService).productList(any(QueryProductDTO.class));
+        verify(productService).queryProduct(any(QueryProductDTO.class));
     }
 
     @Test

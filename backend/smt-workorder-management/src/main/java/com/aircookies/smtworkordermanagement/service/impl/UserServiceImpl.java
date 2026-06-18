@@ -129,6 +129,11 @@ public class UserServiceImpl implements UserService {
             throw new BusinessException("用户不存在");
         }
 
+        // 检查用户名是否已存在
+        if (sysUserMapper.findUserByUserName(user.getUsername()) != null) {
+            throw new BusinessException("用户名已存在");
+        }
+
         // 加密用户密码
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         // 更新修改时间
