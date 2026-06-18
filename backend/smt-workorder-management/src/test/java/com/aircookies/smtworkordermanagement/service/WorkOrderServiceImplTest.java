@@ -50,6 +50,7 @@ public class WorkOrderServiceImplTest {
         testWorkOrder.setQuantity(100);
         testWorkOrder.setStatus(0);
         testWorkOrder.setPriority(0);
+        testWorkOrder.setCreatorId(0);
 
         testWorkOrderDetailedDTO = new WorkOrderDetailedDTO();
         testWorkOrderDetailedDTO.setPageNum(1);

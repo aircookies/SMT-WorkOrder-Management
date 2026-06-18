@@ -13,6 +13,7 @@ import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -139,12 +140,21 @@ public class WorkOrderServiceImpl implements WorkOrderService {
      * 添加工序报工表
      */
     @Override
+    @Transactional
     public Result addWorkProcessReport(WorkProcessReport workProcessReport) {
         // 先检查是否该工单是否存在该工序报工记录
         int existRecord = workOrderMapper.findByIdAndSeq(workProcessReport.getOrderId(), workProcessReport.getProcessSeq());
         if (existRecord != 0) {
             throw new BusinessException("请勿重复报工");
         }
+
+        // 如果是最后一道工序，更新工单状态为已完成
+        if (workProcessReport.getProcessSeq() == 3) {
+            WorkOrder temp = workOrderMapper.findWorkOrderById(workProcessReport.getOrderId());
+            temp.setStatus(2);
+            workOrderMapper.updateWorkOrder(temp);
+        }
+
         workProcessReport.setCreateTime(LocalDateTime.now());
         workProcessReport.setUpdateTime(LocalDateTime.now());
         workProcessReport.setStartTime(LocalDateTime.now());
