@@ -1,6 +1,7 @@
 package com.aircookies.smtworkordermanagement.controller;
 
 import com.aircookies.smtworkordermanagement.common.Result;
+import com.aircookies.smtworkordermanagement.dto.WorkOrderDetailedDTO;
 import com.aircookies.smtworkordermanagement.entity.WorkOrder;
 import com.aircookies.smtworkordermanagement.entity.WorkProcessReport;
 import com.aircookies.smtworkordermanagement.service.WorkOrderService;
@@ -92,12 +93,10 @@ public class WorkOrderController {
     /**
      * 条件查询工单
      */
-    @GetMapping("/query")
-    public Result queryWorkOrder(@RequestParam(defaultValue = "1") int pageNum,
-                                 @RequestParam(defaultValue = "10") int pageSize,
-                                 WorkOrder workOrder) {
-        log.debug("条件查询工单: pageNum={}, pageSize={}, {}", pageNum, pageSize, workOrder);
-        return workOrderService.queryWorkOrder(pageNum, pageSize, workOrder);
+    @PostMapping("/query")
+    public Result queryWorkOrder(@RequestBody WorkOrderDetailedDTO workOrderDetailedDTO) {
+        log.debug("条件查询工单: {}", workOrderDetailedDTO);
+        return workOrderService.queryWorkOrder(workOrderDetailedDTO);
     }
 
     /**

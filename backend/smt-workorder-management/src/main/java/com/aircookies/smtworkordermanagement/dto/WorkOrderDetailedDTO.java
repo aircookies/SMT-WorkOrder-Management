@@ -17,6 +17,10 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class WorkOrderDetailedDTO {
+    /** 页码 */
+    private Integer pageNum;
+    /** 每页数量 */
+    private Integer pageSize;
     /** 工单创建日期 */
     private LocalDate date;
     /** 工单 ID */

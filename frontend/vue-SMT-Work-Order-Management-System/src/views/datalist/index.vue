@@ -234,7 +234,7 @@ const workOrderCountByStatus = computed(() => {
     let waitCount = workOrderList.value.filter(workOrder => workOrder.status === 0).length
     // 进行中工单数
     let doingCount = workOrderList.value.filter(workOrder => workOrder.status === 1).length
-    // 已完成工单数
+    // 生产完成工单数
     let doneCount = workOrderList.value.filter(workOrder => workOrder.status === 2).length
     // 已关闭工单数
     let closedCount = workOrderList.value.filter(workOrder => workOrder.status === 3).length
@@ -249,7 +249,7 @@ const workOrderCountByStatus = computed(() => {
             value: doingCount
         },
         {
-            name: '已完成',
+            name: '生产完成',
             value: doneCount
         },
         {
@@ -348,10 +348,17 @@ const onQuery = async () => {
 // 重置按钮点击事件
 const onReset = () => {
     form.value = {
-        dateRange: [],
+        // 默认使用本月的数据
+        dateRange: (() => {
+            return getDefaultDateRange()
+            // 为了便于调试 先使用固定日期
+            // return ['2025-04-01', '2026-01-01']
+        })(),
         lineId: '',
         productId: ''
     }
+
+    onQuery()
 }
 
 // 初始化数据
@@ -363,8 +370,7 @@ onBeforeMount(async () => {
         getstatisticsProductionQuality(form.value.dateRange[0], form.value.dateRange[1]),
         getstatisticsLineProduction(form.value.dateRange[0], form.value.dateRange[1]),
         getstatisticsProductProduction(form.value.dateRange[0], form.value.dateRange[1])
-    ])
-    loading.value = false
+    ]).finally(() => loading.value = false)
 })
 </script>
 

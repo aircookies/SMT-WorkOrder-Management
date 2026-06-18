@@ -77,9 +77,11 @@ services:
       REDIS_PASSWORD: ""
       JWT_SECRET: smt-workorder-management-secret-key-2026-aircookies-change-in-production
       JWT_EXPIRATION: "86400000"
+      RSA_KEY_FILE_PATH: /app/keys/
     expose:
       - 8080 # 暴露端口，用于反向代理，仅内部访问，不映射到宿主机
     volumes:
+      - ./keys:/app/keys
       - /usr/share/zoneinfo/Asia/Shanghai:/etc/localtime:ro
     depends_on:
       mysql:

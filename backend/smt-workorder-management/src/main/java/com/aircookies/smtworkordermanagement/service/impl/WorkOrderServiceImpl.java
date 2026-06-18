@@ -3,6 +3,7 @@ package com.aircookies.smtworkordermanagement.service.impl;
 import com.aircookies.smtworkordermanagement.common.BusinessException;
 import com.aircookies.smtworkordermanagement.common.Result;
 import com.aircookies.smtworkordermanagement.dto.PagesDTO;
+import com.aircookies.smtworkordermanagement.dto.WorkOrderDetailedDTO;
 import com.aircookies.smtworkordermanagement.entity.WorkOrder;
 import com.aircookies.smtworkordermanagement.entity.WorkProcessReport;
 import com.aircookies.smtworkordermanagement.mapper.WorkOrderMapper;
@@ -49,6 +50,10 @@ public class WorkOrderServiceImpl implements WorkOrderService {
      */
     @Override
     public Result addWorkOrder(WorkOrder workOrder) {
+        if (workOrder.getCreatorId() == null) {
+            throw new BusinessException("创建人ID不能为空");
+        }
+
         workOrder.setCreateTime(LocalDateTime.now());
         workOrder.setUpdateTime(LocalDateTime.now());
         int res = workOrderMapper.addWorkOrder(workOrder);
@@ -113,10 +118,10 @@ public class WorkOrderServiceImpl implements WorkOrderService {
      * 条件查询工单
      */
     @Override
-    public Result queryWorkOrder(int pageNum, int pageSize, WorkOrder workOrder) {
+    public Result queryWorkOrder(WorkOrderDetailedDTO workOrderDetailedDTO) {
         // 开启分页
-        PageHelper.startPage(pageNum, pageSize);
-        List<WorkOrder> workOrders = workOrderMapper.queryWorkOrder(workOrder);
+        PageHelper.startPage(workOrderDetailedDTO.getPageNum(), workOrderDetailedDTO.getPageSize());
+        List<WorkOrder> workOrders = workOrderMapper.queryWorkOrder(workOrderDetailedDTO);
         // 获取分页结果
         PageInfo<WorkOrder> pageInfo = new PageInfo<>(workOrders);
         // 封装结果并返回
@@ -196,6 +201,9 @@ public class WorkOrderServiceImpl implements WorkOrderService {
         return Result.success(reports);
     }
 
+    /**
+     * 分页查询所有工序报工表
+     */
     @Override
     public Result findWorkProcessReportAll(int pageNum, int pageSize) {
         // 开启分页
@@ -212,11 +220,17 @@ public class WorkOrderServiceImpl implements WorkOrderService {
         );
     }
 
+    /**
+     * 工单详细统计
+     */
     @Override
     public Result workOrderDetailed(LocalDate startTime, LocalDate endTime) {
         return Result.success(workOrderMapper.workOrderDetailed(startTime, endTime));
     }
 
+    /**
+     * 统计每条产线在指定日期范围内的计划数量和完成数量
+     */
     @Override
     public Result statisticsProductionQuality(LocalDate startTime, LocalDate endTime) {
         return Result.success(workOrderMapper.statisticsProductionQuality(startTime, endTime));

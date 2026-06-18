@@ -402,7 +402,7 @@ Web 浏览器 :80 / :443          微信小程序 (HTTPS)
 | PUT    | `/api/workorder/update`    | 更新工单     |
 | GET    | `/api/workorder/find/{id}` | 查询工单     |
 | GET    | `/api/workorder/findAll`   | 分页查询所有工单 |
-| GET    | `/api/workorder/query`     | 条件查询工单   |
+| POST    | `/api/workorder/query`     | 条件查询工单   |
 | GET    | `/api/workorder/detailed`  | 工单详细统计   |
 
 ### 工序报工
@@ -471,7 +471,7 @@ docker compose down -v
 # 1. 上传项目到服务器
 scp -r smt-workorder-management/ user@your-server:/opt/
 
-# 2. 生成 RSA 密钥对
+# 2. 生成 RSA 密钥对（可选，不生成则首次启动时自动生成）
 cd /opt/smt-workorder-management
 mkdir -p keys
 openssl genpkey -algorithm RSA -out keys/private.key -pkeyopt rsa_keygen_bits:2048
@@ -483,6 +483,8 @@ sudo cp -r frontend/vue-SMT-Work-Order-Management-System/dist/* /data/nginx/html
 sudo cp nginx/conf.d/default.conf /data/nginx/conf/default.conf
 docker compose up -d
 ```
+
+> **RSA 密钥持久化说明**：`docker-compose.yml` 已将宿主机 `./keys/` 目录挂载到容器内 `/app/keys/`。如果手动生成了密钥对，后端启动时会直接加载；如果没有手动生成，后端会在首次启动时自动生成并保存到挂载的目录中，后续重启不会重新生成。
 
 ## 安全建议
 

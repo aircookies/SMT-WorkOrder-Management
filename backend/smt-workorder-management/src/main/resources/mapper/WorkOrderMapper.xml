@@ -105,6 +105,9 @@
             <if test="priority != null">
                 AND work_order.priority = #{priority}
             </if>
+            <if test="createTime != null">
+                AND DATE_FORMAT(work_order.create_time, '%Y-%m-%d') = DATE_FORMAT(#{createTime}, '%Y-%m-%d')
+            </if>
         </where>
         ORDER BY create_time DESC
     </select>
@@ -165,7 +168,7 @@
                CASE status
                    WHEN 0 THEN '待生产'
                    WHEN 1 THEN '生产中'
-                   WHEN 2 THEN '已完成'
+                   WHEN 2 THEN '生产完成'
                    WHEN 3 THEN '已关闭'
                    END          AS status_name,
                priority,
@@ -177,10 +180,10 @@
         FROM work_order
         <where>
             <if test="startTime != null">
-                AND create_time &gt;= #{startTime}
+                AND DATE_FORMAT(create_time, '%Y-%m-%d') &gt;= DATE_FORMAT(#{startTime}, '%Y-%m-%d')
             </if>
             <if test="endTime != null">
-                AND create_time &lt;= #{endTime}
+                AND DATE_FORMAT(create_time, '%Y-%m-%d') &lt;= DATE_FORMAT(#{endTime}, '%Y-%m-%d')
             </if>
         </where>
         ORDER BY create_time;

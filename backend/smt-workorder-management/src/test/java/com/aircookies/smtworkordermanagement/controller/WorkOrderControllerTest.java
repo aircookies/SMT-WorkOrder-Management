@@ -1,6 +1,7 @@
 package com.aircookies.smtworkordermanagement.controller;
 
 import com.aircookies.smtworkordermanagement.common.Result;
+import com.aircookies.smtworkordermanagement.dto.WorkOrderDetailedDTO;
 import com.aircookies.smtworkordermanagement.entity.WorkOrder;
 import com.aircookies.smtworkordermanagement.entity.WorkProcessReport;
 import com.aircookies.smtworkordermanagement.service.WorkOrderService;
@@ -22,7 +23,6 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -42,6 +42,7 @@ class WorkOrderControllerTest {
     private ObjectMapper objectMapper;
 
     private WorkOrder testWorkOrder;
+    private WorkOrderDetailedDTO testWorkOrderDetailedDTO;
     private WorkProcessReport testReport;
 
     @BeforeEach
@@ -57,6 +58,10 @@ class WorkOrderControllerTest {
         testWorkOrder.setQuantity(100);
         testWorkOrder.setStatus(0);
         testWorkOrder.setPriority(1);
+
+        testWorkOrderDetailedDTO = new WorkOrderDetailedDTO();
+        testWorkOrderDetailedDTO.setPageNum(1);
+        testWorkOrderDetailedDTO.setPageSize(10);
 
         testReport = new WorkProcessReport();
         testReport.setId(1L);
@@ -167,19 +172,18 @@ class WorkOrderControllerTest {
     // ==================== 条件查询工单测试 ====================
 
     @Test
-    @DisplayName("条件查询工单 - GET方式")
+    @DisplayName("条件查询工单 - POST方式")
     void testQueryWorkOrder() throws Exception {
         Result expectedResult = Result.success(Collections.singletonList(testWorkOrder));
-        when(workOrderService.queryWorkOrder(eq(1), eq(10), any(WorkOrder.class))).thenReturn(expectedResult);
+        when(workOrderService.queryWorkOrder(any(WorkOrderDetailedDTO.class))).thenReturn(expectedResult);
 
-        mockMvc.perform(get("/workorder/query")
-                        .param("pageNum", "1")
-                        .param("pageSize", "10")
-                        .param("status", "0"))
+        mockMvc.perform(post("/workorder/query")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testWorkOrderDetailedDTO)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200));
 
-        verify(workOrderService).queryWorkOrder(eq(1), eq(10), any(WorkOrder.class));
+        verify(workOrderService).queryWorkOrder(any(WorkOrderDetailedDTO.class));
     }
 
     // ==================== 工单详细统计测试 ====================

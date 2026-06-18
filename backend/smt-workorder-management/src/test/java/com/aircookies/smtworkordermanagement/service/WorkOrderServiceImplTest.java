@@ -37,6 +37,7 @@ public class WorkOrderServiceImplTest {
     private WorkOrderServiceImpl workOrderService;
 
     private WorkOrder testWorkOrder;
+    private WorkOrderDetailedDTO testWorkOrderDetailedDTO;
     private WorkProcessReport testReport;
 
     @BeforeEach
@@ -49,6 +50,10 @@ public class WorkOrderServiceImplTest {
         testWorkOrder.setQuantity(100);
         testWorkOrder.setStatus(0);
         testWorkOrder.setPriority(0);
+
+        testWorkOrderDetailedDTO = new WorkOrderDetailedDTO();
+        testWorkOrderDetailedDTO.setPageNum(1);
+        testWorkOrderDetailedDTO.setPageSize(10);
 
         testReport = new WorkProcessReport();
         testReport.setId(1L);
@@ -294,9 +299,9 @@ public class WorkOrderServiceImplTest {
     @DisplayName("条件查询工单成功")
     void testQueryWorkOrder() {
         List<WorkOrder> workOrders = Collections.singletonList(testWorkOrder);
-        when(workOrderMapper.queryWorkOrder(any(WorkOrder.class))).thenReturn(workOrders);
+        when(workOrderMapper.queryWorkOrder(any(WorkOrderDetailedDTO.class))).thenReturn(workOrders);
 
-        Result result = workOrderService.queryWorkOrder(1, 10, testWorkOrder);
+        Result result = workOrderService.queryWorkOrder(testWorkOrderDetailedDTO);
 
         assertEquals(200, result.getCode());
         assertNotNull(result.getData());

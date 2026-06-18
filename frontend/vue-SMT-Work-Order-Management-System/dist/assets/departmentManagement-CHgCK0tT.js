@@ -1,0 +1,1 @@
+import{r as e}from"./index-Be7jlu3Z.js";const t=t=>e.post("/department/find",t),a=t=>e.post("/department/add",t),d=t=>e.put("/department/update",t),p=t=>e.delete("/department/delete/"+t);export{a,p as d,t as q,d as u};
