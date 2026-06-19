@@ -2,7 +2,7 @@
  * 工单相关 API
  */
 
-import { get } from '../utils/request'
+import { get, post } from '../utils/request'
 
 /**
  * 获取工单分页列表
@@ -15,12 +15,12 @@ export const getWorkOrderList = (pageNum = 1, pageSize = 10) => {
 
 /**
  * 条件查询工单
- * 后端使用 GET + @RequestParam，条件对象会被序列化为 URL 查询参数
+ * 后端使用 POST + @RequestBody，条件对象以 JSON body 发送
  * @param {Object} conditions - 查询条件（参考 WorkOrderDetailedDTO 字段）
  *   支持: pageNum, pageSize, status, productId, lineId, priority 等
  */
 export const queryWorkOrders = (conditions) => {
-  return get('/workorder/query', conditions)
+  return post('/workorder/query', conditions)
 }
 
 /**

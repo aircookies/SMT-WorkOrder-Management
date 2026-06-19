@@ -8,6 +8,10 @@
           <text class="form-label">工单编号</text>
           <text class="form-value">工单 #{{ orderId }}</text>
         </view>
+        <view class="form-item">
+          <text class="form-label">计划数量</text>
+          <text class="form-value">{{ orderQuantity }}</text>
+        </view>
       </view>
 
       <!-- 工序信息 -->
@@ -101,11 +105,13 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { addProcess } from '../../api/process'
 import store from '../../store/index'
 
 const orderId = ref('')
+const orderQuantity = ref(0)
+const reportedSum = ref(0)
 const submitting = ref(false)
 
 // 工序选项
@@ -135,10 +141,26 @@ const canSubmit = computed(() => {
   return (
     form.value.processSeq !== null &&
     form.value.qualifiedQuantity !== '' &&
-    Number(form.value.qualifiedQuantity) >= 0 &&
-    form.value.badQuantity !== '' &&
-    Number(form.value.badQuantity) >= 0
+    form.value.badQuantity !== ''
   )
+})
+
+// 输入净化：去除小数点、负号和非数字字符，只保留非负整数
+const sanitizeQuantity = (val) => {
+  if (val === '' || val == null) return ''
+  const cleaned = String(val).replace(/[^0-9]/g, '')
+  // 去掉前导零（但保留单独的 "0"）
+  return cleaned.replace(/^0+(?=\d)/, '')
+}
+
+watch(() => form.value.qualifiedQuantity, (val) => {
+  const sanitized = sanitizeQuantity(val)
+  if (sanitized !== val) form.value.qualifiedQuantity = sanitized
+})
+
+watch(() => form.value.badQuantity, (val) => {
+  const sanitized = sanitizeQuantity(val)
+  if (sanitized !== val) form.value.badQuantity = sanitized
 })
 
 // ========== 事件处理 ==========
@@ -159,12 +181,17 @@ const onEndDateChange = (e) => {
 const handleSubmit = async () => {
   if (!canSubmit.value || submitting.value) return
 
-  // 数量校验
-  const qualified = Number(form.value.qualifiedQuantity)
-  const bad = Number(form.value.badQuantity)
+  // 数量校验：先做最终净化（安全兜底），再校验
+  const qualified = Number(sanitizeQuantity(form.value.qualifiedQuantity))
+  const bad = Number(sanitizeQuantity(form.value.badQuantity))
 
   if (qualified + bad === 0) {
     uni.showToast({ title: '合格数量和不良数量不能同时为0', icon: 'none' })
+    return
+  }
+
+  if (qualified + bad > orderQuantity.value) {
+    uni.showToast({ title: `报工数量不能超过工单计划数量 ${orderQuantity.value}`, icon: 'none' })
     return
   }
 
@@ -207,7 +234,11 @@ const handleSubmit = async () => {
 onMounted(() => {
   const pages = getCurrentPages()
   const currentPage = pages[pages.length - 1]
-  orderId.value = currentPage.options.orderId
+  const options = currentPage.options
+
+  orderId.value = options.orderId
+  orderQuantity.value = Number(options.orderQuantity) || 0
+  reportedSum.value = Number(options.reportedSum) || 0
 
   if (!orderId.value) {
     uni.showToast({ title: '工单ID缺失', icon: 'none' })
@@ -269,6 +300,10 @@ onMounted(() => {
   font-size: $font-md;
   color: $text-primary;
   font-weight: 500;
+}
+
+.form-value-warning {
+  color: $danger-color;
 }
 
 .form-input {

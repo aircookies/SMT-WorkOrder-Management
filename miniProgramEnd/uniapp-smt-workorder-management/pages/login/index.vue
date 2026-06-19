@@ -42,6 +42,9 @@
             @confirm="handleLogin"
           />
         </view>
+		<view>
+			<text>账号:operator1 密码:123456</text>
+		</view>
 
         <button
           class="login-btn"
