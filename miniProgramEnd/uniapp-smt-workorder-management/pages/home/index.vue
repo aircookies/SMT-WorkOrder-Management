@@ -39,18 +39,16 @@
     </view>
 
     <!-- 工单列表 -->
-    <scroll-view
-      scroll-y
-      class="order-list"
-      :refresher-enabled="true"
-      :refresher-triggered="refreshing"
-      @refresherrefresh="onRefresh"
-      @scrolltolower="onLoadMore"
-    >
+    <view class="order-list">
       <!-- 空状态 -->
       <view v-if="!loading && orderList.length === 0" class="empty-state">
         <text class="empty-icon">&#x1F4CB;</text>
         <text class="empty-text">暂无工单数据</text>
+      </view>
+
+      <!-- 加载中占位 -->
+      <view v-if="loading && orderList.length === 0" class="loading-state">
+        <text class="loading-text">加载中...</text>
       </view>
 
       <!-- 工单卡片列表 -->
@@ -93,20 +91,37 @@
           <text class="order-time">{{ order.createTime }}</text>
         </view>
       </view>
+    </view>
 
-      <!-- 加载状态 -->
-      <view v-if="loading" class="loading-state">
-        <text class="loading-text">加载中...</text>
+    <!-- 分页控制栏 -->
+    <view v-if="total > 0" class="pagination-bar">
+      <view
+        class="pagination-btn"
+        :class="{ 'pagination-btn-disabled': pageNum <= 1 }"
+        @click="prevPage"
+      >
+        <text>上一页</text>
       </view>
-      <view v-if="!loading && finished && orderList.length > 0" class="loading-state">
-        <text class="loading-text">没有更多了</text>
+      <view class="pagination-info">
+        <text class="pagination-current">{{ pageNum }}</text>
+        <text class="pagination-separator">/</text>
+        <text class="pagination-total">{{ totalPages }}</text>
+        <text class="pagination-count">共 {{ total }} 条</text>
       </view>
-    </scroll-view>
+      <view
+        class="pagination-btn"
+        :class="{ 'pagination-btn-disabled': pageNum >= totalPages }"
+        @click="nextPage"
+      >
+        <text>下一页</text>
+      </view>
+    </view>
   </view>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { onPullDownRefresh } from '@dcloudio/uni-app'
 import { queryWorkOrders } from '../../api/workorder'
 import store from '../../store/index'
 
@@ -123,22 +138,17 @@ const currentTab = ref(-1)
 const searchId = ref('')
 const orderList = ref([])
 const loading = ref(false)
-const refreshing = ref(false)
-const finished = ref(false)
 const pageNum = ref(1)
+const total = ref(0)
 const pageSize = 10
+
+// 总页数
+const totalPages = computed(() => Math.max(1, Math.ceil(total.value / pageSize)))
 
 // ========== 数据加载 ==========
 
-const fetchOrders = async (isRefresh = false) => {
+const fetchOrders = async () => {
   if (loading.value) return
-
-  if (isRefresh) {
-    pageNum.value = 1
-    finished.value = false
-  }
-
-  if (finished.value) return
 
   loading.value = true
   try {
@@ -158,21 +168,15 @@ const fetchOrders = async (isRefresh = false) => {
     const res = await queryWorkOrders(conditions)
     const pageData = res.data
 
-    if (isRefresh) {
-      orderList.value = pageData.list || []
-    } else {
-      orderList.value = [...orderList.value, ...(pageData.list || [])]
-    }
+    orderList.value = pageData.list || []
+    total.value = pageData.total || 0
 
-    // 判断是否还有更多数据
-    if (orderList.value.length >= pageData.total) {
-      finished.value = true
-    }
+    // 翻页后回到顶部
+    uni.pageScrollTo({ scrollTop: 0, duration: 0 })
   } catch (err) {
     console.error('获取工单列表失败:', err)
   } finally {
     loading.value = false
-    refreshing.value = false
   }
 }
 
@@ -181,28 +185,35 @@ const fetchOrders = async (isRefresh = false) => {
 const switchTab = (value) => {
   if (currentTab.value === value) return
   currentTab.value = value
-  orderList.value = []
-  fetchOrders(true)
+  pageNum.value = 1
+  fetchOrders()
 }
 
 const onSearch = () => {
-  orderList.value = []
-  fetchOrders(true)
+  pageNum.value = 1
+  fetchOrders()
 }
 
 const clearSearch = () => {
   searchId.value = ''
-  orderList.value = []
-  fetchOrders(true)
+  pageNum.value = 1
+  fetchOrders()
 }
 
-const onRefresh = () => {
-  refreshing.value = true
-  fetchOrders(true)
+onPullDownRefresh(async () => {
+  pageNum.value = 1
+  await fetchOrders()
+  uni.stopPullDownRefresh()
+})
+
+const prevPage = () => {
+  if (pageNum.value <= 1 || loading.value) return
+  pageNum.value--
+  fetchOrders()
 }
 
-const onLoadMore = () => {
-  if (finished.value || loading.value) return
+const nextPage = () => {
+  if (pageNum.value >= totalPages.value || loading.value) return
   pageNum.value++
   fetchOrders()
 }
@@ -244,15 +255,13 @@ const getPriorityClass = (priority) => {
 // ========== 生命周期 ==========
 
 onMounted(() => {
-  fetchOrders(true)
+  fetchOrders()
 })
 </script>
 
 <style lang="scss" scoped>
 .home-page {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
+  min-height: 100vh;
   background-color: $bg-page;
 }
 
@@ -353,8 +362,8 @@ onMounted(() => {
 
 /* 工单列表 */
 .order-list {
-  flex: 1;
   padding: 16rpx 24rpx;
+  padding-bottom: calc(120rpx + env(safe-area-inset-bottom));
 }
 
 .order-card {
@@ -500,6 +509,63 @@ onMounted(() => {
 
 .loading-text {
   font-size: $font-sm;
+  color: $text-secondary;
+}
+
+/* 分页控制栏 */
+.pagination-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16rpx 32rpx;
+  padding-bottom: calc(16rpx + env(safe-area-inset-bottom));
+  background-color: $bg-card;
+  box-shadow: 0 -2rpx 8rpx rgba(0, 0, 0, 0.04);
+  z-index: 20;
+}
+
+.pagination-btn {
+  padding: 12rpx 32rpx;
+  background-color: $primary-color;
+  border-radius: $radius-round;
+  font-size: $font-sm;
+  color: #FFFFFF;
+}
+
+.pagination-btn-disabled {
+  background-color: $bg-grey;
+  color: $text-secondary;
+}
+
+.pagination-info {
+  display: flex;
+  align-items: baseline;
+  font-size: $font-sm;
+  color: $text-regular;
+}
+
+.pagination-current {
+  font-weight: 600;
+  color: $primary-color;
+  font-size: $font-md;
+}
+
+.pagination-separator {
+  margin: 0 6rpx;
+  color: $text-secondary;
+}
+
+.pagination-total {
+  color: $text-regular;
+}
+
+.pagination-count {
+  margin-left: 16rpx;
+  font-size: $font-xs;
   color: $text-secondary;
 }
 </style>

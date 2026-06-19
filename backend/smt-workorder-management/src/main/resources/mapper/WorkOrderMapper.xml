@@ -106,7 +106,7 @@
                 AND work_order.priority = #{priority}
             </if>
             <if test="createTime != null">
-                AND DATE_FORMAT(work_order.create_time, '%Y-%m-%d') = DATE_FORMAT(#{createTime}, '%Y-%m-%d')
+                AND DATE(work_order.create_time) = DATE(#{createTime})
             </if>
         </where>
         ORDER BY create_time DESC
@@ -180,10 +180,10 @@
         FROM work_order
         <where>
             <if test="startTime != null">
-                AND DATE_FORMAT(create_time, '%Y-%m-%d') &gt;= DATE_FORMAT(#{startTime}, '%Y-%m-%d')
+                AND DATE(create_time) &gt;= DATE(#{startTime})
             </if>
             <if test="endTime != null">
-                AND DATE_FORMAT(create_time, '%Y-%m-%d') &lt;= DATE_FORMAT(#{endTime}, '%Y-%m-%d')
+                AND DATE(create_time) &lt;= DATE(#{endTime})
             </if>
         </where>
         ORDER BY create_time;
@@ -305,16 +305,16 @@
                SUM(wp.qualified_quantity)                                                                         AS qualified_quantity,
                SUM(wp.bad_quantity)                                                                               AS bad_quantity,
                SUM(wp.qualified_quantity + wp.bad_quantity)                                                       AS total_quantity,
-               IF(SUM(wp.qualified_quantity + wp.bad_quantity) > 0,
+               IF(SUM(wp.qualified_quantity + wp.bad_quantity) &gt; 0,
                   ROUND(SUM(wp.qualified_quantity) * 100.0 / SUM(wp.qualified_quantity + wp.bad_quantity), 2),
                   0)                                                                                              AS pass_rate
         FROM work_process wp
         <where>
             <if test="startTime != null">
-                AND wp.create_time &gt;= #{startTime}
+                AND DATE(wp.create_time) &gt;= DATE(#{startTime})
             </if>
             <if test="endTime != null">
-                AND wp.create_time &lt;= #{endTime}
+                AND DATE(wp.create_time) &lt;= DATE(#{endTime})
             </if>
         </where>
         GROUP BY DATE(wp.create_time)

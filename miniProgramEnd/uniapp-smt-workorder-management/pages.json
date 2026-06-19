@@ -3,7 +3,8 @@
 		{
 			"path": "pages/home/index",
 			"style": {
-				"navigationBarTitleText": "SMT工单管理"
+				"navigationBarTitleText": "SMT工单管理",
+				"enablePullDownRefresh": true
 			}
 		},
 		{

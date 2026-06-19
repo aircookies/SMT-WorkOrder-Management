@@ -195,8 +195,12 @@ const loadData = async () => {
 // ========== 导航 ==========
 
 const goReport = () => {
+  const orderQuantity = order.value?.quantity || 0
+  const reportedSum = processList.value.reduce(
+    (sum, r) => sum + (r.qualifiedQuantity || 0) + (r.badQuantity || 0), 0
+  )
   uni.navigateTo({
-    url: `/pages/report/index?orderId=${orderId.value}`
+    url: `/pages/report/index?orderId=${orderId.value}&orderQuantity=${orderQuantity}&reportedSum=${reportedSum}`
   })
 }
 
