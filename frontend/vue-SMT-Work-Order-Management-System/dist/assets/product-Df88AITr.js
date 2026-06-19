@@ -1,1 +1,0 @@
-import{r as e}from"./index-Be7jlu3Z.js";const t=(t,d)=>e.get("/product/findAll?pageNum="+t+"&pageSize="+d),d=t=>e.get("/product/find/"+t),a=t=>e.post("/product/query",t),p=t=>e.post("/product/add",t),o=t=>e.put("/product/update",t),r=t=>e.delete("/product/deleteBatch",{data:t}),s=t=>e.delete("/product/delete/"+t);export{d as a,r as b,p as c,s as d,o as e,t as g,a as q};
