@@ -130,7 +130,8 @@ public class UserServiceImpl implements UserService {
         }
 
         // 检查用户名是否已存在
-        if (sysUserMapper.findUserByUserName(user.getUsername()) != null) {
+        SysUser tempUser = sysUserMapper.findUserByUserName(user.getUsername());
+        if (tempUser != null && !tempUser.getId().equals(user.getId())) {
             throw new BusinessException("用户名已存在");
         }
 

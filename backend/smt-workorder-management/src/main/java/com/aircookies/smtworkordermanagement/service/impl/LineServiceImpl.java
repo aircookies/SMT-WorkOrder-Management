@@ -82,7 +82,8 @@ public class LineServiceImpl implements LineService {
         }
 
         // 判断产线名称是否重复
-        if (lineMapper.findLineByName(line.getName()) != null) {
+        Line tempLine = lineMapper.findLineByName(line.getName());
+        if (tempLine != null && !tempLine.getId().equals(line.getId())) {
             log.info("尝试更新产线名称{}已存在的产线，失败", line.getName());
             throw new BusinessException("产线名称重复");
         }

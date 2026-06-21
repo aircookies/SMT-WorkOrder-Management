@@ -95,14 +95,15 @@ public class ProductServiceImpl implements ProductService {
      */
     @Override
     public Result updateProduct(Product product) {
-        // 判断产品是否已存在
+        // 判断产品是否存在
         if (product == null || productMapper.findProductById(product.getId()) == null) {
             log.info("尝试更新不存在存在的产品，失败");
             throw new BusinessException("该产品不存在");
         }
 
         // 判断产品编号是否重复
-        if (productMapper.findProductByCode(product.getCode()) != null) {
+        Product tempProduct = productMapper.findProductByCode(product.getCode());
+        if (tempProduct != null && !tempProduct.getId().equals(product.getId())) {
             log.info("尝试更新产品编号{}已存在的产品，失败", product.getCode());
             throw new BusinessException("产品编号已存在，请使用其他编号");
         }
