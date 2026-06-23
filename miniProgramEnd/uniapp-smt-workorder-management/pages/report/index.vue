@@ -186,12 +186,12 @@ const handleSubmit = async () => {
   const bad = Number(sanitizeQuantity(form.value.badQuantity))
 
   if (qualified + bad === 0) {
-    uni.showToast({ title: '合格数量和不良数量不能同时为0', icon: 'none' })
+    uni.showToast({ title: '报工数量不能为0', icon: 'none' })
     return
   }
 
-  if (qualified + bad > orderQuantity.value) {
-    uni.showToast({ title: `报工数量不能超过工单计划数量 ${orderQuantity.value}`, icon: 'none' })
+  if (qualified + bad != orderQuantity.value) {
+    uni.showToast({ title: `报工数量必须等于计划数量 ${orderQuantity.value}`, icon: 'none' })
     return
   }
 
