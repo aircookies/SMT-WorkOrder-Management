@@ -102,7 +102,9 @@ smt-workorder-management/
 │       ├── 01-schema.sql            # 建表脚本
 │       └── 02-data.sql              # 初始数据
 ├── nginx/
-│   └── conf.d/default.conf          # Nginx HTTPS 完整配置（含 gzip、缓存、安全头）
+│   └── conf.d/
+│       ├── default.conf          # Nginx HTTPS 配置（获取证书后使用）
+│       └── default-http.conf     # Nginx HTTP 配置（首次部署用）
 ├── docker-compose.yml               # 容器编排配置文件
 ├── docker-compose.local.yml         # 本地开发覆盖配置（暴露 MySQL/Redis 端口）
 ```
@@ -167,19 +169,31 @@ cp utils/config.example.js utils/config.js
 
 ```bash
 # 1. 创建宿主机数据目录
-sudo mkdir -p /data/mysql /data/redis /data/nginx/{html,conf,logs}
+sudo mkdir -p /data/mysql /data/redis /data/nginx/{html,conf,logs,certs,certbot}
 
-# 2. 复制前端文件到 Nginx 目录
+# 2. 生成 RSA 密钥对（用于登录密码加密传输）
+#    如果 keys 目录已存在且包含密钥文件，可跳过此步
+mkdir -p keys
+if [ ! -f keys/private.key ]; then
+  openssl genpkey -algorithm RSA -out keys/private.key -pkeyopt rsa_keygen_bits:2048
+  openssl rsa -pubout -in keys/private.key -out keys/public.key
+fi
+# 确保密钥文件权限正确（容器内用户可读）
+chmod 644 keys/public.key keys/private.key
+
+# 3. 复制前端文件到 Nginx 目录
 sudo cp -r frontend/vue-SMT-Work-Order-Management-System/dist/* /data/nginx/html/
-sudo cp nginx/conf.d/default.conf /data/nginx/conf/default.conf
 
-# 3. 构建并启动所有容器
+# 4. 复制 Nginx 配置（首次部署使用 HTTP 模式，避免因缺少证书导致启动失败）
+sudo cp nginx/conf.d/default-http.conf /data/nginx/conf/default.conf
+
+# 5. 构建并启动所有容器
 docker compose up -d
 
-# 4. 查看运行状态
+# 6. 查看运行状态
 docker compose ps
 
-# 5. 查看后端日志
+# 7. 查看后端日志
 docker compose logs -f backend
 ```
 
@@ -187,6 +201,12 @@ docker compose logs -f backend
 
 - **前端页面**：`http://localhost`
 - **后端 API**：通过 Nginx 代理 `http://localhost/api/*`
+
+> **注意**：首次部署使用 HTTP 模式。如需启用 HTTPS，请先完成下方 [HTTPS 配置](#https-配置生产环境)，然后切换到 HTTPS 配置：
+> ```bash
+> sudo cp nginx/conf.d/default.conf /data/nginx/conf/default.conf
+> docker exec smt-nginx nginx -s reload
+> ```
 
 ### HTTPS 配置（生产环境）
 
@@ -238,15 +258,17 @@ sudo chmod 644 /data/nginx/certs/archive/your-domain.com/*
 
 > **常见错误**：不修复权限会导致 Nginx 报 `cannot load certificate ... No such file or directory`，即使文件确实存在。这是因为 `nginx` 用户没有权限穿越 `live` 和 `archive` 目录。
 
-#### 第五步：启动 Nginx
+#### 第五步：切换到 HTTPS 配置并重载 Nginx
 
 ```bash
-# 复制 HTTPS 配置到 Nginx 配置目录
+# 切换到 HTTPS 配置
 sudo cp nginx/conf.d/default.conf /data/nginx/conf/default.conf
 
-# 启动服务
-docker compose up -d
+# 重载 Nginx（无需重启容器，零停机）
+docker exec smt-nginx nginx -s reload
 ```
+
+> 如果 Nginx 容器之前因证书问题未启动，执行 `docker compose up -d` 即可。
 
 #### 验证 HTTPS
 
@@ -433,6 +455,7 @@ Web 浏览器 :80 / :443          微信小程序 (HTTPS)
 | `JWT_SECRET`        | JWT 签名密钥     | （内置默认值）                           |
 | `JWT_EXPIRATION`    | JWT 过期时间（毫秒） | `86400000`（1天）                    |
 | `RSA_KEY_FILE_PATH` | RSA 密钥文件路径   | `./keys/`                         |
+| `JAVA_OPTS`         | JVM 启动参数     |（容器内存 75% 堆、G1GC、OOM 自动 dump）     |
 
 ## 运维命令
 

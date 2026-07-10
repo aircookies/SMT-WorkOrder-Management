@@ -2,6 +2,7 @@ package com.aircookies.smtworkordermanagement.controller;
 
 import com.aircookies.smtworkordermanagement.common.Result;
 import com.aircookies.smtworkordermanagement.dto.WorkOrderDetailedDTO;
+import com.aircookies.smtworkordermanagement.dto.WorkOrderDetailedDTO;
 import com.aircookies.smtworkordermanagement.entity.WorkOrder;
 import com.aircookies.smtworkordermanagement.entity.WorkProcessReport;
 import com.aircookies.smtworkordermanagement.service.WorkOrderService;
@@ -44,6 +45,7 @@ class WorkOrderControllerTest {
     private WorkOrder testWorkOrder;
     private WorkOrderDetailedDTO testWorkOrderDetailedDTO;
     private WorkProcessReport testReport;
+    private WorkOrderDetailedDTO testDTO;
 
     @BeforeEach
     @DisplayName("初始化测试环境")
@@ -70,6 +72,11 @@ class WorkOrderControllerTest {
         testReport.setQualifiedQuantity(90);
         testReport.setBadQuantity(10);
         testReport.setOperatorId(1L);
+
+        testDTO = new WorkOrderDetailedDTO();
+        testDTO.setPageNum(1);
+        testDTO.setPageSize(10);
+        testDTO.setStatus(0);
     }
 
     // ==================== 添加工单测试 ====================
@@ -173,8 +180,10 @@ class WorkOrderControllerTest {
 
     @Test
     @DisplayName("条件查询工单 - POST方式")
+    @DisplayName("条件查询工单 - POST方式")
     void testQueryWorkOrder() throws Exception {
         Result expectedResult = Result.success(Collections.singletonList(testWorkOrder));
+        when(workOrderService.queryWorkOrder(any(WorkOrderDetailedDTO.class))).thenReturn(expectedResult);
         when(workOrderService.queryWorkOrder(any(WorkOrderDetailedDTO.class))).thenReturn(expectedResult);
 
         mockMvc.perform(post("/workorder/query")
@@ -183,6 +192,7 @@ class WorkOrderControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200));
 
+        verify(workOrderService).queryWorkOrder(any(WorkOrderDetailedDTO.class));
         verify(workOrderService).queryWorkOrder(any(WorkOrderDetailedDTO.class));
     }
 

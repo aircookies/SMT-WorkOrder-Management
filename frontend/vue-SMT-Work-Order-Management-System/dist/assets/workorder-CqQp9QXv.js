@@ -1,0 +1,1 @@
+import{r}from"./index-B01ossp2.js";const e=(e,o)=>r.get("/workorder/findAll?pageNum="+e+"&pageSize="+o),o=e=>r.get("/workorder/find/"+e),d=e=>r.post("/workorder/query",e),a=e=>r.post("/workorder/add",e),t=e=>r.put("/workorder/update",e),s=e=>r.delete("/workorder/delete",{data:e});export{o as a,a as b,s as d,t as e,e as g,d as q};

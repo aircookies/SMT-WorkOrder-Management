@@ -68,7 +68,7 @@
                 <el-table v-loading="loading" :data="tableData" @selection-change="handleSelectionChange"
                     style="width: 100%" stripe border class="custom-table">
                     <el-table-column type="selection" width="55" align="center" />
-                    <el-table-column property="id" label="工单号" min-width="150" align="center">
+                    <el-table-column property="id" label="工单号" min-width="80" align="center">
                         <template #default="{ row }">
                             <el-tag type="info" effect="plain">{{ row.id }}</el-tag>
                         </template>
@@ -132,7 +132,7 @@
 
             <!-- 分页 -->
             <div class="pagination-wrapper">
-                <el-pagination :current-page="pageNum" :page-size="pageSize" :page-sizes="[10, 25, 50, 100, 500]"
+                <el-pagination :current-page="queryFormModel.pageNum" :page-size="queryFormModel.pageSize" :page-sizes="[10, 25, 50, 100, 500]"
                     layout="total, sizes, prev, pager, next, jumper" :total="total" @size-change="handleSizeChange"
                     @current-change="handleCurrentChange" background />
             </div>
@@ -482,11 +482,11 @@ const handleDelete = async (row) => {
 
 // 获取工单列表
 const getWorkOrderList = async () => {
-    const res = await getWorkOrderListApi(pageNum.value, pageSize.value)
+    const res = await getWorkOrderListApi(queryFormModel.value.pageNum, queryFormModel.value.pageSize)
     if (res.code === 200) {
         tableData.value = res.data.list
-        pageNum.value = res.data.pageNum
-        pageSize.value = res.data.pageSize
+        queryFormModel.value.pageNum = res.data.pageNum
+        queryFormModel.value.pageSize = res.data.pageSize
         total.value = res.data.total
     }
 }
@@ -509,13 +509,13 @@ const getProductList = async () => {
 
 // 分页大小改变
 const handleSizeChange = (val) => {
-    pageSize.value = val
+    queryFormModel.value.pageSize = val
     queryWorkOrder()
 }
 
 // 分页页码改变
 const handleCurrentChange = (val) => {
-    pageNum.value = val
+    queryFormModel.value.pageNum = val
     queryWorkOrder()
 }
 
