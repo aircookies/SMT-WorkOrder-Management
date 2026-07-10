@@ -51,7 +51,7 @@ export const passRateLineChart = (data = []) => {
         yAxis: {
             type: 'value',
             name: '良品率(%)',
-            min: 95,
+            min: 80,
             max: 100,
             axisLabel: {
                 formatter: '{value}%',

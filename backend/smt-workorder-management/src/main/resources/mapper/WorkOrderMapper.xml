@@ -106,7 +106,7 @@
                 AND work_order.priority = #{priority}
             </if>
             <if test="createTime != null">
-                AND DATE_FORMAT(work_order.create_time, '%Y-%m-%d') = DATE_FORMAT(#{createTime}, '%Y-%m-%d')
+                AND DATE(work_order.create_time) = DATE(#{createTime})
             </if>
         </where>
         ORDER BY create_time DESC
@@ -168,7 +168,7 @@
                CASE status
                    WHEN 0 THEN '待生产'
                    WHEN 1 THEN '生产中'
-                   WHEN 2 THEN '已完成'
+                   WHEN 2 THEN '生产完成'
                    WHEN 3 THEN '已关闭'
                    END          AS status_name,
                priority,
@@ -180,10 +180,10 @@
         FROM work_order
         <where>
             <if test="startTime != null">
-                AND create_time &gt;= #{startTime}
+                AND DATE(create_time) &gt;= DATE(#{startTime})
             </if>
             <if test="endTime != null">
-                AND create_time &lt;= #{endTime}
+                AND DATE(create_time) &lt;= DATE(#{endTime})
             </if>
         </where>
         ORDER BY create_time;
@@ -218,7 +218,8 @@
 
     <!-- 根据工单ID查询工序报工表 -->
     <select id="findWorkProcessReport" resultType="com.aircookies.smtworkordermanagement.entity.WorkProcessReport">
-        SELECT order_id,
+        SELECT id,
+               order_id,
                process_seq,
                qualified_quantity,
                bad_quantity,
@@ -230,6 +231,7 @@
                update_time
         FROM work_process
         WHERE order_id = #{orderId}
+        ORDER BY process_seq
     </select>
 
     <!--根据工单ID和工序序号查询工序报工表-->
@@ -303,16 +305,16 @@
                SUM(wp.qualified_quantity)                                                                         AS qualified_quantity,
                SUM(wp.bad_quantity)                                                                               AS bad_quantity,
                SUM(wp.qualified_quantity + wp.bad_quantity)                                                       AS total_quantity,
-               IF(SUM(wp.qualified_quantity + wp.bad_quantity) > 0,
+               IF(SUM(wp.qualified_quantity + wp.bad_quantity) &gt; 0,
                   ROUND(SUM(wp.qualified_quantity) * 100.0 / SUM(wp.qualified_quantity + wp.bad_quantity), 2),
                   0)                                                                                              AS pass_rate
         FROM work_process wp
         <where>
             <if test="startTime != null">
-                AND wp.create_time &gt;= #{startTime}
+                AND DATE(wp.create_time) &gt;= DATE(#{startTime})
             </if>
             <if test="endTime != null">
-                AND wp.create_time &lt;= #{endTime}
+                AND DATE(wp.create_time) &lt;= DATE(#{endTime})
             </if>
         </where>
         GROUP BY DATE(wp.create_time)

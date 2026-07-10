@@ -1,6 +1,6 @@
 # SMT 工单管理系统
 
-基于 Spring Boot + Vue 3 的 SMT（表面贴装技术）工单管理系统，是我的软件工程项目式教学大作业，支持工单全生命周期管理、工序报工、产量质量统计等功能。
+基于 Spring Boot + Vue 3 的 SMT（表面贴装技术）工单管理系统，是我的软件工程项目式教学大作业。系统包含 Web 管理端和微信小程序端（车间报工端），支持工单全生命周期管理、工序报工、产量质量统计等功能。
 
 ## 技术栈
 
@@ -14,10 +14,13 @@
 | **前端框架**   | Vue 3 + Vite                | Vue 3.5 / Vite 7 |
 | **UI 组件库** | Element Plus                | 2.13             |
 | **图表**     | ECharts                     | 6.1              |
+| **小程序框架**  | UniApp + Vue 3              |                  |
 | **反向代理**   | Nginx                       | Alpine           |
 | **容器化**    | Docker + Docker Compose     |                  |
 
 ## 功能模块
+
+### Web 管理端
 
 - **用户认证**：JWT 登录认证，RSA 加密传输密码，Cookie 存储 Token
 - **部门管理**：部门的增删改查
@@ -27,6 +30,16 @@
 - **工单管理**：工单全生命周期管理（创建、删除、更新、查询）
 - **工序报工**：工单下的工序报工记录（良品/不良统计）
 - **统计报表**：产量统计、质量统计、产线效率统计
+
+### 微信小程序端（车间报工端）
+
+面向生产计划员和车间操作员，提供移动端便捷的工单查看和工序报工能力：
+
+- **登录认证**：明文密码 + HTTPS 传输，JWT Token 通过 `Authorization: Bearer` Header 存储（适配小程序不支持 Cookie 的限制）
+- **工单列表**：按状态筛选（待生产/生产中/已完工/已关闭）、按工单号搜索、下拉刷新 + 上拉加载更多
+- **工单详情**：查看工单基本信息、关联的工序报工记录，返回页面自动刷新
+- **工序报工**：选择工序（印刷/贴片/回流焊），录入合格/不良数量和生产时间
+- **个人中心**：查看用户信息和角色权限，退出登录
 
 ### 角色权限
 
@@ -62,6 +75,27 @@ smt-workorder-management/
 │   └── vue-SMT-Work-Order-Management-System/
 │       ├── package.json
 │       └── dist/                    # 构建产物（部署用）
+├── miniProgramEnd/                  # 微信小程序端（UniApp Vue 3）
+│   └── uniapp-smt-workorder-management/
+│       ├── api/                     # 接口封装（login、workorder、process）
+│       ├── pages/                   # 页面
+│       │   ├── home/                # 工单列表首页（TabBar）
+│       │   ├── mine/                # 我的（TabBar）
+│       │   ├── login/               # 登录页
+│       │   ├── detail/              # 工单详情页
+│       │   └── report/              # 工序报工页
+│       ├── static/                  # 静态资源（TabBar 图标等）
+│       ├── store/                   # 全局状态管理（Vue 3 reactive）
+│       ├── utils/                   # 工具函数
+│       │   ├── auth.js              # Token/用户信息本地存储
+│       │   ├── config.example.js    # 配置模板（提交到 Git）
+│       │   ├── config.js            # 本地配置（gitignored）
+│       │   └── request.js           # 网络请求封装（uni.request）
+│       ├── App.vue                  # 应用入口（路由守卫）
+│       ├── main.js                  # Vue 3 入口
+│       ├── manifest.json            # UniApp 应用配置
+│       ├── pages.json               # 页面路由与 TabBar 配置
+│       └── uni.scss                 # 全局样式变量
 ├── mysql/
 │   ├── conf.d/charset.cnf          # MySQL 字符集配置
 │   └── init/
@@ -84,6 +118,8 @@ smt-workorder-management/
 - Maven 3.9+
 - Docker & Docker Compose
 - MySQL 9.x（本地开发时）
+- [HBuilderX](https://www.dcloud.io/hbuilderx.html)（小程序开发 IDE）
+- [微信开发者工具](https://developers.weixin.qq.com/miniprogram/dev/devtools/download.html)（小程序调试）
 
 ### 本地开发
 
@@ -113,7 +149,23 @@ npm run dev
 
 前端开发服务器默认运行在 `http://localhost:5173`，Vite 代理会把 `/api/*` 转发到后端 `http://localhost:8080`。
 
-### Docker 一键部署（生产环境）
+**4. 启动微信小程序**
+
+```bash
+# 1. 复制配置模板并填入后端地址
+cd miniProgramEnd/uniapp-smt-workorder-management
+cp utils/config.example.js utils/config.js
+# 编辑 utils/config.js，将 BASE_URL 改为你的后端 API 地址
+```
+
+使用 HBuilderX 打开 `miniProgramEnd/uniapp-smt-workorder-management` 目录，点击「运行 → 运行到小程序模拟器 → 微信开发者工具」，HBuilderX 会自动编译并调起微信开发者工具预览。
+
+> **注意事项**：
+> - 微信开发者工具需在「设置 → 安全设置」中开启「服务端口」，否则 HBuilderX 无法自动调起
+> - `manifest.json` 中的 `mp-weixin.appid` 需要填入你自己的微信小程序 AppID（在 [mp.weixin.qq.com](https://mp.weixin.qq.com) 注册获取）
+> - 真机调试时，后端 API 地址必须为已备案的域名（不能用 IP），且需在微信公众平台「开发管理 → 服务器域名」中配置 request 合法域名
+
+### Docker 一键部署
 
 ```bash
 # 1. 创建宿主机数据目录
@@ -273,22 +325,28 @@ Certbot 续期时更新 archive 目录下的真实文件，live 目录下的符�
 ### 容器架构
 
 ```
-浏览器 :80 / :443
-    │
-    ▼
-┌─────────┐    /api/*     ┌──────────┐    ┌─────────┐
-│  Nginx  │ ────────────► │ Backend  │───►│  MySQL  │
-│ 80/443  │               │ :8080    │    │ :3306   │
-└─────────┘               └──────────┘    └─────────┘
-                                    │
-                                    └───►  ┌─────────┐
-                                    |      │  Redis  │
-                                    |      │ :6379   │
-                                    |      └─────────┘
-                                    └───► ┌─────────┐
-                                          │ Certbot │
-                                          │ 自动续期  │
-                                          └─────────┘
+Web 浏览器 :80 / :443          微信小程序 (HTTPS)
+    │                              │
+    ▼                              ▼
+┌────────────────────────────────────────┐
+│                Nginx                   │
+│              80 / 443                  │
+│     /api/* ──► Backend :8080           │
+│     其他    ──► 前端静态文件              │
+└──────────────┬─────────────────────────┘
+               │
+        ┌──────┴──────┐
+        ▼             ▼
+   ┌──────────┐  ┌─────────┐
+   │ Backend  │  │  Redis  │
+   │  :8080   │  │  :6379  │
+   └────┬─────┘  └─────────┘
+        │
+        ▼
+   ┌─────────┐
+   │  MySQL  │
+   │  :3306  │
+   └─────────┘
 ```
 
 ## API 接口
@@ -297,11 +355,12 @@ Certbot 续期时更新 archive 目录下的真实文件，live 目录下的符�
 
 ### 认证
 
-| 方法   | 路径               | 说明                     |
-|------|------------------|------------------------|
-| GET  | `/api/publickey` | 获取 RSA 公钥（前端加密密码用）     |
-| POST | `/api/login`     | 用户登录，返回 JWT（通过 Cookie） |
-| POST | `/api/logout`    | 退出登录，清除 JWT            |
+| 方法   | 路径                    | 说明                                       |
+|------|-----------------------|------------------------------------------|
+| GET  | `/api/publickey`      | 获取 RSA 公钥（Web 端加密密码用）                  |
+| POST | `/api/login`          | Web 端登录，返回 JWT（通过 Cookie）              |
+| POST | `/api/miniprogram/login` | 小程序端登录，接受明文密码，响应体返回 JWT Token（HTTPS 保障安全） |
+| POST | `/api/logout`         | 退出登录，清除 JWT（同时支持 Cookie 和 Authorization Header） |
 
 ### 部门管理
 
@@ -365,7 +424,7 @@ Certbot 续期时更新 archive 目录下的真实文件，live 目录下的符�
 | PUT    | `/api/workorder/update`    | 更新工单     |
 | GET    | `/api/workorder/find/{id}` | 查询工单     |
 | GET    | `/api/workorder/findAll`   | 分页查询所有工单 |
-| POST   | `/api/workorder/query`     | 条件查询工单   |
+| POST    | `/api/workorder/query`     | 条件查询工单   |
 | GET    | `/api/workorder/detailed`  | 工单详细统计   |
 
 ### 工序报工
@@ -429,6 +488,27 @@ docker compose down
 docker compose down -v
 ```
 
+## 部署到云服务器
+
+```bash
+# 1. 上传项目到服务器
+scp -r smt-workorder-management/ user@your-server:/opt/
+
+# 2. 生成 RSA 密钥对（可选，不生成则首次启动时自动生成）
+cd /opt/smt-workorder-management
+mkdir -p keys
+openssl genpkey -algorithm RSA -out keys/private.key -pkeyopt rsa_keygen_bits:2048
+openssl rsa -pubout -in keys/private.key -out keys/public.key
+
+# 3. 创建数据目录并启动
+sudo mkdir -p /data/mysql /data/redis /data/nginx/{html,conf,logs}
+sudo cp -r frontend/vue-SMT-Work-Order-Management-System/dist/* /data/nginx/html/
+sudo cp nginx/conf.d/default.conf /data/nginx/conf/default.conf
+docker compose up -d
+```
+
+> **RSA 密钥持久化说明**：`docker-compose.yml` 已将宿主机 `./keys/` 目录挂载到容器内 `/app/keys/`。如果手动生成了密钥对，后端启动时会直接加载；如果没有手动生成，后端会在首次启动时自动生成并保存到挂载的目录中，后续重启不会重新生成。
+
 ## 安全建议
 
 部署到生产环境前务必修改：
@@ -438,3 +518,5 @@ docker compose down -v
 - [ ] 生成新的 RSA 密钥对替换 `keys/` 目录
 - [ ] 配置云服务器防火墙规则
 - [ ] 生产环境不要将密钥和密码提交到 Git 仓库（已在 `.gitignore` 中排除 `keys/`）
+- [ ] 小程序端 `utils/config.js` 包含服务器地址，已加入 `.gitignore`，使用 `config.example.js` 作为模板
+- [ ] 小程序登录接口 `/api/miniprogram/login` 依赖 HTTPS 保障传输安全，确保 Nginx SSL 证书有效

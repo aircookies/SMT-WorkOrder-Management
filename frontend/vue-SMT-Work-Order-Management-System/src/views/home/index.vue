@@ -131,7 +131,7 @@
                             <template #default="{ row }">
                                 <el-tag v-if="row.status === 0" type="warning" effect="dark" size="small">待生产</el-tag>
                                 <el-tag v-if="row.status === 1" type="primary" effect="dark" size="small">生产中</el-tag>
-                                <el-tag v-if="row.status === 2" type="success" effect="dark" size="small">已完成</el-tag>
+                                <el-tag v-if="row.status === 2" type="success" effect="dark" size="small">生产完成</el-tag>
                                 <el-tag v-if="row.status === 3" type="info" effect="dark" size="small">已关闭</el-tag>
                             </template>
                         </el-table-column>
@@ -425,9 +425,7 @@ onBeforeMount(async () => {
         getstatisticsProductionQuality(currentDate[0], currentDate[1]),
         getWorkOrderDetail(currentDate[0], currentDate[1]),
         getWorkOrderList(1, 6)
-    ])
-
-    loading.value = false
+    ]).finally(() => loading.value = false)
 })
 
 /**

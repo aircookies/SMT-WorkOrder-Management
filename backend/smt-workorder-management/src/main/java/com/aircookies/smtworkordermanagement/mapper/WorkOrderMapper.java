@@ -64,9 +64,9 @@ public interface WorkOrderMapper {
     int updateWorkProcessReport(WorkProcessReport workProcessReport);
 
     /**
-     * 根据工单ID查询工序报工表
+     * 根据工单ID查询工序报工表（一个工单可有多条工序报告）
      */
-    WorkProcessReport findWorkProcessReport(Long orderId);
+    List<WorkProcessReport> findWorkProcessReport(Long orderId);
 
     /**
      * 根据工单ID和工序序号查询工序报工表

@@ -41,18 +41,33 @@ public class LogoutController {
      */
     @PostMapping
     public Result logout(HttpServletRequest request, HttpServletResponse response) {
-        // 从请求 Cookie 中提取 JWT 令牌
-        Cookie cookie = Arrays.stream(request.getCookies())
-                .filter(c -> "JWT_TOKEN".equals(c.getName()))
-                .findFirst()
-                .orElse(null);
+        String token = null;
 
-        if (cookie != null) {
-            // 在 Redis 中标记令牌失效
-            jwtTokenCacheService.invalidateToken(cookie.getValue());
-            // 清除客户端 Cookie
-            clearCookie(request, response);
+        // 方式一：从 Authorization 请求头中提取 Bearer 令牌（小程序端使用此方式）
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            token = authHeader.substring(7);
         }
+
+        // 方式二：从 Cookie 中提取 JWT_TOKEN（Web 端使用此方式）
+        if (token == null && request.getCookies() != null) {
+            Cookie cookie = Arrays.stream(request.getCookies())
+                    .filter(c -> "JWT_TOKEN".equals(c.getName()))
+                    .findFirst()
+                    .orElse(null);
+
+            if (cookie != null) {
+                token = cookie.getValue();
+                // 清除客户端 Cookie（仅 Web 端需要）
+                clearCookie(request, response);
+            }
+        }
+
+        // 在 Redis 中标记令牌失效
+        if (token != null && !token.isEmpty()) {
+            jwtTokenCacheService.invalidateToken(token);
+        }
+
         return Result.success("退出登录成功");
     }
 

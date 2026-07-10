@@ -52,7 +52,7 @@ const initChart = async () => {
         chartInstance.dispose()
     }
 
-    chartInstance = echarts.init(chartRef.value)
+    chartInstance = await echarts.init(chartRef.value)
     chartInstance.setOption(props.options, true)
 }
 

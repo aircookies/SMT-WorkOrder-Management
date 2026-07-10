@@ -75,6 +75,7 @@ services:
       REDIS_PASSWORD: ""
       JWT_SECRET: smt-workorder-management-secret-key-2026-aircookies-change-in-production
       JWT_EXPIRATION: "86400000"
+      RSA_KEY_FILE_PATH: /app/keys/
     expose:
       - 8080 # 暴露端口，用于反向代理，仅内部访问，不映射到宿主机
     # 覆盖 Dockerfile 的 ENTRYPOINT，使 JAVA_OPTS 环境变量生效
@@ -82,6 +83,7 @@ services:
     entrypoint: >
       sh -c "java $${JAVA_OPTS} -Duser.timezone=Asia/Shanghai -jar app.jar"
     volumes:
+      - ./keys:/app/keys
       - /usr/share/zoneinfo/Asia/Shanghai:/etc/localtime:ro
       # 挂载 RSA 密钥目录：将宿主机上的 keys 目录映射到容器内 /app/keys/
       # RSAUtil 默认从 ./keys/ 读取，WORKDIR 为 /app，所以路径为 /app/keys/

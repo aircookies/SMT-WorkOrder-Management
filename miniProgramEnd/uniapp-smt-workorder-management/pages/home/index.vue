@@ -1,0 +1,571 @@
+<template>
+  <view class="home-page">
+    <!-- 搜索栏 -->
+    <view class="search-bar">
+      <view class="search-input-wrapper">
+        <text class="search-icon">&#x1F50D;</text>
+        <input
+          class="search-input"
+          type="number"
+          v-model="searchId"
+          placeholder="输入工单号搜索"
+          placeholder-class="placeholder"
+          confirm-type="search"
+          @confirm="onSearch"
+        />
+        <view v-if="searchId" class="search-clear" @click="clearSearch">
+          <text>&#x2715;</text>
+        </view>
+      </view>
+      <button v-if="searchId" class="search-btn" @click="onSearch">搜索</button>
+    </view>
+
+    <!-- 顶部状态筛选 Tab -->
+    <view class="filter-bar">
+      <scroll-view scroll-x class="filter-scroll">
+        <view class="filter-tabs">
+          <view
+            v-for="tab in tabs"
+            :key="tab.value"
+            class="filter-tab"
+            :class="{ 'filter-tab-active': currentTab === tab.value }"
+            @click="switchTab(tab.value)"
+          >
+            <text>{{ tab.label }}</text>
+            <view v-if="currentTab === tab.value" class="filter-tab-indicator"></view>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+
+    <!-- 工单列表 -->
+    <view class="order-list">
+      <!-- 空状态 -->
+      <view v-if="!loading && orderList.length === 0" class="empty-state">
+        <text class="empty-icon">&#x1F4CB;</text>
+        <text class="empty-text">暂无工单数据</text>
+      </view>
+
+      <!-- 加载中占位 -->
+      <view v-if="loading && orderList.length === 0" class="loading-state">
+        <text class="loading-text">加载中...</text>
+      </view>
+
+      <!-- 工单卡片列表 -->
+      <view
+        v-for="order in orderList"
+        :key="order.id"
+        class="order-card"
+        @click="goDetail(order.id)"
+      >
+        <view class="order-card-header">
+          <text class="order-id">工单 #{{ order.id }}</text>
+          <view class="status-tag" :class="getStatusClass(order.status)">
+            <text>{{ getStatusName(order.status) }}</text>
+          </view>
+        </view>
+
+        <view class="order-card-body">
+          <view class="order-info-row">
+            <text class="info-label">产品</text>
+            <text class="info-value">{{ order.productName || '-' }}</text>
+          </view>
+          <view class="order-info-row">
+            <text class="info-label">产线</text>
+            <text class="info-value">{{ order.lineName || '-' }}</text>
+          </view>
+          <view class="order-info-row">
+            <text class="info-label">数量</text>
+            <text class="info-value info-value-highlight">{{ order.quantity }}</text>
+          </view>
+          <view class="order-info-row">
+            <text class="info-label">计划时间</text>
+            <text class="info-value">{{ order.planningTime || '-' }}</text>
+          </view>
+        </view>
+
+        <view class="order-card-footer">
+          <view class="priority-tag" :class="getPriorityClass(order.priority)">
+            <text>{{ getPriorityName(order.priority) }}</text>
+          </view>
+          <text class="order-time">{{ order.createTime }}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 分页控制栏 -->
+    <view v-if="total > 0" class="pagination-bar">
+      <view
+        class="pagination-btn"
+        :class="{ 'pagination-btn-disabled': pageNum <= 1 }"
+        @click="prevPage"
+      >
+        <text>上一页</text>
+      </view>
+      <view class="pagination-info">
+        <text class="pagination-current">{{ pageNum }}</text>
+        <text class="pagination-separator">/</text>
+        <text class="pagination-total">{{ totalPages }}</text>
+        <text class="pagination-count">共 {{ total }} 条</text>
+      </view>
+      <view
+        class="pagination-btn"
+        :class="{ 'pagination-btn-disabled': pageNum >= totalPages }"
+        @click="nextPage"
+      >
+        <text>下一页</text>
+      </view>
+    </view>
+  </view>
+</template>
+
+<script setup>
+import { ref, computed, onMounted } from 'vue'
+import { onPullDownRefresh } from '@dcloudio/uni-app'
+import { queryWorkOrders } from '../../api/workorder'
+import store from '../../store/index'
+
+// 筛选 Tab 配置
+const tabs = [
+  { label: '全部', value: -1 },
+  { label: '待生产', value: 0 },
+  { label: '生产中', value: 1 },
+  { label: '已完工', value: 2 },
+  { label: '已关闭', value: 3 }
+]
+
+const currentTab = ref(-1)
+const searchId = ref('')
+const orderList = ref([])
+const loading = ref(false)
+const pageNum = ref(1)
+const total = ref(0)
+const pageSize = 10
+
+// 总页数
+const totalPages = computed(() => Math.max(1, Math.ceil(total.value / pageSize)))
+
+// ========== 数据加载 ==========
+
+const fetchOrders = async () => {
+  if (loading.value) return
+
+  loading.value = true
+  try {
+    const conditions = {
+      pageNum: pageNum.value,
+      pageSize
+    }
+    // 按状态筛选
+    if (currentTab.value !== -1) {
+      conditions.status = currentTab.value
+    }
+    // 按工单号搜索
+    if (searchId.value.trim()) {
+      conditions.id = Number(searchId.value.trim())
+    }
+
+    const res = await queryWorkOrders(conditions)
+    const pageData = res.data
+
+    orderList.value = pageData.list || []
+    total.value = pageData.total || 0
+
+    // 翻页后回到顶部
+    uni.pageScrollTo({ scrollTop: 0, duration: 0 })
+  } catch (err) {
+    console.error('获取工单列表失败:', err)
+  } finally {
+    loading.value = false
+  }
+}
+
+// ========== 事件处理 ==========
+
+const switchTab = (value) => {
+  if (currentTab.value === value) return
+  currentTab.value = value
+  pageNum.value = 1
+  fetchOrders()
+}
+
+const onSearch = () => {
+  pageNum.value = 1
+  fetchOrders()
+}
+
+const clearSearch = () => {
+  searchId.value = ''
+  pageNum.value = 1
+  fetchOrders()
+}
+
+onPullDownRefresh(async () => {
+  pageNum.value = 1
+  await fetchOrders()
+  uni.stopPullDownRefresh()
+})
+
+const prevPage = () => {
+  if (pageNum.value <= 1 || loading.value) return
+  pageNum.value--
+  fetchOrders()
+}
+
+const nextPage = () => {
+  if (pageNum.value >= totalPages.value || loading.value) return
+  pageNum.value++
+  fetchOrders()
+}
+
+const goDetail = (id) => {
+  uni.navigateTo({ url: `/pages/detail/index?id=${id}` })
+}
+
+// ========== 工具函数 ==========
+
+const getStatusName = (status) => {
+  return store.state.statusMap[status] || '未知'
+}
+
+const getStatusClass = (status) => {
+  const map = {
+    0: 'status-pending',
+    1: 'status-producing',
+    2: 'status-completed',
+    3: 'status-closed'
+  }
+  return map[status] || 'status-default'
+}
+
+const getPriorityName = (priority) => {
+  return store.state.priorityMap[priority] || '-'
+}
+
+const getPriorityClass = (priority) => {
+  const map = {
+    0: 'priority-low',
+    1: 'priority-medium',
+    2: 'priority-high',
+    3: 'priority-urgent'
+  }
+  return map[priority] || 'priority-low'
+}
+
+// ========== 生命周期 ==========
+
+onMounted(() => {
+  fetchOrders()
+})
+</script>
+
+<style lang="scss" scoped>
+.home-page {
+  min-height: 100vh;
+  background-color: $bg-page;
+}
+
+/* 搜索栏 */
+.search-bar {
+  display: flex;
+  align-items: center;
+  padding: 16rpx 24rpx;
+  background-color: $bg-card;
+}
+
+.search-input-wrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  background-color: $bg-grey;
+  border-radius: $radius-round;
+  padding: 12rpx 24rpx;
+}
+
+.search-icon {
+  font-size: 28rpx;
+  margin-right: 12rpx;
+}
+
+.search-input {
+  flex: 1;
+  font-size: $font-md;
+  color: $text-primary;
+  height: 48rpx;
+}
+
+.search-clear {
+  padding: 8rpx;
+  font-size: $font-sm;
+  color: $text-secondary;
+}
+
+.search-btn {
+  margin-left: 16rpx;
+  padding: 0 28rpx;
+  height: 64rpx;
+  line-height: 64rpx;
+  font-size: $font-md;
+  color: #FFFFFF;
+  background-color: $primary-color;
+  border-radius: $radius-round;
+  border: none;
+  flex-shrink: 0;
+}
+
+.search-btn::after {
+  border: none;
+}
+
+/* 筛选栏 */
+.filter-bar {
+  background-color: $bg-card;
+  padding: 16rpx 0;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.filter-scroll {
+  white-space: nowrap;
+}
+
+.filter-tabs {
+  display: flex;
+  padding: 0 20rpx;
+}
+
+.filter-tab {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12rpx 28rpx;
+  font-size: $font-md;
+  color: $text-regular;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.filter-tab-active {
+  color: $primary-color;
+  font-weight: 600;
+}
+
+.filter-tab-indicator {
+  width: 40rpx;
+  height: 6rpx;
+  background-color: $primary-color;
+  border-radius: 3rpx;
+  margin-top: 8rpx;
+}
+
+/* 工单列表 */
+.order-list {
+  padding: 16rpx 24rpx;
+  padding-bottom: calc(120rpx + env(safe-area-inset-bottom));
+}
+
+.order-card {
+  background-color: $bg-card;
+  border-radius: $radius-lg;
+  padding: 28rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.04);
+}
+
+.order-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.order-id {
+  font-size: $font-lg;
+  font-weight: 600;
+  color: $text-primary;
+}
+
+/* 状态标签 */
+.status-tag {
+  padding: 4rpx 16rpx;
+  border-radius: $radius-round;
+  font-size: $font-xs;
+}
+
+.status-pending {
+  background-color: #FFF7E6;
+  color: #D48806;
+}
+
+.status-producing {
+  background-color: #E6F7FF;
+  color: #096DD9;
+}
+
+.status-completed {
+  background-color: #F6FFED;
+  color: #389E0D;
+}
+
+.status-closed {
+  background-color: #F5F5F5;
+  color: #8C8C8C;
+}
+
+/* 工单信息 */
+.order-card-body {
+  padding: 8rpx 0;
+}
+
+.order-info-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12rpx;
+}
+
+.info-label {
+  font-size: $font-sm;
+  color: $text-secondary;
+  width: 120rpx;
+  flex-shrink: 0;
+}
+
+.info-value {
+  font-size: $font-sm;
+  color: $text-primary;
+  flex: 1;
+}
+
+.info-value-highlight {
+  color: $primary-color;
+  font-weight: 600;
+}
+
+/* 卡片底部 */
+.order-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16rpx;
+  padding-top: 16rpx;
+  border-top: 1rpx solid $border-light;
+}
+
+.priority-tag {
+  padding: 4rpx 16rpx;
+  border-radius: $radius-sm;
+  font-size: $font-xs;
+}
+
+.priority-low {
+  background-color: #F5F5F5;
+  color: #8C8C8C;
+}
+
+.priority-medium {
+  background-color: #E6F7FF;
+  color: #096DD9;
+}
+
+.priority-high {
+  background-color: #FFF7E6;
+  color: #D48806;
+}
+
+.priority-urgent {
+  background-color: #FFF1F0;
+  color: #CF1322;
+}
+
+.order-time {
+  font-size: $font-xs;
+  color: $text-secondary;
+}
+
+/* 空状态 / 加载状态 */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 120rpx 0;
+}
+
+.empty-icon {
+  font-size: 80rpx;
+  margin-bottom: 24rpx;
+}
+
+.empty-text {
+  font-size: $font-md;
+  color: $text-secondary;
+}
+
+.loading-state {
+  text-align: center;
+  padding: 32rpx 0;
+}
+
+.loading-text {
+  font-size: $font-sm;
+  color: $text-secondary;
+}
+
+/* 分页控制栏 */
+.pagination-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16rpx 32rpx;
+  padding-bottom: calc(16rpx + env(safe-area-inset-bottom));
+  background-color: $bg-card;
+  box-shadow: 0 -2rpx 8rpx rgba(0, 0, 0, 0.04);
+  z-index: 20;
+}
+
+.pagination-btn {
+  padding: 12rpx 32rpx;
+  background-color: $primary-color;
+  border-radius: $radius-round;
+  font-size: $font-sm;
+  color: #FFFFFF;
+}
+
+.pagination-btn-disabled {
+  background-color: $bg-grey;
+  color: $text-secondary;
+}
+
+.pagination-info {
+  display: flex;
+  align-items: baseline;
+  font-size: $font-sm;
+  color: $text-regular;
+}
+
+.pagination-current {
+  font-weight: 600;
+  color: $primary-color;
+  font-size: $font-md;
+}
+
+.pagination-separator {
+  margin: 0 6rpx;
+  color: $text-secondary;
+}
+
+.pagination-total {
+  color: $text-regular;
+}
+
+.pagination-count {
+  margin-left: 16rpx;
+  font-size: $font-xs;
+  color: $text-secondary;
+}
+</style>

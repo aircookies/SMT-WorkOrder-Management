@@ -370,7 +370,7 @@ const addProduct = async () => {
             queryProduct()
         }
     }).finally(() => {
-        loadingBtn.value = true
+        loadingBtn.value = false
     })
 
 }

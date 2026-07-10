@@ -1,18 +1,19 @@
 package com.aircookies.smtworkordermanagement.service.impl;
 
-import com.aircookies.smtworkordermanagement.common.BusinessException;
-import com.aircookies.smtworkordermanagement.common.Result;
-import com.aircookies.smtworkordermanagement.entity.Line;
-import com.aircookies.smtworkordermanagement.mapper.LineMapper;
-import com.aircookies.smtworkordermanagement.service.LineService;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.aircookies.smtworkordermanagement.common.BusinessException;
+import com.aircookies.smtworkordermanagement.common.Result;
 import static com.aircookies.smtworkordermanagement.common.Result.success;
+import com.aircookies.smtworkordermanagement.entity.Line;
+import com.aircookies.smtworkordermanagement.mapper.LineMapper;
+import com.aircookies.smtworkordermanagement.service.LineService;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 产线服务实现类
@@ -76,8 +77,15 @@ public class LineServiceImpl implements LineService {
     public Result updateLine(Line line) {
         // 判断产线是否已存在
         if (line == null || lineMapper.findLineById(line.getId()) == null) {
-            log.info("尝试更新不存在存在的产线 {}，失败", line.getName());
+            log.info("尝试更新不存在存在的产线，失败");
             throw new BusinessException("该产线不存在");
+        }
+
+        // 判断产线名称是否重复
+        Line tempLine = lineMapper.findLineByName(line.getName());
+        if (tempLine != null && !tempLine.getId().equals(line.getId())) {
+            log.info("尝试更新产线名称{}已存在的产线，失败", line.getName());
+            throw new BusinessException("产线名称重复");
         }
 
         line.setUpdateTime(LocalDateTime.now());

@@ -10,7 +10,7 @@ export const formatDate = (date = new Date()) => {
 }
 
 /**
- * 格式化日期时间为 YYYY-MM-DD HH:mm:ss
+ * 格式化日期时间为 YYYY-MM-DDTHH:mm:ss
  */
 export const formatDateTime = (date = new Date()) => {
     const d = new Date(date)
@@ -18,7 +18,7 @@ export const formatDateTime = (date = new Date()) => {
     const hours = String(d.getHours()).padStart(2, '0')
     const minutes = String(d.getMinutes()).padStart(2, '0')
     const seconds = String(d.getSeconds()).padStart(2, '0')
-    return `${dateStr} ${hours}:${minutes}:${seconds}`
+    return `${dateStr}T${hours}:${minutes}:${seconds}`
 }
 
 /**

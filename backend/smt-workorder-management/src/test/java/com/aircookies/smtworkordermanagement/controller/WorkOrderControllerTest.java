@@ -2,6 +2,7 @@ package com.aircookies.smtworkordermanagement.controller;
 
 import com.aircookies.smtworkordermanagement.common.Result;
 import com.aircookies.smtworkordermanagement.dto.WorkOrderDetailedDTO;
+import com.aircookies.smtworkordermanagement.dto.WorkOrderDetailedDTO;
 import com.aircookies.smtworkordermanagement.entity.WorkOrder;
 import com.aircookies.smtworkordermanagement.entity.WorkProcessReport;
 import com.aircookies.smtworkordermanagement.service.WorkOrderService;
@@ -42,6 +43,7 @@ class WorkOrderControllerTest {
     private ObjectMapper objectMapper;
 
     private WorkOrder testWorkOrder;
+    private WorkOrderDetailedDTO testWorkOrderDetailedDTO;
     private WorkProcessReport testReport;
     private WorkOrderDetailedDTO testDTO;
 
@@ -58,6 +60,10 @@ class WorkOrderControllerTest {
         testWorkOrder.setQuantity(100);
         testWorkOrder.setStatus(0);
         testWorkOrder.setPriority(1);
+
+        testWorkOrderDetailedDTO = new WorkOrderDetailedDTO();
+        testWorkOrderDetailedDTO.setPageNum(1);
+        testWorkOrderDetailedDTO.setPageSize(10);
 
         testReport = new WorkProcessReport();
         testReport.setId(1L);
@@ -174,16 +180,19 @@ class WorkOrderControllerTest {
 
     @Test
     @DisplayName("条件查询工单 - POST方式")
+    @DisplayName("条件查询工单 - POST方式")
     void testQueryWorkOrder() throws Exception {
         Result expectedResult = Result.success(Collections.singletonList(testWorkOrder));
+        when(workOrderService.queryWorkOrder(any(WorkOrderDetailedDTO.class))).thenReturn(expectedResult);
         when(workOrderService.queryWorkOrder(any(WorkOrderDetailedDTO.class))).thenReturn(expectedResult);
 
         mockMvc.perform(post("/workorder/query")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(testDTO)))
+                        .content(objectMapper.writeValueAsString(testWorkOrderDetailedDTO)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200));
 
+        verify(workOrderService).queryWorkOrder(any(WorkOrderDetailedDTO.class));
         verify(workOrderService).queryWorkOrder(any(WorkOrderDetailedDTO.class));
     }
 

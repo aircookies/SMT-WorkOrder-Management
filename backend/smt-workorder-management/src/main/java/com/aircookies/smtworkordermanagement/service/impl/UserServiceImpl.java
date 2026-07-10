@@ -1,7 +1,15 @@
 package com.aircookies.smtworkordermanagement.service.impl;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
 import com.aircookies.smtworkordermanagement.common.BusinessException;
 import com.aircookies.smtworkordermanagement.common.Result;
+import static com.aircookies.smtworkordermanagement.common.Result.success;
 import com.aircookies.smtworkordermanagement.dto.PagesDTO;
 import com.aircookies.smtworkordermanagement.dto.QueryUserDTO;
 import com.aircookies.smtworkordermanagement.entity.SysUser;
@@ -9,16 +17,8 @@ import com.aircookies.smtworkordermanagement.mapper.SysUserMapper;
 import com.aircookies.smtworkordermanagement.service.UserService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
-import java.util.List;
-
-import static com.aircookies.smtworkordermanagement.common.Result.success;
 
 /**
  * 用户服务实现类
@@ -127,6 +127,12 @@ public class UserServiceImpl implements UserService {
         // 检查用户是否存在
         if (user == null || sysUserMapper.findById(user.getId()) == null) {
             throw new BusinessException("用户不存在");
+        }
+
+        // 检查用户名是否已存在
+        SysUser tempUser = sysUserMapper.findUserByUserName(user.getUsername());
+        if (tempUser != null && !tempUser.getId().equals(user.getId())) {
+            throw new BusinessException("用户名已存在");
         }
 
         // 加密用户密码

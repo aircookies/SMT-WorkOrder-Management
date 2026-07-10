@@ -130,7 +130,7 @@
                                 <el-tag v-if="workOrderInfo.status === 1" type="primary" effect="dark"
                                     size="small">生产中</el-tag>
                                 <el-tag v-if="workOrderInfo.status === 2" type="success" effect="dark"
-                                    size="small">已完成</el-tag>
+                                    size="small">生产完成</el-tag>
                                 <el-tag v-if="workOrderInfo.status === 3" type="info" effect="dark"
                                     size="small">已关闭</el-tag>
                             </el-descriptions-item>

@@ -4,6 +4,7 @@ import com.aircookies.smtworkordermanagement.common.BusinessException;
 import com.aircookies.smtworkordermanagement.common.Result;
 import com.aircookies.smtworkordermanagement.dto.PagesDTO;
 import com.aircookies.smtworkordermanagement.dto.WorkOrderDetailedDTO;
+import com.aircookies.smtworkordermanagement.dto.WorkOrderDetailedDTO;
 import com.aircookies.smtworkordermanagement.entity.WorkOrder;
 import com.aircookies.smtworkordermanagement.entity.WorkProcessReport;
 import com.aircookies.smtworkordermanagement.mapper.WorkOrderMapper;
@@ -13,6 +14,7 @@ import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
@@ -51,6 +53,10 @@ public class WorkOrderServiceImpl implements WorkOrderService {
      */
     @Override
     public Result addWorkOrder(WorkOrder workOrder) {
+        if (workOrder.getCreatorId() == null) {
+            throw new BusinessException("创建人ID不能为空");
+        }
+
         workOrder.setCreateTime(LocalDateTime.now());
         workOrder.setUpdateTime(LocalDateTime.now());
         int res = workOrderMapper.addWorkOrder(workOrder);
@@ -116,7 +122,10 @@ public class WorkOrderServiceImpl implements WorkOrderService {
      */
     @Override
     public Result queryWorkOrder(WorkOrderDetailedDTO workOrderDetailedDTO) {
+    public Result queryWorkOrder(WorkOrderDetailedDTO workOrderDetailedDTO) {
         // 开启分页
+        PageHelper.startPage(workOrderDetailedDTO.getPageNum(), workOrderDetailedDTO.getPageSize());
+        List<WorkOrder> workOrders = workOrderMapper.queryWorkOrder(workOrderDetailedDTO);
         PageHelper.startPage(workOrderDetailedDTO.getPageNum(), workOrderDetailedDTO.getPageSize());
         List<WorkOrder> workOrders = workOrderMapper.queryWorkOrder(workOrderDetailedDTO);
         // 获取分页结果
@@ -137,11 +146,19 @@ public class WorkOrderServiceImpl implements WorkOrderService {
      */
     @Override
     @Transactional
+    @Transactional
     public Result addWorkProcessReport(WorkProcessReport workProcessReport) {
         // 先检查是否该工单是否存在该工序报工记录
         int existRecord = workOrderMapper.findByIdAndSeq(workProcessReport.getOrderId(), workProcessReport.getProcessSeq());
         if (existRecord != 0) {
             throw new BusinessException("请勿重复报工");
+        }
+
+        // 如果是最后一道工序，更新工单状态为已完成
+        if (workProcessReport.getProcessSeq() == 3) {
+            WorkOrder temp = workOrderMapper.findWorkOrderById(workProcessReport.getOrderId());
+            temp.setStatus(2);
+            workOrderMapper.updateWorkOrder(temp);
         }
 
         workProcessReport.setCreateTime(LocalDateTime.now());
@@ -191,7 +208,7 @@ public class WorkOrderServiceImpl implements WorkOrderService {
     @Override
     public Result updateWorkProcessReport(WorkProcessReport workProcessReport) {
         // 检查工序报工表是否存在
-        if (workProcessReport == null || workOrderMapper.findWorkProcessReport(workProcessReport.getId()) == null) {
+        if (workProcessReport == null || workOrderMapper.findWorkProcessReport(workProcessReport.getId()).isEmpty()) {
             throw new BusinessException("工序报工表不存在");
         }
 
@@ -210,14 +227,14 @@ public class WorkOrderServiceImpl implements WorkOrderService {
      */
     @Override
     public Result findWorkProcessReport(Long orderId) {
-        WorkProcessReport workProcessReport = workOrderMapper.findWorkProcessReport(orderId);
-        if (workProcessReport == null) {
-            log.warn("查询工序报工表失败，工单ID：{}", orderId);
-            throw new BusinessException("查询数据失败");
-        }
-        return Result.success(workProcessReport);
+        List<WorkProcessReport> reports = workOrderMapper.findWorkProcessReport(orderId);
+        // 空列表表示该工单暂无报工记录，属于正常业务状态
+        return Result.success(reports);
     }
 
+    /**
+     * 分页查询所有工序报工表
+     */
     @Override
     public Result findWorkProcessReportAll(int pageNum, int pageSize) {
         // 开启分页
@@ -234,11 +251,17 @@ public class WorkOrderServiceImpl implements WorkOrderService {
         );
     }
 
+    /**
+     * 工单详细统计
+     */
     @Override
     public Result workOrderDetailed(LocalDate startTime, LocalDate endTime) {
         return Result.success(workOrderMapper.workOrderDetailed(startTime, endTime));
     }
 
+    /**
+     * 统计每条产线在指定日期范围内的计划数量和完成数量
+     */
     @Override
     public Result statisticsProductionQuality(LocalDate startTime, LocalDate endTime) {
         return Result.success(workOrderMapper.statisticsProductionQuality(startTime, endTime));

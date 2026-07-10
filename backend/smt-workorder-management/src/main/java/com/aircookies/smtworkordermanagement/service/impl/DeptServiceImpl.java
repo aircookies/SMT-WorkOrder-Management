@@ -68,6 +68,12 @@ public class DeptServiceImpl implements DeptService {
             throw new BusinessException("部门不存在");
         }
 
+        // 检查部门名称是否已存在
+        Dept tempDept = deptMapper.findDeptByName(dept.getName());
+        if (tempDept != null && !tempDept.getId().equals(dept.getId())) {
+            throw new BusinessException("该部门已存在");
+        }
+
         dept.setUpdateTime(LocalDateTime.now());
         int res = deptMapper.updateDept(dept);
         if (res != 0) {

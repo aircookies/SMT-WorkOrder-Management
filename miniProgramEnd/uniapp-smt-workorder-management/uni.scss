@@ -1,0 +1,48 @@
+/* 全局 SCSS 变量 */
+
+/* 主题色 */
+$primary-color: #4A90D9;
+$primary-light: #6BA5E3;
+$primary-dark: #3A7BC8;
+
+/* 状态色 */
+$success-color: #52C41A;
+$warning-color: #FAAD14;
+$danger-color: #FF4D4F;
+$info-color: #1890FF;
+
+/* 文字色 */
+$text-primary: #333333;
+$text-regular: #666666;
+$text-secondary: #999999;
+$text-placeholder: #CCCCCC;
+
+/* 背景色 */
+$bg-page: #F5F6FA;
+$bg-card: #FFFFFF;
+$bg-grey: #F7F8FA;
+
+/* 边框色 */
+$border-color: #EEEEEE;
+$border-light: #F5F5F5;
+
+/* 间距 */
+$spacing-xs: 8rpx;
+$spacing-sm: 16rpx;
+$spacing-md: 24rpx;
+$spacing-lg: 32rpx;
+$spacing-xl: 48rpx;
+
+/* 圆角 */
+$radius-sm: 8rpx;
+$radius-md: 12rpx;
+$radius-lg: 16rpx;
+$radius-round: 999rpx;
+
+/* 字号 */
+$font-xs: 22rpx;
+$font-sm: 24rpx;
+$font-md: 28rpx;
+$font-lg: 32rpx;
+$font-xl: 36rpx;
+$font-xxl: 44rpx;

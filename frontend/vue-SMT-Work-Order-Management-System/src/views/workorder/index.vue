@@ -46,7 +46,8 @@
                         </el-select>
                     </el-form-item>
                     <el-form-item label="创建日期">
-                        <el-date-picker v-model="queryFormModel.createTime" type="date" placeholder="请选择日期" />
+                        <el-date-picker v-model="queryFormModel.createTime" type="date" format="YYYY-MM-DD"
+                            value-format="YYYY-MM-DD" style="width: 180px;" />
                     </el-form-item>
                     <el-form-item>
                         <el-button type="primary" @click="queryWorkOrder" :loading="btnLoading"><el-icon
@@ -112,7 +113,7 @@
                         <template #default="scope">
                             <el-tag v-if="scope.row.status === 0" type="warning" effect="dark">待生产</el-tag>
                             <el-tag v-if="scope.row.status === 1" type="primary" effect="dark">生产中</el-tag>
-                            <el-tag v-if="scope.row.status === 2" type="success" effect="dark">已完成</el-tag>
+                            <el-tag v-if="scope.row.status === 2" type="success" effect="dark">生产完成</el-tag>
                             <el-tag v-if="scope.row.status === 3" type="info" effect="dark">已关闭</el-tag>
                         </template>
                     </el-table-column>
@@ -229,6 +230,7 @@ import {
 import { getLineListApi } from '@/api/line';
 import { getProductListApi } from '@/api/product';
 import { isEmpty } from 'element-plus/es/utils/types.mjs';
+import { formatDateTime } from '@/utils/date';
 
 defineOptions({
     name: 'WorkOrderManagement'
@@ -242,11 +244,6 @@ const productList = ref([])
 
 // 表格数据
 const tableData = ref([])
-
-// 分页相关
-// const pageNum = ref(1)
-// const pageSize = ref(10)
-const total = ref(0)
 
 // 控制加载动画
 const loading = ref(false)
@@ -266,6 +263,13 @@ const selectedRows = ref([])
 // 从本地存储中获取用户信息
 const userId = ref(localStorage.getItem('userId'))
 
+// 总记录数
+const total = ref(0)
+// 当前页码
+const pageNum = ref(1)
+// 每页显示的记录数
+const pageSize = ref(10)
+
 // 工单数据模型
 const workOrderDTO = ref({
     id: '', // 工单ID
@@ -278,17 +282,17 @@ const workOrderDTO = ref({
     remarks: '',    // 工单备注
     creatorId: userId,  // // 工单创建人ID
     createTime: '', // 工单创建时间
-    updateTime: ''  // 工单更新时间
+    updateTime: '',  // 工单更新时间
 })
 
 // 查询表单数据模型
 const queryFormModel = ref({
-    pageNum: 1, // 当前页码
-    pageSize: 10, // 每页显示的记录数
+    pageNum: pageNum.value,
+    pageSize: pageSize.value,
     id: '', // 工单ID/工单号
     status: '', // 工单状态(0:待生产, 1:生产中, 2:生产完成, 3:已关闭)
     priority: '',   // 优先级(0:低, 1:中, 2:高, 3:紧急)
-    createTime: '', // 工单创建时间
+    createTime: '', // 工单创建日期
 })
 
 // 表单验证规则
@@ -319,12 +323,12 @@ const formRef = ref(null)
 // 清空查询表单
 const clearQueryForm = () => {
     queryFormModel.value = {
-        pageNum: 1, // 当前页码
-        pageSize: 10, // 每页显示的记录数
+        pageNum: pageNum.value,
+        pageSize: pageSize.value,
         id: '', // 工单ID/工单号
         status: '', // 工单状态(0:待生产, 1:生产中, 2:生产完成, 3:已关闭)
         priority: '',   // 优先级(0:低, 1:中, 2:高, 3:紧急)
-        createTime: '', // 工单创建时间
+        createTime: '', // 工单创建日期
     }
     queryWorkOrder()
 }
@@ -333,14 +337,17 @@ const clearQueryForm = () => {
 // 重置表单
 const resetForm = () => {
     workOrderDTO.value = {
-        productId: '',
-        lineId: '',
-        priority: '',
-        quantity: 1,
-        planningTime: '',
-        status: 0,
-        remarks: '',
-        creatorId: userId  // 工单创建人ID
+        id: '', // 工单ID
+        productId: '',  // 产品ID
+        lineId: '', // 产线ID
+        priority: '',   // 优先级
+        quantity: '1',   // 计划生产数量
+        planningTime: '',   // 工单完成时间
+        status: '', // 工单状态(0:待生产, 1:生产中, 2:生产完成, 3:已关闭)
+        remarks: '',    // 工单备注
+        creatorId: userId.value,  // // 工单创建人ID
+        createTime: '', // 工单创建时间
+        updateTime: '',  // 工单更新时间
     }
     if (formRef.value) {
         formRef.value.clearValidate()
@@ -429,18 +436,27 @@ const handleEdit = async (row) => {
 const queryWorkOrder = async () => {
     loading.value = true
     btnLoading.value = true
-    await queryWorkOrderApi(queryFormModel.value).then(res => {
-            if (res.code === 200) {
-                tableData.value = res.data.list
-                queryFormModel.value.pageNum = res.data.pageNum
-                queryFormModel.value.pageSize = res.data.pageSize
-                total.value = res.data.total
-                console.log(res.data)
-            }
-        }).finally(() => {
-            loading.value = false
-            btnLoading.value = false
-        })
+
+    queryFormModel.value.pageNum = pageNum.value
+    queryFormModel.value.pageSize = pageSize.value
+
+    // 格式化查询时间
+    if (queryFormModel.value.createTime) {
+        queryFormModel.value.createTime = formatDateTime(queryFormModel.value.createTime)
+    }
+
+    await queryWorkOrderApi(queryFormModel.value).then((res) => {
+        if (res.code === 200) {
+            console.log(res.data)
+            tableData.value = res.data.list
+            total.value = res.data.total
+            pageNum.value = res.data.pageNum
+            pageSize.value = res.data.pageSize
+        }
+    }).finally(() => {
+        loading.value = false
+        btnLoading.value = false
+    })
 }
 
 // 删除工单
