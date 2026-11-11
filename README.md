@@ -202,6 +202,8 @@ docker compose logs -f backend
 - **前端页面**：`http://localhost`
 - **后端 API**：通过 Nginx 代理 `http://localhost/api/*`
 
+> **RSA 密钥持久化说明**：`docker-compose.yml` 已将宿主机 `./keys/` 目录挂载到容器内 `/app/keys/`。如果手动生成了密钥对，后端启动时会直接加载；如果没有手动生成，后端会在首次启动时自动生成并保存到挂载的目录中，后续重启不会重新生成。
+
 > **注意**：首次部署使用 HTTP 模式。如需启用 HTTPS，请先完成下方 [HTTPS 配置](#https-配置生产环境)，然后切换到 HTTPS 配置：
 > ```bash
 > sudo cp nginx/conf.d/default.conf /data/nginx/conf/default.conf
@@ -212,15 +214,13 @@ docker compose logs -f backend
 
 项目已内置 HTTPS 完整支持，使用 Let's Encrypt 免费证书 + Certbot 自动续期。
 
-> **重要提示**：证书签发过程中有几个常见坑点，请严格按照以下步骤操作，不要跳步。
-
 #### 第一步：创建证书存储目录
 
 ```bash
 sudo mkdir -p /data/nginx/certs /data/nginx/certbot
 ```
 
-#### 第二步：停止 Nginx（关键！）
+#### 第二步：停止 Nginx
 
 Certbot standalone 模式需要占用 80 端口启动临时验证服务器，Nginx 必须先停掉：
 
@@ -243,9 +243,9 @@ sudo docker run --rm \
   --agree-tos --non-interactive
 ```
 
-#### 第四步：修复证书目录权限（关键！）
+#### 第四步：设置目录权限
 
-Let's Encrypt 生成的证书目录默认权限为 `700`（仅 root 可访问），Nginx 容器内的 `nginx` 用户无法读取，必须手动修复：
+Let's Encrypt 生成的证书目录默认权限为 `700`（仅 root 可访问），可能导致Nginx 容器内的 `nginx` 用户无法读取证书文件。
 
 ```bash
 sudo chmod 755 /data/nginx/certs
@@ -487,27 +487,6 @@ docker compose down
 # 停止并删除数据卷（⚠️ 会清空数据库）
 docker compose down -v
 ```
-
-## 部署到云服务器
-
-```bash
-# 1. 上传项目到服务器
-scp -r smt-workorder-management/ user@your-server:/opt/
-
-# 2. 生成 RSA 密钥对（可选，不生成则首次启动时自动生成）
-cd /opt/smt-workorder-management
-mkdir -p keys
-openssl genpkey -algorithm RSA -out keys/private.key -pkeyopt rsa_keygen_bits:2048
-openssl rsa -pubout -in keys/private.key -out keys/public.key
-
-# 3. 创建数据目录并启动
-sudo mkdir -p /data/mysql /data/redis /data/nginx/{html,conf,logs}
-sudo cp -r frontend/vue-SMT-Work-Order-Management-System/dist/* /data/nginx/html/
-sudo cp nginx/conf.d/default.conf /data/nginx/conf/default.conf
-docker compose up -d
-```
-
-> **RSA 密钥持久化说明**：`docker-compose.yml` 已将宿主机 `./keys/` 目录挂载到容器内 `/app/keys/`。如果手动生成了密钥对，后端启动时会直接加载；如果没有手动生成，后端会在首次启动时自动生成并保存到挂载的目录中，后续重启不会重新生成。
 
 ## 安全建议
 
