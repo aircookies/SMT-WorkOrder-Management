@@ -1,6 +1,6 @@
 # SMT 工单管理系统
 
-基于 Spring Boot + Vue 3 的 SMT（表面贴装技术）工单管理系统，是我的软件工程项目式教学大作业。系统包含 Web 管理端和微信小程序端（车间报工端），支持工单全生命周期管理、工序报工、产量质量统计等功能。
+基于 Spring Boot + Vue 3 的 SMT（表面贴装技术）工单管理系统，系统包含 Web 管理端和微信小程序端（车间报工端），支持工单全生命周期管理、工序报工、产量质量统计等功能。
 
 ## 技术栈
 
@@ -54,59 +54,102 @@
 
 ```
 smt-workorder-management/
+├── .gitattributes                   # Git 属性配置（换行符等）
+├── .gitignore                       # Git 忽略规则
+├── API-Documentation.md             # 接口文档（独立维护）
+├── README.md
+├── docker-compose.yml               # 容器编排配置文件
+├── docker-compose.local.yml         # 本地开发覆盖配置（暴露 MySQL/Redis 端口）
 ├── backend/                         # 后端 Spring Boot 项目
 │   └── smt-workorder-management/
+│       ├── .mvn/wrapper/            # Maven Wrapper 配置
+│       ├── mvnw / mvnw.cmd          # Maven Wrapper 脚本（无需全局安装 Maven）
 │       ├── Dockerfile               # 构建后端容器镜像指令文件
 │       ├── pom.xml
 │       └── src/
-│           ├── main/java/.../
-│           │   ├── common/          # 通用类（异常、统一返回）
-│           │   ├── config/          # Spring Security、Redis 等配置
-│           │   ├── controller/      # REST 控制器
-│           │   ├── dto/             # 数据传输对象
-│           │   ├── entity/          # 实体类
-│           │   ├── mapper/          # MyBatis Mapper
-│           │   ├── service/         # 业务逻辑层
-│           │   └── util/            # 工具类（JWT、RSA）
-│           └── main/resources/
-│               ├── mapper/          # MyBatis XML
-│               └── application.yml  # 应用配置
+│           ├── main/java/com/aircookies/smtworkordermanagement/
+│           │   ├── common/          # 通用类（BusinessException、Result、CacheConstants、GlobalExceptionHandler）
+│           │   ├── config/          # 配置类（SpringSecurity、Redis、Cache、Cors、JwtAuthenticationFilter）
+│           │   ├── controller/      # REST 控制器（Login、Logout、MiniProgramLogin、PublicKey、Dept、Line、Product、User、SysRole、WorkOrder）
+│           │   ├── dto/             # 数据传输对象（LoginDTO、LoginResponseDTO、PagesDTO、QueryProductDTO、QueryUserDTO、WorkOrderDetailedDTO 等）
+│           │   ├── entity/          # 实体类（Dept、Line、Product、SysUser、SysRole、WorkOrder、WorkProcessReport）
+│           │   ├── mapper/          # MyBatis Mapper 接口
+│           │   ├── service/         # 业务逻辑接口
+│           │   │   └── impl/        # 业务逻辑实现（含 CustomUserDetailsServiceImpl、JwtTokenCacheService）
+│           │   └── util/            # 工具类（JWTUtil、RSAUtil、RedisUtil）
+│           ├── main/resources/
+│           │   ├── mapper/          # MyBatis XML 映射文件
+│           │   ├── application.yml  # 应用配置（支持环境变量覆盖）
+│           │   └── logback.xml      # 日志配置
+│           └── test/java/.../       # 单元测试
+│               ├── controller/      # 控制器测试（8 个 Test 类）
+│               ├── service/         # Service 层测试（7 个 Test 类）
+│               └── util/            # 工具类测试（JWTUtil、RSAUtil、RedisUtil）
 ├── frontend/                        # 前端 Vue 3 项目
 │   └── vue-SMT-Work-Order-Management-System/
+│       ├── index.html               # SPA 入口 HTML
 │       ├── package.json
-│       └── dist/                    # 构建产物（部署用）
+│       ├── vite.config.js           # Vite 构建配置（含 /api 代理）
+│       ├── eslint.config.js         # ESLint 配置
+│       ├── jsconfig.json            # 路径别名配置
+│       ├── stats.html               # 构建产物体积分析（rollup-plugin-visualizer）
+│       ├── public/
+│       │   └── favicon.ico
+│       ├── dist/                    # 构建产物（部署用）
+│       └── src/
+│           ├── main.js              # Vue 3 入口
+│           ├── App.vue              # 根组件
+│           ├── api/                 # 接口封装（login、workorder、product、line、report、datalist、departmentManagement、userManagement、role）
+│           ├── assets/image/        # 静态图片（LOGO、登录背景）
+│           ├── components/          # 公共组件（BaseChart.vue）
+│           ├── router/              # Vue Router 路由配置
+│           ├── utils/               # 工具函数（request.js Axios 封装、RSAUtil.js、chartConfig.js、date.js）
+│           └── views/               # 页面视图
+│               ├── login/           # 登录页
+│               ├── layout/          # 后台布局框架（侧边栏 + 顶栏 + 内容区）
+│               ├── home/            # 首页仪表盘
+│               ├── workorder/       # 工单管理
+│               ├── line/            # 产线管理
+│               ├── product/         # 产品管理
+│               ├── report/          # 统计报表（产量/质量/产线效率）
+│               ├── datalist/        # 数据列表
+│               └── system/          # 系统管理
+│                   ├── department_management/  # 部门管理
+│                   ├── user_management/        # 用户管理
+│                   └── role_management/        # 角色管理
 ├── miniProgramEnd/                  # 微信小程序端（UniApp Vue 3）
 │   └── uniapp-smt-workorder-management/
-│       ├── api/                     # 接口封装（login、workorder、process）
+│       ├── .gitignore
+│       ├── index.html               # H5 模式入口（UniApp 生成）
+│       ├── api/                     # 接口封装（login.js、workorder.js、process.js）
 │       ├── pages/                   # 页面
 │       │   ├── home/                # 工单列表首页（TabBar）
 │       │   ├── mine/                # 我的（TabBar）
 │       │   ├── login/               # 登录页
 │       │   ├── detail/              # 工单详情页
 │       │   └── report/              # 工序报工页
-│       ├── static/                  # 静态资源（TabBar 图标等）
+│       ├── static/                  # 静态资源（TabBar 图标、logo）
 │       ├── store/                   # 全局状态管理（Vue 3 reactive）
 │       ├── utils/                   # 工具函数
 │       │   ├── auth.js              # Token/用户信息本地存储
 │       │   ├── config.example.js    # 配置模板（提交到 Git）
-│       │   ├── config.js            # 本地配置（gitignored）
-│       │   └── request.js           # 网络请求封装（uni.request）
+│       │   ├── config.js            # 本地配置（gitignored，含 BASE_URL）
+│       │   └── request.js           # 网络请求封装（uni.request + JWT Header）
 │       ├── App.vue                  # 应用入口（路由守卫）
 │       ├── main.js                  # Vue 3 入口
-│       ├── manifest.json            # UniApp 应用配置
+│       ├── manifest.json            # UniApp 应用配置（appid 等）
 │       ├── pages.json               # 页面路由与 TabBar 配置
-│       └── uni.scss                 # 全局样式变量
+│       ├── uni.scss                 # 全局样式变量
+│       └── uni.promisify.adaptor.js # UniApp Promise 化适配器
 ├── mysql/
 │   ├── conf.d/charset.cnf          # MySQL 字符集配置
 │   └── init/
 │       ├── 01-schema.sql            # 建表脚本
 │       └── 02-data.sql              # 初始数据
-├── nginx/
-│   └── conf.d/
-│       ├── default.conf          # Nginx HTTPS 配置（获取证书后使用）
-│       └── default-http.conf     # Nginx HTTP 配置（首次部署用）
-├── docker-compose.yml               # 容器编排配置文件
-├── docker-compose.local.yml         # 本地开发覆盖配置（暴露 MySQL/Redis 端口）
+└── nginx/
+    └── conf.d/
+        ├── default.conf             # Nginx HTTPS 配置（获取证书后使用）
+        └── default-http.conf        # Nginx HTTP 配置（首次部署用）
 ```
 
 ## 快速开始
