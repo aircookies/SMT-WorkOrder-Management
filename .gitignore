@@ -40,4 +40,7 @@ backup.sql
 *.env
 !*.env.example
 .marscode/
+
+# ==================== 构建产物 ====================
 **/dist/
+**/stats.html
