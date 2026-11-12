@@ -1,5 +1,0 @@
-<<<<<<<< HEAD:frontend/vue-SMT-Work-Order-Management-System/dist/assets/product-DlQw99Ii.js
-import{r as e}from"./index-D7jo6svv.js";const t=(t,d)=>e.get("/product/findAll?pageNum="+t+"&pageSize="+d),d=t=>e.get("/product/find/"+t),a=t=>e.post("/product/query",t),p=t=>e.post("/product/add",t),o=t=>e.put("/product/update",t),r=t=>e.delete("/product/deleteBatch",{data:t}),s=t=>e.delete("/product/delete/"+t);export{d as a,r as b,p as c,s as d,o as e,t as g,a as q};
-========
-import{r as e}from"./index-B01ossp2.js";const t=(t,d)=>e.get("/product/findAll?pageNum="+t+"&pageSize="+d),d=t=>e.get("/product/find/"+t),a=t=>e.post("/product/query",t),p=t=>e.post("/product/add",t),o=t=>e.put("/product/update",t),r=t=>e.delete("/product/deleteBatch",{data:t}),s=t=>e.delete("/product/delete/"+t);export{d as a,r as b,p as c,s as d,o as e,t as g,a as q};
->>>>>>>> main:frontend/vue-SMT-Work-Order-Management-System/dist/assets/product-CBSHRqbF.js

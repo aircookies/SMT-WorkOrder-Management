@@ -49,10 +49,6 @@
                         </el-button>
                     </el-form-item>
                 </el-form>
-
-                <div class="login-footer">
-                    <p>2026信息工程学院项目式教学作业: SMT工单管理系统</p>
-                </div>
             </el-card>
         </el-card>
     </div>
