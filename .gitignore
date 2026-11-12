@@ -40,3 +40,5 @@ backup.sql
 *.env
 !*.env.example
 .marscode/
+
+frontend\vue-SMT-Work-Order-Management-System\dist\
